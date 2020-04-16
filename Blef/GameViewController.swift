@@ -3,7 +3,6 @@
 //  Blef
 //
 //  Created by Adrian Golian on 15.04.20.
-//  Copyright © 2020 Blef. All rights reserved.
 //
 
 import UIKit
@@ -16,8 +15,8 @@ class GameViewController: UIViewController {
         super.viewDidLoad()
         
         if let view = self.view as! SKView? {
-            // Load the SKScene from 'GameScene.sks'
-            if let scene = SKScene(fileNamed: "GameScene") {
+            // Load the SKScene from 'StartScene.sks'
+            if let scene = StartScene(fileNamed: "StartScene") {
                 // Set the scale mode to scale to fit the window
                 scene.scaleMode = .aspectFill
                 
