@@ -3,7 +3,6 @@
 //  Blef
 //
 //  Created by Adrian Golian on 15.04.20.
-//  Copyright © 2020 Blef. All rights reserved.
 //
 
 import UIKit
