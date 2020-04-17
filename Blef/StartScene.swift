@@ -3,13 +3,36 @@
 //  Blef
 //
 //  Created by Adrian Golian on 15.04.20.
+//  Copyright © 2020 Blef Team.
 //
 
 import SpriteKit
 import GameplayKit
 
-class StartScene: SKScene {
+var errorMessageLabel: SKLabelNode!
 
+class StartScene: SKScene, GameManagerDelegate {
+    
+    var gameManager = GameManager()
+    var newGameLabel: SKNode?
+    
+    override func didMove(to view: SKView) {
+        
+        self.gameManager.delegate = self
+        
+        self.newGameLabel = childNode(withName: "//newGameLabel")
+        
+        errorMessageLabel = SKLabelNode(fontNamed:"Chalkduster")
+        errorMessageLabel.text = ""
+        errorMessageLabel.fontSize = 12
+        errorMessageLabel.position = CGPoint(x:self.frame.midX, y:self.frame.midY-50)
+
+        self.addChild(errorMessageLabel)
+    }
+    
+    /**
+    
+    */
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let touch = touches.first {
             let location = touch.location(in: self)
@@ -17,13 +40,46 @@ class StartScene: SKScene {
 
             for node in nodesarray {
                 if node.name == "newGameButton" {
-                let gameScene = GameScene(fileNamed: "GameScene")
-                    let transition = SKTransition.fade(withDuration: 1.0)
-                gameScene?.scaleMode = .aspectFill
-                scene?.view?.presentScene(gameScene!, transition: transition)
+                    pulseLabel()
+                    errorMessageLabel.text = ""
+                    print("Going to attempt an API call")
+                    gameManager.createGame(nickname: "test123")
+                    print("Made API call")
                 }
 
             }
         }
     }
+    
+    /**
+     Display a visual effect on tap of the New game label
+     */
+    func pulseLabel () {
+        if let newGameLabel = self.newGameLabel {
+            print(newGameLabel)
+            let pulseSequence = SKAction.sequence([
+                SKAction.fadeAlpha(by: -0.7, duration: 0.1),
+                SKAction.fadeAlpha(by: 0.7, duration: 0.2)
+             ])
+            newGameLabel.run(pulseSequence)
+        }
+    }
+    
+    func didCreateNewGame(_ newGame: NewGame) {
+        print(newGame)
+        let gameScene = GameScene(fileNamed: "GameScene")
+            let transition = SKTransition.fade(withDuration: 1.0)
+        gameScene?.scaleMode = .aspectFill
+        gameScene?.gameUuid = newGame.game_uuid
+        scene?.view?.presentScene(gameScene!, transition: transition)
+    }
+    
+    func didFailWithError(error: Error) {
+        print("didFailWithError")
+        print(error.localizedDescription)
+        errorMessageLabel.removeFromParent()
+        errorMessageLabel.text = "Something went wrong. Try again."
+        self.addChild(errorMessageLabel)
+    }
+
 }
