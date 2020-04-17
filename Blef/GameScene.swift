@@ -3,6 +3,7 @@
 //  Blef
 //
 //  Created by Adrian Golian on 15.04.20.
+//  Copyright © 2020 Blef Team.
 //
 
 import SpriteKit
@@ -10,6 +11,7 @@ import GameplayKit
 
 class GameScene: SKScene {
     
+    var gameUuid: String?
     private var label : SKLabelNode?
     private var spinnyNode : SKShapeNode?
     
@@ -18,6 +20,7 @@ class GameScene: SKScene {
         // Get label node from scene and store it for use later
         self.label = self.childNode(withName: "//helloLabel") as? SKLabelNode
         if let label = self.label {
+            label.text = gameUuid
             label.alpha = 0.0
             label.run(SKAction.fadeIn(withDuration: 2.0))
         }

@@ -3,10 +3,13 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		472E2081244979C2005915A0 /* GameManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 472E2080244979C2005915A0 /* GameManager.swift */; };
+		47625DD7244A38CC0041E62D /* NewGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47625DD6244A38CC0041E62D /* NewGame.swift */; };
+		47625DD9244A44FF0041E62D /* ErrorResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47625DD8244A44FF0041E62D /* ErrorResponse.swift */; };
 		479E2A0B244744EC004BF702 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479E2A0A244744EC004BF702 /* AppDelegate.swift */; };
 		479E2A0D244744EC004BF702 /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 479E2A0C244744EC004BF702 /* GameScene.sks */; };
 		479E2A0F244744EC004BF702 /* Actions.sks in Resources */ = {isa = PBXBuildFile; fileRef = 479E2A0E244744EC004BF702 /* Actions.sks */; };
@@ -19,6 +22,9 @@
 		479E2A31244744EF004BF702 /* BlefUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479E2A30244744EF004BF702 /* BlefUITests.swift */; };
 		47F2E91C2448BF37006DCB5C /* StartScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 47F2E91B2448BF37006DCB5C /* StartScene.sks */; };
 		47F2E91E2448C268006DCB5C /* StartScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47F2E91D2448C268006DCB5C /* StartScene.swift */; };
+		909A6366A928BC14D3C3C5F8 /* Pods_BlefTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93007D374784C41898C88ECB /* Pods_BlefTests.framework */; };
+		91E9E67A224F2B2D6A23750A /* Pods_Blef.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C305136BB8A7BA49A2A03F63 /* Pods_Blef.framework */; };
+		C603CC85BD46A2B62BAEEDE4 /* Pods_Blef_BlefUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C42C22E5B2ABD040557AAA63 /* Pods_Blef_BlefUITests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -39,6 +45,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		222ABF8AD9CD78513D75CE1E /* Pods-Blef.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Blef.release.xcconfig"; path = "Target Support Files/Pods-Blef/Pods-Blef.release.xcconfig"; sourceTree = "<group>"; };
+		472E2080244979C2005915A0 /* GameManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameManager.swift; sourceTree = "<group>"; };
+		47625DD6244A38CC0041E62D /* NewGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewGame.swift; sourceTree = "<group>"; };
+		47625DD8244A44FF0041E62D /* ErrorResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorResponse.swift; sourceTree = "<group>"; };
 		479E2A07244744EC004BF702 /* Blef.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Blef.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		479E2A0A244744EC004BF702 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		479E2A0C244744EC004BF702 /* GameScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameScene.sks; sourceTree = "<group>"; };
@@ -57,6 +67,14 @@
 		479E2A32244744EF004BF702 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		47F2E91B2448BF37006DCB5C /* StartScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = StartScene.sks; sourceTree = "<group>"; };
 		47F2E91D2448C268006DCB5C /* StartScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartScene.swift; sourceTree = "<group>"; };
+		93007D374784C41898C88ECB /* Pods_BlefTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BlefTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		974D9EEC0762DB82523E4472 /* Pods-BlefTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlefTests.debug.xcconfig"; path = "Target Support Files/Pods-BlefTests/Pods-BlefTests.debug.xcconfig"; sourceTree = "<group>"; };
+		B865AE86C46ACA36206904BD /* Pods-Blef-BlefUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Blef-BlefUITests.debug.xcconfig"; path = "Target Support Files/Pods-Blef-BlefUITests/Pods-Blef-BlefUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		C305136BB8A7BA49A2A03F63 /* Pods_Blef.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Blef.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C42C22E5B2ABD040557AAA63 /* Pods_Blef_BlefUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Blef_BlefUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		ECF6182C272A9A79922F135D /* Pods-Blef.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Blef.debug.xcconfig"; path = "Target Support Files/Pods-Blef/Pods-Blef.debug.xcconfig"; sourceTree = "<group>"; };
+		F2F560FAD5F5EB3F7043382A /* Pods-Blef-BlefUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Blef-BlefUITests.release.xcconfig"; path = "Target Support Files/Pods-Blef-BlefUITests/Pods-Blef-BlefUITests.release.xcconfig"; sourceTree = "<group>"; };
+		F4754D6EFAB68AE4EE88393D /* Pods-BlefTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlefTests.release.xcconfig"; path = "Target Support Files/Pods-BlefTests/Pods-BlefTests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,6 +82,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				91E9E67A224F2B2D6A23750A /* Pods_Blef.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -71,6 +90,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				909A6366A928BC14D3C3C5F8 /* Pods_BlefTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,12 +98,45 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C603CC85BD46A2B62BAEEDE4 /* Pods_Blef_BlefUITests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		20D93C51D4CF8E46714D1505 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				ECF6182C272A9A79922F135D /* Pods-Blef.debug.xcconfig */,
+				222ABF8AD9CD78513D75CE1E /* Pods-Blef.release.xcconfig */,
+				B865AE86C46ACA36206904BD /* Pods-Blef-BlefUITests.debug.xcconfig */,
+				F2F560FAD5F5EB3F7043382A /* Pods-Blef-BlefUITests.release.xcconfig */,
+				974D9EEC0762DB82523E4472 /* Pods-BlefTests.debug.xcconfig */,
+				F4754D6EFAB68AE4EE88393D /* Pods-BlefTests.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		46A24ECABCB861048B951704 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C305136BB8A7BA49A2A03F63 /* Pods_Blef.framework */,
+				C42C22E5B2ABD040557AAA63 /* Pods_Blef_BlefUITests.framework */,
+				93007D374784C41898C88ECB /* Pods_BlefTests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		47625DDB244A48F00041E62D /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				472E2080244979C2005915A0 /* GameManager.swift */,
+				47625DD6244A38CC0041E62D /* NewGame.swift */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
 		479E29FE244744EB004BF702 = {
 			isa = PBXGroup;
 			children = (
@@ -91,6 +144,8 @@
 				479E2A24244744EF004BF702 /* BlefTests */,
 				479E2A2F244744EF004BF702 /* BlefUITests */,
 				479E2A08244744EC004BF702 /* Products */,
+				20D93C51D4CF8E46714D1505 /* Pods */,
+				46A24ECABCB861048B951704 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -113,6 +168,8 @@
 				479E2A10244744EC004BF702 /* GameScene.swift */,
 				47F2E91B2448BF37006DCB5C /* StartScene.sks */,
 				47F2E91D2448C268006DCB5C /* StartScene.swift */,
+				47625DDB244A48F00041E62D /* Model */,
+				47625DD8244A44FF0041E62D /* ErrorResponse.swift */,
 				479E2A12244744EC004BF702 /* GameViewController.swift */,
 				479E2A14244744EC004BF702 /* Main.storyboard */,
 				479E2A17244744EF004BF702 /* Assets.xcassets */,
@@ -147,9 +204,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 479E2A35244744EF004BF702 /* Build configuration list for PBXNativeTarget "Blef" */;
 			buildPhases = (
+				683C0156A6DD5EB58E14210A /* [CP] Check Pods Manifest.lock */,
 				479E2A03244744EC004BF702 /* Sources */,
 				479E2A04244744EC004BF702 /* Frameworks */,
 				479E2A05244744EC004BF702 /* Resources */,
+				E741CD249A216F9DCFA69E16 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -164,6 +223,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 479E2A38244744EF004BF702 /* Build configuration list for PBXNativeTarget "BlefTests" */;
 			buildPhases = (
+				CF66E360B72BFD7E8F263082 /* [CP] Check Pods Manifest.lock */,
 				479E2A1D244744EF004BF702 /* Sources */,
 				479E2A1E244744EF004BF702 /* Frameworks */,
 				479E2A1F244744EF004BF702 /* Resources */,
@@ -182,9 +242,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 479E2A3B244744EF004BF702 /* Build configuration list for PBXNativeTarget "BlefUITests" */;
 			buildPhases = (
+				6B659DA9884D587389EB708B /* [CP] Check Pods Manifest.lock */,
 				479E2A28244744EF004BF702 /* Sources */,
 				479E2A29244744EF004BF702 /* Frameworks */,
 				479E2A2A244744EF004BF702 /* Resources */,
+				8E6BCD5656E790ADEF6513D7 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -269,6 +331,109 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		683C0156A6DD5EB58E14210A /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Blef-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		6B659DA9884D587389EB708B /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Blef-BlefUITests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		8E6BCD5656E790ADEF6513D7 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Blef-BlefUITests/Pods-Blef-BlefUITests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Blef-BlefUITests/Pods-Blef-BlefUITests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Blef-BlefUITests/Pods-Blef-BlefUITests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		CF66E360B72BFD7E8F263082 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-BlefTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E741CD249A216F9DCFA69E16 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Blef/Pods-Blef-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Blef/Pods-Blef-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Blef/Pods-Blef-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		479E2A03244744EC004BF702 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -276,8 +441,11 @@
 			files = (
 				479E2A11244744EC004BF702 /* GameScene.swift in Sources */,
 				479E2A13244744EC004BF702 /* GameViewController.swift in Sources */,
+				47625DD7244A38CC0041E62D /* NewGame.swift in Sources */,
 				479E2A0B244744EC004BF702 /* AppDelegate.swift in Sources */,
 				47F2E91E2448C268006DCB5C /* StartScene.swift in Sources */,
+				472E2081244979C2005915A0 /* GameManager.swift in Sources */,
+				47625DD9244A44FF0041E62D /* ErrorResponse.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -448,6 +616,7 @@
 		};
 		479E2A36244744EF004BF702 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = ECF6182C272A9A79922F135D /* Pods-Blef.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
@@ -466,6 +635,7 @@
 		};
 		479E2A37244744EF004BF702 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 222ABF8AD9CD78513D75CE1E /* Pods-Blef.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
@@ -484,6 +654,7 @@
 		};
 		479E2A39244744EF004BF702 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 974D9EEC0762DB82523E4472 /* Pods-BlefTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -506,6 +677,7 @@
 		};
 		479E2A3A244744EF004BF702 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = F4754D6EFAB68AE4EE88393D /* Pods-BlefTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -528,6 +700,7 @@
 		};
 		479E2A3C244744EF004BF702 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B865AE86C46ACA36206904BD /* Pods-Blef-BlefUITests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
@@ -548,6 +721,7 @@
 		};
 		479E2A3D244744EF004BF702 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = F2F560FAD5F5EB3F7043382A /* Pods-Blef-BlefUITests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
