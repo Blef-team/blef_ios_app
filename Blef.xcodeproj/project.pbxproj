@@ -20,6 +20,7 @@
 		479E2A1B244744EF004BF702 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 479E2A19244744EF004BF702 /* LaunchScreen.storyboard */; };
 		479E2A26244744EF004BF702 /* BlefTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479E2A25244744EF004BF702 /* BlefTests.swift */; };
 		479E2A31244744EF004BF702 /* BlefUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479E2A30244744EF004BF702 /* BlefUITests.swift */; };
+		47F035F7244B0BFE000136C1 /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47F035F6244B0BFE000136C1 /* Game.swift */; };
 		47F2E91C2448BF37006DCB5C /* StartScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 47F2E91B2448BF37006DCB5C /* StartScene.sks */; };
 		47F2E91E2448C268006DCB5C /* StartScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47F2E91D2448C268006DCB5C /* StartScene.swift */; };
 		909A6366A928BC14D3C3C5F8 /* Pods_BlefTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93007D374784C41898C88ECB /* Pods_BlefTests.framework */; };
@@ -65,6 +66,7 @@
 		479E2A2C244744EF004BF702 /* BlefUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BlefUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		479E2A30244744EF004BF702 /* BlefUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlefUITests.swift; sourceTree = "<group>"; };
 		479E2A32244744EF004BF702 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		47F035F6244B0BFE000136C1 /* Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game.swift; sourceTree = "<group>"; };
 		47F2E91B2448BF37006DCB5C /* StartScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = StartScene.sks; sourceTree = "<group>"; };
 		47F2E91D2448C268006DCB5C /* StartScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartScene.swift; sourceTree = "<group>"; };
 		93007D374784C41898C88ECB /* Pods_BlefTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BlefTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -132,6 +134,7 @@
 			isa = PBXGroup;
 			children = (
 				472E2080244979C2005915A0 /* GameManager.swift */,
+				47F035F6244B0BFE000136C1 /* Game.swift */,
 				47625DD6244A38CC0041E62D /* NewGame.swift */,
 			);
 			name = Model;
@@ -446,6 +449,7 @@
 				47F2E91E2448C268006DCB5C /* StartScene.swift in Sources */,
 				472E2081244979C2005915A0 /* GameManager.swift in Sources */,
 				47625DD9244A44FF0041E62D /* ErrorResponse.swift in Sources */,
+				47F035F7244B0BFE000136C1 /* Game.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
