@@ -24,7 +24,6 @@ struct RuntimeError: Error {
 }
 
 protocol GameManagerDelegate {
-//    func didUpdateGame(_ Game: GameModel)
     func didCreateNewGame(_ newGame: NewGame)
     func didFailWithError(error: Error)
 }
@@ -40,7 +39,7 @@ class GameManager {
         performRequest(with: urlString, parser: parseNewGameResponse)
     }
     
-    func performRequest(with urlString: String, parser parseResponse: @escaping (Data) -> Void) {
+    func performRequest(with urlString: String, parser parseResponse: @escaping (JSON?) -> Bool) {
         if let url = URL(string: urlString) {
             let session = URLSession(configuration: .default)
             let task = session.dataTask(with: url) {(data, response, error) in
@@ -50,20 +49,30 @@ class GameManager {
                 }
                 print("Got data")
                 if let safeData = data {
-                    parseResponse(safeData)
+                    print("Got nonempty data")
+                    let jsonObject = (try? JSONSerialization.jsonObject(with: safeData, options: [])) as? JSON
+                    print(jsonObject)
+                    if let errorMessage = jsonObject?["error"] as? String {
+                        self.delegate?.didFailWithError(error: RuntimeError(errorMessage))
+                    }
+                    let succeeded = parseResponse(jsonObject)
+                    if !succeeded {
+                        if let errorResponse = jsonObject.flatMap(ErrorResponse.init){
+                            print("Made errorResponse object")
+                            self.delegate?.didFailWithError(error: RuntimeError(errorResponse.message))
+                        }
+                        else {
+                            print("Failed to parse json")
+                            self.delegate?.didFailWithError(error: RuntimeError("Failed to parse json response."))
+                        }
+                    }
                 }
             }
             task.resume()
         }
     }
     
-    func parseNewGameResponse(data responseData: Data) {
-            print("Got nonempty data")
-            let jsonObject = (try? JSONSerialization.jsonObject(with: responseData, options: [])) as? JSON
-            print(jsonObject)
-            if let errorMessage = jsonObject?["error"] as? String {
-                self.delegate?.didFailWithError(error: RuntimeError(errorMessage))
-            }
+    func parseNewGameResponse(_ jsonObject: JSON?) -> Bool {
             if let newGame = jsonObject.flatMap(NewGame.init){
                 print("Made newGame object")
                 self.newGame = newGame
@@ -75,15 +84,9 @@ class GameManager {
                     print("Calling didCreateNewGame")
                     self.delegate?.didCreateNewGame(newGame)
                 }
-                
+                return true
             }
-            else if let errorResponse = jsonObject.flatMap(ErrorResponse.init){
-                print("Made errorResponse object")
-                self.delegate?.didFailWithError(error: RuntimeError(errorResponse.message))
-            }
-            else {
-                print("Failed to parse json")
-                self.delegate?.didFailWithError(error: RuntimeError("Failed to parse json response."))
-            }
+            return false
     }
+
 }
