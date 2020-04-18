@@ -25,12 +25,25 @@ struct RuntimeError: Error {
 
 protocol GameManagerDelegate {
     func didCreateNewGame(_ newGame: NewGame)
+    func didUpdateGame(_ game: Game)
     func didFailWithError(error: Error)
+}
+
+extension GameManagerDelegate {
+    func didCreateNewGame(_ newGame: NewGame) {
+        print("GameManager created a NewGame, but the result is not being used.")
+        //this is a empty implementation to allow this method to be optional
+    }
+    func didUpdateGame(_ game: Game) {
+        print("GameManager updated a Game, but the result is not being used.")
+        //this is a empty implementation to allow this method to be optional
+    }
 }
 
 class GameManager {
     let GameEngineServiceURL = keys.gameEngineServiceBaseURL + "/games"
     var newGame: NewGame?
+    var game: Game?
     var delegate: GameManagerDelegate?
     
     func createGame(nickname: String) {
@@ -88,5 +101,22 @@ class GameManager {
             }
             return false
     }
-
+    
+    func parseUpdateGameResponse(_ jsonObject: JSON?) -> Bool {
+            if let game = jsonObject.flatMap(Game.init){
+                print("Made Game object")
+                self.game = game
+                /**
+                 The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
+                 `invalid use of AppKit, UIKit, and other APIs from a background thread`
+                */
+                DispatchQueue.main.async {
+                    print("Calling didUpdateGame")
+                    self.delegate?.didUpdateGame(game)
+                }
+                return true
+            }
+            return false
+    }
+    
 }
