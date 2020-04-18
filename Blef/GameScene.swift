@@ -9,13 +9,17 @@
 import SpriteKit
 import GameplayKit
 
-class GameScene: SKScene {
-    
+class GameScene: SKScene, GameManagerDelegate {
+
+    var gameManager = GameManager()
     var gameUuid: String?
     private var label : SKLabelNode?
     private var spinnyNode : SKShapeNode?
     
     override func didMove(to view: SKView) {
+        
+        self.gameManager.delegate = self
+        updateGame()
         
         // Get label node from scene and store it for use later
         self.label = self.childNode(withName: "//helloLabel") as? SKLabelNode
@@ -37,6 +41,23 @@ class GameScene: SKScene {
                                               SKAction.fadeOut(withDuration: 0.5),
                                               SKAction.removeFromParent()]))
         }
+    }
+    
+    /**
+     Request updated game state.
+     */
+    func updateGame() {
+        if let gameUuid = self.gameUuid {
+            gameManager.updateGame(gameUuid: gameUuid)
+        }
+    }
+    
+    func didFailWithError(error: Error) {
+        print(error.localizedDescription)
+    }
+    
+    func didUpdateGame(_ game: Game) {
+        print(game)
     }
     
     

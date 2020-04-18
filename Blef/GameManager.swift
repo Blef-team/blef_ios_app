@@ -49,7 +49,13 @@ class GameManager {
     func createGame(nickname: String) {
         let urlString = "\(GameEngineServiceURL)/create?nickname=\(nickname)"
         print(urlString)
-        performRequest(with: urlString, parser: parseNewGameResponse)
+        performRequest(with: urlString, parser: parseNewGameResponse(_:))
+    }
+    
+    func updateGame(gameUuid: String) {
+        let urlString = "\(GameEngineServiceURL)/\(gameUuid)"
+        print(urlString)
+        performRequest(with: urlString, parser: parseUpdateGameResponse(_:))
     }
     
     func performRequest(with urlString: String, parser parseResponse: @escaping (JSON?) -> Bool) {

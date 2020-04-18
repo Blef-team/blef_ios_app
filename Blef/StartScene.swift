@@ -31,7 +31,7 @@ class StartScene: SKScene, GameManagerDelegate {
     }
     
     /**
-    
+    React to the users touches
     */
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let touch = touches.first {
@@ -39,6 +39,7 @@ class StartScene: SKScene, GameManagerDelegate {
             let nodesarray = nodes(at: location)
 
             for node in nodesarray {
+                // If the New game button was tapped
                 if node.name == "newGameButton" {
                     pulseLabel()
                     errorMessageLabel.text = ""
