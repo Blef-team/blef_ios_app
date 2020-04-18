@@ -37,10 +37,10 @@ class GameManager {
     func createGame(nickname: String) {
         let urlString = "\(GameEngineServiceURL)/create?nickname=\(nickname)"
         print(urlString)
-        performRequest(with: urlString)
+        performRequest(with: urlString, parser: parseNewGameResponse)
     }
     
-    func performRequest(with urlString: String) {
+    func performRequest(with urlString: String, parser parseResponse: @escaping (Data) -> Void) {
         if let url = URL(string: urlString) {
             let session = URLSession(configuration: .default)
             let task = session.dataTask(with: url) {(data, response, error) in
@@ -48,39 +48,42 @@ class GameManager {
                     print(error!)
                     self.delegate?.didFailWithError(error: error!)
                 }
-                
                 print("Got data")
                 if let safeData = data {
-                    print("Got nonempty data")
-                    let jsonObject = (try? JSONSerialization.jsonObject(with: safeData, options: [])) as? JSON
-                    print(jsonObject)
-                    if let errorMessage = jsonObject?["error"] as? String {
-                        self.delegate?.didFailWithError(error: RuntimeError(errorMessage))
-                    }
-                    if let newGame = jsonObject.flatMap(NewGame.init){
-                        print("Made newGame object")
-                        self.newGame = newGame
-                        /**
-                         The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
-                         `invalid use of AppKit, UIKit, and other APIs from a background thread`
-                        */
-                        DispatchQueue.main.async {
-                            print("Calling didCreateNewGame")
-                            self.delegate?.didCreateNewGame(newGame)
-                        }
-                        
-                    }
-                    else if let errorResponse = jsonObject.flatMap(ErrorResponse.init){
-                        print("Made errorResponse object")
-                        self.delegate?.didFailWithError(error: RuntimeError(errorResponse.message))
-                    }
-                    else {
-                        print("Failed to parse json")
-                        self.delegate?.didFailWithError(error: RuntimeError("Failed to parse json response."))
-                    }
+                    parseResponse(safeData)
                 }
             }
             task.resume()
         }
+    }
+    
+    func parseNewGameResponse(data responseData: Data) {
+            print("Got nonempty data")
+            let jsonObject = (try? JSONSerialization.jsonObject(with: responseData, options: [])) as? JSON
+            print(jsonObject)
+            if let errorMessage = jsonObject?["error"] as? String {
+                self.delegate?.didFailWithError(error: RuntimeError(errorMessage))
+            }
+            if let newGame = jsonObject.flatMap(NewGame.init){
+                print("Made newGame object")
+                self.newGame = newGame
+                /**
+                 The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
+                 `invalid use of AppKit, UIKit, and other APIs from a background thread`
+                */
+                DispatchQueue.main.async {
+                    print("Calling didCreateNewGame")
+                    self.delegate?.didCreateNewGame(newGame)
+                }
+                
+            }
+            else if let errorResponse = jsonObject.flatMap(ErrorResponse.init){
+                print("Made errorResponse object")
+                self.delegate?.didFailWithError(error: RuntimeError(errorResponse.message))
+            }
+            else {
+                print("Failed to parse json")
+                self.delegate?.didFailWithError(error: RuntimeError("Failed to parse json response."))
+            }
     }
 }
