@@ -15,13 +15,15 @@ class StartScene: SKScene, GameManagerDelegate {
     
     var gameManager = GameManager()
     var newGameLabel: SKNode?
+    var playerNickname: String?
     
     override func didMove(to view: SKView) {
         
         self.gameManager.delegate = self
         
-        self.newGameLabel = childNode(withName: "//newGameLabel")
+        self.playerNickname = "Warty_Warthog"
         
+        self.newGameLabel = childNode(withName: "//newGameLabel")
         errorMessageLabel = SKLabelNode(fontNamed:"Chalkduster")
         errorMessageLabel.text = ""
         errorMessageLabel.fontSize = 12
@@ -44,7 +46,7 @@ class StartScene: SKScene, GameManagerDelegate {
                     pulseLabel()
                     errorMessageLabel.text = ""
                     print("Going to attempt an API call")
-                    gameManager.createGame(nickname: "test123")
+                    gameManager.createGame(nickname: self.playerNickname ?? "Warty_Warthog")
                     print("Made API call")
                 }
 
@@ -72,6 +74,7 @@ class StartScene: SKScene, GameManagerDelegate {
             let transition = SKTransition.fade(withDuration: 1.0)
         gameScene?.scaleMode = .aspectFill
         gameScene?.gameUuid = newGame.game_uuid
+        gameScene?.playerNickname = playerNickname
         scene?.view?.presentScene(gameScene!, transition: transition)
     }
     

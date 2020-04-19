@@ -47,7 +47,7 @@ class GameManager {
     var delegate: GameManagerDelegate?
     
     func createGame(nickname: String) {
-        let urlString = "\(GameEngineServiceURL)/create?nickname=\(nickname)"
+        let urlString = "\(GameEngineServiceURL)/create?nickname=\(nickname.replacingOccurrences(of: " ", with: ""))"
         print(urlString)
         performRequest(with: urlString, parser: parseNewGameResponse(_:))
     }
