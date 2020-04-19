@@ -9,36 +9,29 @@
 import Foundation
 
 struct Game {
-    var gameUuid: String
-    var adminNickname: String
+    var adminNickname: String?
     var isPublic: Bool
     var status: Status
     var roundNumber: Int
     var maxCards: Int
     var players: [Player]
     var hands: [NamedHand]
-    var currentPlayerNickname: String
+    var currentPlayerNickname: String?
     var history: [HistoryItem]
 }
 
 extension Game {
     init?(json: JSON) {
-        guard let gameUuid = json["game_uuid"] as? String else {
+        if let adminNickname = json["admin_nickname"] as? String {
+            self.adminNickname = adminNickname
+        }
+        
+        guard let isPublic = json["public"] as? Int else {
             return nil
         }
-        self.gameUuid = gameUuid
+        self.isPublic = isPublic != 0
         
-        guard let adminNickname = json["admin_nickname"] as? String else {
-            return nil
-        }
-        self.adminNickname = adminNickname
-        
-        guard let isPublic = json["public"] as? Bool else {
-            return nil
-        }
-        self.isPublic = isPublic
-        
-        guard let status = json["status"] as? Status else {
+        guard let statusString = json["status"] as? String, let status = Status(rawValue: statusString) else {
             return nil
         }
         self.status = status
@@ -48,7 +41,7 @@ extension Game {
         }
         self.roundNumber = roundNumber
         
-        guard let maxCards = json["maxCards"] as? Int else {
+        guard let maxCards = json["max_cards"] as? Int else {
             return nil
         }
         self.maxCards = maxCards
@@ -63,10 +56,9 @@ extension Game {
         }
         self.hands = hands
         
-        guard let currentPlayerNickname = json["cp_nickname"] as? String else {
-            return nil
+        if let currentPlayerNickname = json["cp_nickname"] as? String {
+            self.currentPlayerNickname = currentPlayerNickname
         }
-        self.currentPlayerNickname = currentPlayerNickname
         
         guard let history = json["history"] as? [HistoryItem] else {
             return nil
