@@ -12,8 +12,9 @@ import GameplayKit
 class GameScene: SKScene, GameManagerDelegate {
     
     var gameManager = GameManager()
-    var gameUuid: String?
+    var gameUuid: UUID?
     var playerNickname: String?
+    var player: Player?
     var game: Game?
     private var helloLabel : SKLabelNode?
     private var gameUuidLabel : SKLabelNode?
@@ -35,7 +36,7 @@ class GameScene: SKScene, GameManagerDelegate {
         
         self.helloLabel = self.childNode(withName: "//helloLabel") as? SKLabelNode
         if let label = self.helloLabel {
-            label.text = "Hello  \(playerNickname?.replacingOccurrences(of: "_", with: " ") ?? "new player")"
+            label.text = "Hello, \(playerNickname?.replacingOccurrences(of: "_", with: " ") ?? "new player")"
             label.run(SKAction.fadeOut(withDuration: 2.0))
         }
         
@@ -96,7 +97,7 @@ class GameScene: SKScene, GameManagerDelegate {
     
     func updateLabels() {
         self.gameUuidLabel = self.childNode(withName: "//gameUuidLabel") as? SKLabelNode
-        if let label = self.gameUuidLabel, let id = gameUuid {
+        if let label = self.gameUuidLabel, let id = gameUuid?.uuidString {
             label.alpha = 0.0
             label.text = "Game ID: \(id)"
             label.run(SKAction.fadeIn(withDuration: 1.0))
@@ -155,7 +156,7 @@ class GameScene: SKScene, GameManagerDelegate {
         self.historyLabel = self.childNode(withName: "//historyLabel") as? SKLabelNode
         if let label = self.historyLabel, let game = self.game{
             label.alpha = 0.0
-            label.text = game.history.map{ "\($0.player): \($0.actionId)"}.joined(separator: " , ")
+            label.text = "Moves this round: \(game.history.map{ "\($0.player): \($0.actionId)"}.joined(separator: " , "))"
             label.run(SKAction.fadeIn(withDuration: 1.0))
         }
     }

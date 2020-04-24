@@ -34,6 +34,10 @@ extension GameManagerDelegate {
         print("GameManager created a NewGame, but the result is not being used.")
         //this is a empty implementation to allow this method to be optional
     }
+    func didJoinGame(_ player: Player) {
+        print("GameManager let a player join a game, but the result is not being used.")
+        //this is a empty implementation to allow this method to be optional
+    }
     func didUpdateGame(_ game: Game) {
         print("GameManager updated a Game, but the result is not being used.")
         //this is a empty implementation to allow this method to be optional
@@ -44,6 +48,7 @@ class GameManager {
     let GameEngineServiceURL = keys.gameEngineServiceBaseURL + "/games"
     var newGame: NewGame?
     var game: Game?
+    var player: Player?
     var delegate: GameManagerDelegate?
     
     func createGame(nickname: String) {
@@ -52,8 +57,8 @@ class GameManager {
         performRequest(with: urlString, parser: parseNewGameResponse(_:))
     }
     
-    func updateGame(gameUuid: String) {
-        let urlString = "\(GameEngineServiceURL)/\(gameUuid)"
+    func updateGame(gameUuid: UUID) {
+        let urlString = "\(GameEngineServiceURL)/\(gameUuid.uuidString.lowercased())"
         print(urlString)
         performRequest(with: urlString, parser: parseUpdateGameResponse(_:))
     }

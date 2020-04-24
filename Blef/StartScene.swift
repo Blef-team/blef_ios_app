@@ -15,6 +15,7 @@ class StartScene: SKScene, GameManagerDelegate {
     
     var gameManager = GameManager()
     var newGameLabel: SKNode?
+    var gameUuid: UUID?
     var playerNickname: String?
     
     override func didMove(to view: SKView) {
@@ -70,13 +71,14 @@ class StartScene: SKScene, GameManagerDelegate {
     
     func didCreateNewGame(_ newGame: NewGame) {
         print(newGame)
+        gameUuid = newGame.uuid
         let gameScene = GameScene(fileNamed: "GameScene")
             let transition = SKTransition.fade(withDuration: 1.0)
         gameScene?.scaleMode = .aspectFill
-        gameScene?.gameUuid = newGame.game_uuid
-        gameScene?.playerNickname = playerNickname
+        gameScene?.gameUuid = gameUuid
         scene?.view?.presentScene(gameScene!, transition: transition)
     }
+
     
     func didFailWithError(error: Error) {
         print("didFailWithError")
