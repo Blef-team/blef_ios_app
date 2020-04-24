@@ -47,7 +47,7 @@ class StartScene: SKScene, GameManagerDelegate {
                     pulseLabel()
                     errorMessageLabel.text = ""
                     print("Going to attempt an API call")
-                    gameManager.createGame(nickname: self.playerNickname ?? "Warty_Warthog")
+                    gameManager.createGame()
                     print("Made API call")
                 }
 
@@ -72,13 +72,20 @@ class StartScene: SKScene, GameManagerDelegate {
     func didCreateNewGame(_ newGame: NewGame) {
         print(newGame)
         gameUuid = newGame.uuid
+        gameManager.joinGame(gameUuid: newGame.uuid, nickname: self.playerNickname ?? "Warty_Warthog")
+    }
+    
+    func didJoinGame(_ player: Player) {
+        print(player)
+        var player = player
+        player.nickname = playerNickname
         let gameScene = GameScene(fileNamed: "GameScene")
             let transition = SKTransition.fade(withDuration: 1.0)
         gameScene?.scaleMode = .aspectFill
         gameScene?.gameUuid = gameUuid
+        gameScene?.player = player
         scene?.view?.presentScene(gameScene!, transition: transition)
     }
-
     
     func didFailWithError(error: Error) {
         print("didFailWithError")

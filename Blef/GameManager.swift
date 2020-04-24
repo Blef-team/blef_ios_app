@@ -25,6 +25,7 @@ struct RuntimeError: Error {
 
 protocol GameManagerDelegate {
     func didCreateNewGame(_ newGame: NewGame)
+    func didJoinGame(_ player: Player)
     func didUpdateGame(_ game: Game)
     func didFailWithError(error: Error)
 }
@@ -51,10 +52,16 @@ class GameManager {
     var player: Player?
     var delegate: GameManagerDelegate?
     
-    func createGame(nickname: String) {
-        let urlString = "\(GameEngineServiceURL)/create?nickname=\(nickname.replacingOccurrences(of: " ", with: ""))"
+    func createGame() {
+        let urlString = "\(GameEngineServiceURL)/create"
         print(urlString)
         performRequest(with: urlString, parser: parseNewGameResponse(_:))
+    }
+    
+    func joinGame(gameUuid: UUID, nickname: String) {
+        let urlString = "\(GameEngineServiceURL)/\(gameUuid.uuidString.lowercased())/join?nickname=\(nickname.replacingOccurrences(of: " ", with: ""))"
+        print(urlString)
+        performRequest(with: urlString, parser: parseJoinGameResponse(_:))
     }
     
     func updateGame(gameUuid: UUID) {
@@ -75,7 +82,7 @@ class GameManager {
                 if let safeData = data {
                     print("Got nonempty data")
                     let jsonObject = (try? JSONSerialization.jsonObject(with: safeData, options: [])) as? JSON
-                    print(jsonObject)
+                    print(jsonObject as Any)
                     if let errorMessage = jsonObject?["error"] as? String {
                         self.delegate?.didFailWithError(error: RuntimeError(errorMessage))
                     }
@@ -112,6 +119,24 @@ class GameManager {
             }
             return false
     }
+    
+    func parseJoinGameResponse(_ jsonObject: JSON?) -> Bool {
+            if let player = jsonObject.flatMap(Player.init){
+                print("Made Player object")
+                self.player = player
+                /**
+                 The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
+                 `invalid use of AppKit, UIKit, and other APIs from a background thread`
+                */
+                DispatchQueue.main.async {
+                    print("Calling didJoinGame")
+                    self.delegate?.didJoinGame(player)
+                }
+                return true
+            }
+            return false
+    }
+
     
     func parseUpdateGameResponse(_ jsonObject: JSON?) -> Bool {
             if let game = jsonObject.flatMap(Game.init){

@@ -9,7 +9,7 @@
 import Foundation
 
 struct NewGame {
-    var uuid: UUID?
+    var uuid: UUID
 }
 
 extension NewGame {

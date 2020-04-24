@@ -9,11 +9,10 @@
 import SpriteKit
 import GameplayKit
 
-class GameScene: SKScene, GameManagerDelegate {
+class GameScene: SKScene, GameManagerDelegate {    
     
     var gameManager = GameManager()
     var gameUuid: UUID?
-    var playerNickname: String?
     var player: Player?
     var game: Game?
     private var helloLabel : SKLabelNode?
@@ -36,7 +35,7 @@ class GameScene: SKScene, GameManagerDelegate {
         
         self.helloLabel = self.childNode(withName: "//helloLabel") as? SKLabelNode
         if let label = self.helloLabel {
-            label.text = "Hello, \(playerNickname?.replacingOccurrences(of: "_", with: " ") ?? "new player")"
+            label.text = "Hello, \(player?.nickname?.replacingOccurrences(of: "_", with: " ") ?? "new player")"
             label.run(SKAction.fadeOut(withDuration: 2.0))
         }
         
@@ -102,57 +101,66 @@ class GameScene: SKScene, GameManagerDelegate {
             label.text = "Game ID: \(id)"
             label.run(SKAction.fadeIn(withDuration: 1.0))
         }
-        print(self.gameUuidLabel?.text)
+        print(self.gameUuidLabel?.text as Any)
+        
         self.adminLabel = self.childNode(withName: "//adminLabel") as? SKLabelNode
         if let label = self.adminLabel, let game = self.game {
             label.alpha = 0.0
-            label.text = "Admin: \(game.adminNickname)"
+            label.text = "Admin: \(game.adminNickname ?? "none yet")"
             label.run(SKAction.fadeIn(withDuration: 1.0))
         }
-        print(self.adminLabel?.text)
+        print(self.adminLabel?.text as Any)
+        
         self.publicLabel = self.childNode(withName: "//publicLabel") as? SKLabelNode
         if let label = self.publicLabel, let game = self.game{
             label.alpha = 0.0
             label.text = "Is public: \(game.isPublic)"
             label.run(SKAction.fadeIn(withDuration: 1.0))
         }
+        
         self.statusLabel = self.childNode(withName: "//statusLabel") as? SKLabelNode
         if let label = self.statusLabel, let game = self.game{
             label.alpha = 0.0
             label.text = "Status: \(game.status.rawValue)"
             label.run(SKAction.fadeIn(withDuration: 1.0))
         }
+        
         self.roundLabel = self.childNode(withName: "//roundLabel") as? SKLabelNode
         if let label = self.roundLabel, let game = self.game{
             label.alpha = 0.0
             label.text = "Round: \(game.roundNumber)"
             label.run(SKAction.fadeIn(withDuration: 1.0))
         }
+        
         self.maxCardsLabel = self.childNode(withName: "//maxCardsLabel") as? SKLabelNode
         if let label = self.maxCardsLabel, let game = self.game{
             label.alpha = 0.0
             label.text = "Maximum cards: \(game.maxCards)"
             label.run(SKAction.fadeIn(withDuration: 1.0))
         }
+        
         self.currentPlayerLabel = self.childNode(withName: "//currentPlayerLabel") as? SKLabelNode
         if let label = self.currentPlayerLabel, let game = self.game{
             label.alpha = 0.0
-            label.text = "Current player: \(game.currentPlayerNickname)"
+            label.text = "Current player: \(game.currentPlayerNickname ?? "none yet")"
             label.run(SKAction.fadeIn(withDuration: 1.0))
         }
+        
         self.playersLabel = self.childNode(withName: "//playersLabel") as? SKLabelNode
         if let label = self.playersLabel, let game = self.game{
             label.alpha = 0.0
-            label.text = "Players: \(game.players.map { "\($0.nickname): \($0.n_cards) cards"}.joined(separator: " | "))"
+            label.text = "Players: \(game.players?.map { "\($0.nickname): \($0.n_cards) cards"}.joined(separator: " | ") ?? "no details available")"
             label.run(SKAction.fadeIn(withDuration: 1.0))
         }
+        
         self.handsLabel = self.childNode(withName: "//handsLabel") as? SKLabelNode
         if let label = self.handsLabel, let game = self.game{
             label.alpha = 0.0
-            let hand = game.hands.first(where:{$0.nickname == playerNickname})
-            label.text = "Your hand: \(hand)"
+            let hand = game.hands.first(where:{$0.nickname == player?.nickname})
+            label.text = "Your hand:"
             label.run(SKAction.fadeIn(withDuration: 1.0))
         }
+        
         self.historyLabel = self.childNode(withName: "//historyLabel") as? SKLabelNode
         if let label = self.historyLabel, let game = self.game{
             label.alpha = 0.0

@@ -9,7 +9,8 @@
 import Foundation
 
 struct Player {
-    var uuid: UUID?
+    var uuid: UUID
+    var nickname: String?
 }
 
 extension Player {

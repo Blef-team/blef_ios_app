@@ -14,7 +14,7 @@ struct Game {
     var status: Status
     var roundNumber: Int
     var maxCards: Int
-    var players: [PlayerInfo]
+    var players: [PlayerInfo]?
     var hands: [NamedHand]
     var currentPlayerNickname: String?
     var history: [HistoryItem]
@@ -46,10 +46,9 @@ extension Game {
         }
         self.maxCards = maxCards
         
-        guard let players = json["players"] as? [PlayerInfo] else {
-            return nil
+        if let players = json["players"] as? [PlayerInfo] {
+            self.players = players
         }
-        self.players = players
         
         guard let hands = json["hands"] as? [NamedHand] else {
             return nil
