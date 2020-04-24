@@ -16,6 +16,7 @@ class GameScene: SKScene, GameManagerDelegate {
     var player: Player?
     var game: Game?
     private var startGameLabel: SKLabelNode?
+    private var playLabel: SKLabelNode?
     private var helloLabel : SKLabelNode?
     private var gameUuidLabel : SKLabelNode?
     private var adminLabel : SKLabelNode?
@@ -34,6 +35,8 @@ class GameScene: SKScene, GameManagerDelegate {
         
         self.startGameLabel = childNode(withName: "//startGameLabel") as? SKLabelNode
         startGameLabel?.alpha = 0.0
+        self.playLabel = childNode(withName: "//playLabel") as? SKLabelNode
+        playLabel?.alpha = 0.0
         self.gameUuidLabel = self.childNode(withName: "//gameUuidLabel") as? SKLabelNode
         gameUuidLabel?.alpha = 0.0
         self.adminLabel = self.childNode(withName: "//adminLabel") as? SKLabelNode
@@ -156,51 +159,54 @@ class GameScene: SKScene, GameManagerDelegate {
                 label.run(SKAction.fadeIn(withDuration: 1.0))
             }
         }
-        print(self.startGameLabel?.text as Any)
+        
+        if let label = self.playLabel, let game = self.game {
+            if game.status == .running && player?.nickname != "" && formatDisplayNickname(game.currentPlayerNickname ?? "") == formatDisplayNickname(player?.nickname ?? "") {
+                label.run(SKAction.fadeIn(withDuration: 1.0))
+            }
+        }
         
         if let label = self.gameUuidLabel, let id = gameUuid?.uuidString {
             let newLabelText = "Game ID: \(id)"
             updateLabelText(label, newLabelText)
         }
-        print(self.gameUuidLabel?.text as Any)
         
         if let label = self.adminLabel, let game = self.game {
             let newLabelText = "Admin: \(game.adminNickname?.replacingOccurrences(of: "_", with: " ") ?? "none yet")"
             updateLabelText(label, newLabelText)
         }
-        print(self.adminLabel?.text as Any)
         
-        if let label = self.publicLabel, let game = self.game{
+        if let label = self.publicLabel, let game = self.game {
             let newLabelText = "Is public: \(game.isPublic)"
             updateLabelText(label, newLabelText)
         }
         
-        if let label = self.statusLabel, let game = self.game{
+        if let label = self.statusLabel, let game = self.game {
             let newLabelText = "Status: \(game.status.rawValue)"
             updateLabelText(label, newLabelText)
         }
         
-        if let label = self.roundLabel, let game = self.game{
+        if let label = self.roundLabel, let game = self.game {
             let newLabelText = "Round: \(game.roundNumber)"
             updateLabelText(label, newLabelText)
         }
         
-        if let label = self.maxCardsLabel, let game = self.game{
+        if let label = self.maxCardsLabel, let game = self.game {
             let newLabelText = "Maximum cards: \(game.maxCards)"
             updateLabelText(label, newLabelText)
         }
         
-        if let label = self.currentPlayerLabel, let game = self.game{
+        if let label = self.currentPlayerLabel, let game = self.game {
             let newLabelText = "Current player: \(formatDisplayNickname(game.currentPlayerNickname ?? "none yet"))"
             updateLabelText(label, newLabelText)
         }
         
-        if let label = self.playersLabel, let game = self.game{
+        if let label = self.playersLabel, let game = self.game {
             let newLabelText = "Players: \(game.players?.map { "\(formatDisplayNickname($0.nickname)): \($0.nCards) cards"}.joined(separator: " | ") ?? "no details available")"
             updateLabelText(label, newLabelText)
         }
         
-        if let label = self.handsLabel, let game = self.game{
+        if let label = self.handsLabel, let game = self.game {
             var newLabelText = "Failed getting your hand info"
             if let hand = game.hands?.first(where:{$0.nickname != "" })?.hand {
                 newLabelText = "Your hand: \(hand)"
@@ -208,8 +214,8 @@ class GameScene: SKScene, GameManagerDelegate {
             updateLabelText(label, newLabelText)
         }
         
-        if let label = self.historyLabel, let game = self.game{
-            let newLabelText = "Moves this round: \(game.history.map{ "\($0.player): \($0.actionId)"}.joined(separator: " , "))"
+        if let label = self.historyLabel, let game = self.game {
+            let newLabelText = "Moves this round: \(game.history?.map{ "\($0.player): \($0.action)"}.joined(separator: " , ") ?? "none yet")"
             updateLabelText(label, newLabelText)
         }
     }

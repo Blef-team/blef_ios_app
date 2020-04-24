@@ -17,7 +17,7 @@ struct Game {
     var players: [PlayerInfo]?
     var hands: [NamedHand]?
     var currentPlayerNickname: String?
-    var history: [HistoryItem]
+    var history: [HistoryItem]?
 }
 
 extension Game {
@@ -62,16 +62,18 @@ extension Game {
             self.currentPlayerNickname = currentPlayerNickname
         }
         
-        guard let history = json["history"] as? [HistoryItem] else {
-            return nil
+        if let historyJson = json["history"] as? [Dictionary<String, Any>] {
+            if let history = historyJson.map({ HistoryItem(json: $0)}) as? [HistoryItem] {
+                self.history = history
+            }
         }
-        self.history = history
     }
 }
 
 struct PlayerInfo {
     let nickname: String
     let nCards: Int
+    
     init?(json: Dictionary<String, Any>) {
         guard let nickname = json["nickname"] as? String else {
             return nil
@@ -87,6 +89,7 @@ struct PlayerInfo {
 struct NamedHand {
     let nickname: String
     let hand: [Card]
+    
     init?(json: Dictionary<String, Any>) {
         print("GOING TO PARSE A HAND:")
         guard let nickname = json["Nickname"] as? String else {
@@ -111,6 +114,7 @@ struct Card {
     }
     let value: Value
     let colour: Colour
+    
     init?(json: Dictionary<String, Int>) {
         print("MAPPING A CARD:")
         guard let jsonValue = json["value"], let value = Value(rawValue: jsonValue) else {
@@ -128,7 +132,18 @@ struct Card {
 
 struct HistoryItem {
     let player: String
-    let actionId: Action
+    let action: Action
+    
+    init?(json: Dictionary<String, Any>) {
+        guard let player = json["player"] as? String else {
+            return nil
+        }
+        self.player = player
+        guard let actionId = json["action_id"] as? Int, let action = Action(rawValue: actionId) else {
+            return nil
+        }
+        self.action = action
+    }
 }
 
 enum Status: String {
@@ -137,7 +152,7 @@ enum Status: String {
     case finished = "Finished"
 }
 
-enum Action {
+enum Action: Int {
     case highCard9
     case highCard10
     case highCardJ
