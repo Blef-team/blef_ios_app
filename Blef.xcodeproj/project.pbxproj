@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		472E2081244979C2005915A0 /* GameManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 472E2080244979C2005915A0 /* GameManager.swift */; };
 		47334E5A2452EA3900F9D4BD /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47334E592452EA3900F9D4BD /* Player.swift */; };
+		47334E5C2452FCC500F9D4BD /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47334E5B2452FCC500F9D4BD /* Utilities.swift */; };
+		47334E5E245308D400F9D4BD /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47334E5D245308D400F9D4BD /* Message.swift */; };
 		47625DD7244A38CC0041E62D /* NewGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47625DD6244A38CC0041E62D /* NewGame.swift */; };
 		47625DD9244A44FF0041E62D /* ErrorResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47625DD8244A44FF0041E62D /* ErrorResponse.swift */; };
 		479E2A0B244744EC004BF702 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479E2A0A244744EC004BF702 /* AppDelegate.swift */; };
@@ -50,6 +52,8 @@
 		222ABF8AD9CD78513D75CE1E /* Pods-Blef.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Blef.release.xcconfig"; path = "Target Support Files/Pods-Blef/Pods-Blef.release.xcconfig"; sourceTree = "<group>"; };
 		472E2080244979C2005915A0 /* GameManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameManager.swift; sourceTree = "<group>"; };
 		47334E592452EA3900F9D4BD /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
+		47334E5B2452FCC500F9D4BD /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
+		47334E5D245308D400F9D4BD /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
 		47625DD6244A38CC0041E62D /* NewGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewGame.swift; sourceTree = "<group>"; };
 		47625DD8244A44FF0041E62D /* ErrorResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorResponse.swift; sourceTree = "<group>"; };
 		479E2A07244744EC004BF702 /* Blef.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Blef.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -135,8 +139,10 @@
 		47625DDB244A48F00041E62D /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				47625DD8244A44FF0041E62D /* ErrorResponse.swift */,
 				472E2080244979C2005915A0 /* GameManager.swift */,
 				47F035F6244B0BFE000136C1 /* Game.swift */,
+				47334E5D245308D400F9D4BD /* Message.swift */,
 				47334E592452EA3900F9D4BD /* Player.swift */,
 				47625DD6244A38CC0041E62D /* NewGame.swift */,
 			);
@@ -174,8 +180,8 @@
 				479E2A10244744EC004BF702 /* GameScene.swift */,
 				47F2E91B2448BF37006DCB5C /* StartScene.sks */,
 				47F2E91D2448C268006DCB5C /* StartScene.swift */,
+				47334E5B2452FCC500F9D4BD /* Utilities.swift */,
 				47625DDB244A48F00041E62D /* Model */,
-				47625DD8244A44FF0041E62D /* ErrorResponse.swift */,
 				479E2A12244744EC004BF702 /* GameViewController.swift */,
 				479E2A14244744EC004BF702 /* Main.storyboard */,
 				479E2A17244744EF004BF702 /* Assets.xcassets */,
@@ -451,6 +457,8 @@
 				479E2A0B244744EC004BF702 /* AppDelegate.swift in Sources */,
 				47F2E91E2448C268006DCB5C /* StartScene.swift in Sources */,
 				472E2081244979C2005915A0 /* GameManager.swift in Sources */,
+				47334E5E245308D400F9D4BD /* Message.swift in Sources */,
+				47334E5C2452FCC500F9D4BD /* Utilities.swift in Sources */,
 				47625DD9244A44FF0041E62D /* ErrorResponse.swift in Sources */,
 				47334E5A2452EA3900F9D4BD /* Player.swift in Sources */,
 				47F035F7244B0BFE000136C1 /* Game.swift in Sources */,

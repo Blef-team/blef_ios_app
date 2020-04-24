@@ -26,6 +26,7 @@ struct RuntimeError: Error {
 protocol GameManagerDelegate {
     func didCreateNewGame(_ newGame: NewGame)
     func didJoinGame(_ player: Player)
+    func didStartGame(_ message: Message)
     func didUpdateGame(_ game: Game)
     func didFailWithError(error: Error)
 }
@@ -37,6 +38,10 @@ extension GameManagerDelegate {
     }
     func didJoinGame(_ player: Player) {
         print("GameManager let a player join a game, but the result is not being used.")
+        //this is a empty implementation to allow this method to be optional
+    }
+    func didStartGame(_ message: Message) {
+        print("GameManager started a game, but the result is not being used.")
         //this is a empty implementation to allow this method to be optional
     }
     func didUpdateGame(_ game: Game) {
@@ -59,13 +64,19 @@ class GameManager {
     }
     
     func joinGame(gameUuid: UUID, nickname: String) {
-        let urlString = "\(GameEngineServiceURL)/\(gameUuid.uuidString.lowercased())/join?nickname=\(nickname.replacingOccurrences(of: " ", with: ""))"
+        let urlString = "\(GameEngineServiceURL)/\(gameUuid.uuidString.lowercased())/join?nickname=\(nickname.replacingOccurrences(of: " ", with: "_"))"
         print(urlString)
         performRequest(with: urlString, parser: parseJoinGameResponse(_:))
     }
     
-    func updateGame(gameUuid: UUID) {
-        let urlString = "\(GameEngineServiceURL)/\(gameUuid.uuidString.lowercased())"
+    func startGame(gameUuid: UUID, playerUuid: UUID) {
+        let urlString = "\(GameEngineServiceURL)/\(gameUuid.uuidString.lowercased())/start?admin_uuid=\(playerUuid.uuidString.lowercased())"
+        print(urlString)
+        performRequest(with: urlString, parser: parseStartGameResponse(_:))
+    }
+    
+    func updateGame(gameUuid: UUID, playerUuid: UUID) {
+        let urlString = "\(GameEngineServiceURL)/\(gameUuid.uuidString.lowercased())?player_uuid=\(playerUuid.uuidString.lowercased())"
         print(urlString)
         performRequest(with: urlString, parser: parseUpdateGameResponse(_:))
     }
@@ -137,6 +148,21 @@ class GameManager {
             return false
     }
 
+    func parseStartGameResponse(_ jsonObject: JSON?) -> Bool {
+            if let message = jsonObject.flatMap(Message.init){
+                print("Made Message object")
+                /**
+                 The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
+                 `invalid use of AppKit, UIKit, and other APIs from a background thread`
+                */
+                DispatchQueue.main.async {
+                    print("Calling didStartGame")
+                    self.delegate?.didStartGame(message)
+                }
+                return true
+            }
+            return false
+    }
     
     func parseUpdateGameResponse(_ jsonObject: JSON?) -> Bool {
             if let game = jsonObject.flatMap(Game.init){

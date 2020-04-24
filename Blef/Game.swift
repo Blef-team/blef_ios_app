@@ -3,7 +3,7 @@
 //  Blef
 //
 //  Created by Adrian Golian on 18.04.20.
-//  Copyright © 2020 Blef. All rights reserved.
+//  Copyright © 2020 Blef Team.
 //
 
 import Foundation
@@ -15,7 +15,7 @@ struct Game {
     var roundNumber: Int
     var maxCards: Int
     var players: [PlayerInfo]?
-    var hands: [NamedHand]
+    var hands: [NamedHand]?
     var currentPlayerNickname: String?
     var history: [HistoryItem]
 }
@@ -46,14 +46,17 @@ extension Game {
         }
         self.maxCards = maxCards
         
-        if let players = json["players"] as? [PlayerInfo] {
-            self.players = players
+        if let playersJson = json["players"] as? [Dictionary<String, Any>] {
+            if let players = playersJson.map({ PlayerInfo(json: $0)}) as? [PlayerInfo] {
+                self.players = players
+            }
         }
         
-        guard let hands = json["hands"] as? [NamedHand] else {
-            return nil
+        if let handsJson = json["hands"] as? [Dictionary<String, Any>] {
+            if let hands = handsJson.map({ NamedHand(json: $0)}) as? [NamedHand] {
+                self.hands = hands
+            }
         }
-        self.hands = hands
         
         if let currentPlayerNickname = json["cp_nickname"] as? String {
             self.currentPlayerNickname = currentPlayerNickname
@@ -67,24 +70,60 @@ extension Game {
 }
 
 struct PlayerInfo {
-      let nickname: String
-      let n_cards: Int
+    let nickname: String
+    let nCards: Int
+    init?(json: Dictionary<String, Any>) {
+        guard let nickname = json["nickname"] as? String else {
+            return nil
+        }
+        self.nickname = nickname
+        guard let nCards = json["n_cards"] as? Int else {
+            return nil
+        }
+        self.nCards = nCards
+    }
 }
 
 struct NamedHand {
     let nickname: String
     let hand: [Card]
+    init?(json: Dictionary<String, Any>) {
+        print("GOING TO PARSE A HAND:")
+        guard let nickname = json["Nickname"] as? String else {
+            return nil
+        }
+        print(nickname)
+        self.nickname = nickname
+        print(json["Hand"] as? [Dictionary<String, Any>])
+        guard let handJson = json["Hand"] as? [Dictionary<String, Int>], let hand = handJson.map({ Card(json: $0)}) as? [Card] else {
+            return nil
+        }
+        self.hand = hand
+    }
 }
 
 struct Card {
-    enum Value {
+    enum Value: Int {
         case nine, ten, jack, queen, king, ace
     }
-    enum Colour {
+    enum Colour: Int {
         case clubs, diamonds, hearts, spades
     }
     let value: Value
     let colour: Colour
+    init?(json: Dictionary<String, Int>) {
+        print("MAPPING A CARD:")
+        guard let jsonValue = json["value"], let value = Value(rawValue: jsonValue) else {
+            return nil
+        }
+        print(value)
+        self.value = value
+        guard let jsonColour = json["colour"], let colour = Colour(rawValue: jsonColour) else {
+            return nil
+        }
+        print(colour)
+        self.colour = colour
+    }
 }
 
 struct HistoryItem {

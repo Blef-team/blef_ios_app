@@ -3,7 +3,7 @@
 //  Blef
 //
 //  Created by Adrian Golian on 24.04.20.
-//  Copyright © 2020 Blef. All rights reserved.
+//  Copyright © 2020 Blef Team.
 //
 
 import Foundation
