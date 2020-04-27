@@ -92,13 +92,13 @@ struct NamedHand {
     
     init?(json: Dictionary<String, Any>) {
         print("GOING TO PARSE A HAND:")
-        guard let nickname = json["Nickname"] as? String else {
+        guard let nickname = json["nickname"] as? String else {
             return nil
         }
         print(nickname)
         self.nickname = nickname
-        print(json["Hand"] as? [Dictionary<String, Any>])
-        guard let handJson = json["Hand"] as? [Dictionary<String, Int>], let hand = handJson.map({ Card(json: $0)}) as? [Card] else {
+        print(json["hand"] as? [Dictionary<String, Any>])
+        guard let handJson = json["hand"] as? [Dictionary<String, Int>], let hand = handJson.map({ Card(json: $0)}) as? [Card] else {
             return nil
         }
         self.hand = hand
