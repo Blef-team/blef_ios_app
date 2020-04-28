@@ -19,19 +19,27 @@ func pulseLabel (_ label: SKNode) {
 func updateLabelText(_ label: SKLabelNode, _ newLabelText: String) {
     if label.text?.lowercased() != newLabelText.lowercased() {
         label.text = newLabelText
-        fadeInLabel(label)
+        fadeInNode(label)
     }
 }
 
-func fadeInLabel(_ label: SKLabelNode) {
-    label.alpha = 0.0
-    label.run(SKAction.fadeIn(withDuration: 1.0))
+func fadeInNode(_ node: SKNode?) {
+    if let node = node {
+        node.alpha = 0.0
+        node.run(SKAction.fadeIn(withDuration: 1.0))
+    }
 }
 
-func fadeOutLabel(_ label: SKLabelNode) {
-    label.run(SKAction.fadeOut(withDuration: 1.0))
+func fadeOutNode(_ node: SKNode?) {
+    if let node = node {
+        node.run(SKAction.fadeOut(withDuration: 1.0))
+    }
 }
 
 func formatDisplayNickname(_ nickname: String) -> String {
     return nickname.replacingOccurrences(of: "_", with: " ")
+}
+
+func playerIsCurrentPlayer(player: Player, game: Game) -> Bool {
+    return player.nickname != "" && formatDisplayNickname(game.currentPlayerNickname ?? "") == formatDisplayNickname(player.nickname ?? "")
 }

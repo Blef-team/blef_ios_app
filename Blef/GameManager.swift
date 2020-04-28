@@ -13,11 +13,11 @@ let keys = BlefKeys()
 
 struct RuntimeError: Error {
     let message: String
-
+    
     init(_ message: String) {
         self.message = message
     }
-
+    
     public var localizedDescription: String {
         return message
     }
@@ -28,6 +28,8 @@ protocol GameManagerDelegate {
     func didJoinGame(_ player: Player)
     func didStartGame(_ message: Message)
     func didUpdateGame(_ game: Game)
+    func didPlay()
+    func failedIllegalPlay()
     func didFailWithError(error: Error)
 }
 
@@ -46,6 +48,14 @@ extension GameManagerDelegate {
     }
     func didUpdateGame(_ game: Game) {
         print("GameManager updated a Game, but the result is not being used.")
+        //this is a empty implementation to allow this method to be optional
+    }
+    func didPlay() {
+        print("GameManager did play, but the result is not being used.")
+        //this is a empty implementation to allow this method to be optional
+    }
+    func failedIllegalPlay() {
+        print("GameManager did play an illegal move, but the result is not being used.")
         //this is a empty implementation to allow this method to be optional
     }
 }
@@ -81,6 +91,12 @@ class GameManager {
         performRequest(with: urlString, parser: parseUpdateGameResponse(_:))
     }
     
+    func play(gameUuid: UUID, playerUuid: UUID, action: Action) {
+        let urlString = "\(GameEngineServiceURL)/\(gameUuid.uuidString.lowercased())/play?player_uuid=\(playerUuid.uuidString.lowercased())&action_id=\(action.rawValue)"
+        print(urlString)
+        performRequest(with: urlString, parser: parsePlayResponse(_:))
+    }
+    
     func performRequest(with urlString: String, parser parseResponse: @escaping (JSON?) -> Bool) {
         if let url = URL(string: urlString) {
             let session = URLSession(configuration: .default)
@@ -94,14 +110,15 @@ class GameManager {
                     print("Got nonempty data")
                     let jsonObject = (try? JSONSerialization.jsonObject(with: safeData, options: [])) as? JSON
                     print(jsonObject as Any)
-                    if let errorMessage = jsonObject?["error"] as? String {
-                        self.delegate?.didFailWithError(error: RuntimeError(errorMessage))
-                    }
                     let succeeded = parseResponse(jsonObject)
                     if !succeeded {
                         if let errorResponse = jsonObject.flatMap(ErrorResponse.init){
                             print("Made errorResponse object")
-                            self.delegate?.didFailWithError(error: RuntimeError(errorResponse.message))
+                            self.delegate?.didFailWithError(error: RuntimeError(errorResponse.error))
+                        }
+                        if let message = jsonObject.flatMap(Message.init){
+                            print("Made Message object")
+                            self.delegate?.didFailWithError(error: RuntimeError(message.message))
                         }
                         else {
                             print("Failed to parse json")
@@ -115,70 +132,95 @@ class GameManager {
     }
     
     func parseNewGameResponse(_ jsonObject: JSON?) -> Bool {
-            if let newGame = jsonObject.flatMap(NewGame.init){
-                print("Made newGame object")
-                self.newGame = newGame
-                /**
-                 The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
-                 `invalid use of AppKit, UIKit, and other APIs from a background thread`
-                */
-                DispatchQueue.main.async {
-                    print("Calling didCreateNewGame")
-                    self.delegate?.didCreateNewGame(newGame)
-                }
-                return true
+        if let newGame = jsonObject.flatMap(NewGame.init){
+            print("Made newGame object")
+            self.newGame = newGame
+            /**
+             The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
+             `invalid use of AppKit, UIKit, and other APIs from a background thread`
+             */
+            DispatchQueue.main.async {
+                print("Calling didCreateNewGame")
+                self.delegate?.didCreateNewGame(newGame)
             }
-            return false
+            return true
+        }
+        return false
     }
     
     func parseJoinGameResponse(_ jsonObject: JSON?) -> Bool {
-            if let player = jsonObject.flatMap(Player.init){
-                print("Made Player object")
-                self.player = player
-                /**
-                 The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
-                 `invalid use of AppKit, UIKit, and other APIs from a background thread`
-                */
-                DispatchQueue.main.async {
-                    print("Calling didJoinGame")
-                    self.delegate?.didJoinGame(player)
-                }
-                return true
+        if let player = jsonObject.flatMap(Player.init){
+            print("Made Player object")
+            self.player = player
+            /**
+             The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
+             `invalid use of AppKit, UIKit, and other APIs from a background thread`
+             */
+            DispatchQueue.main.async {
+                print("Calling didJoinGame")
+                self.delegate?.didJoinGame(player)
             }
-            return false
+            return true
+        }
+        return false
     }
-
+    
     func parseStartGameResponse(_ jsonObject: JSON?) -> Bool {
-            if let message = jsonObject.flatMap(Message.init){
-                print("Made Message object")
-                /**
-                 The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
-                 `invalid use of AppKit, UIKit, and other APIs from a background thread`
-                */
-                DispatchQueue.main.async {
-                    print("Calling didStartGame")
-                    self.delegate?.didStartGame(message)
-                }
-                return true
+        if let message = jsonObject.flatMap(Message.init){
+            print("Made Message object")
+            /**
+             The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
+             `invalid use of AppKit, UIKit, and other APIs from a background thread`
+             */
+            DispatchQueue.main.async {
+                print("Calling didStartGame")
+                self.delegate?.didStartGame(message)
             }
-            return false
+            return true
+        }
+        return false
     }
     
     func parseUpdateGameResponse(_ jsonObject: JSON?) -> Bool {
-            if let game = jsonObject.flatMap(Game.init){
-                print("Made Game object")
-                self.game = game
-                /**
-                 The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
-                 `invalid use of AppKit, UIKit, and other APIs from a background thread`
-                */
+        if let game = jsonObject.flatMap(Game.init){
+            print("Made Game object")
+            self.game = game
+            /**
+             The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
+             `invalid use of AppKit, UIKit, and other APIs from a background thread`
+             */
+            DispatchQueue.main.async {
+                print("Calling didUpdateGame")
+                self.delegate?.didUpdateGame(game)
+            }
+            return true
+        }
+        return false
+    }
+    
+    func parsePlayResponse(_ jsonObject: JSON?) -> Bool {
+        if jsonObject?.count == 0 {
+            print("Received empty JSON - play call was accepted")
+            /**
+             The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
+             `invalid use of AppKit, UIKit, and other APIs from a background thread`
+             */
+            DispatchQueue.main.async {
+                print("Calling didPlay")
+                self.delegate?.didPlay()
+            }
+            return true
+        }
+        else if let errorResponse = jsonObject.flatMap(ErrorResponse.init) {
+            if errorResponse.error == "This action not allowed right now" {
                 DispatchQueue.main.async {
-                    print("Calling didUpdateGame")
-                    self.delegate?.didUpdateGame(game)
+                    print("Calling failedIllegalPlay")
+                    self.delegate?.failedIllegalPlay()
                 }
                 return true
             }
-            return false
+        }
+        return false
     }
     
 }

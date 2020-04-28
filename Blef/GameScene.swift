@@ -7,14 +7,20 @@
 //
 
 import SpriteKit
+import UIKit
 import GameplayKit
 
-class GameScene: SKScene, GameManagerDelegate {    
+class GameScene: SKScene, GameManagerDelegate {
     
     var gameManager = GameManager()
+    var gameUpdateInterval = 1.0
+    var gameUpdateTimer: Timer?
+    var gameUpdateScheduled: Bool?
     var gameUuid: UUID?
     var player: Player?
     var game: Game?
+    var isDisplayingMessage = false
+    private var gameplayGroup: SKNode?
     private var startGameLabel: SKLabelNode?
     private var playLabel: SKLabelNode?
     private var helloLabel : SKLabelNode?
@@ -32,6 +38,8 @@ class GameScene: SKScene, GameManagerDelegate {
     override func didMove(to view: SKView) {
         
         self.gameManager.delegate = self
+        
+        self.gameplayGroup = childNode(withName: "//gameplayGroup") as? SKLabelNode
         
         self.startGameLabel = childNode(withName: "//startGameLabel") as? SKLabelNode
         startGameLabel?.alpha = 0.0
@@ -58,10 +66,10 @@ class GameScene: SKScene, GameManagerDelegate {
         self.historyLabel = self.childNode(withName: "//historyLabel") as? SKLabelNode
         historyLabel?.alpha = 0.0
         
-        errorMessageLabel = SKLabelNode(fontNamed:"Chalkduster")
+        errorMessageLabel = SKLabelNode(fontNamed:"HelveticaNeue-UltraLight")
         errorMessageLabel.text = ""
-        errorMessageLabel.fontSize = 12
-        errorMessageLabel.position = CGPoint(x:self.frame.midX+80, y:self.frame.midY-50)
+        errorMessageLabel.fontSize = 15
+        errorMessageLabel.position = CGPoint(x:self.frame.midX, y:self.frame.midY)
         self.addChild(errorMessageLabel)
         
         self.helloLabel = self.childNode(withName: "//helloLabel") as? SKLabelNode
@@ -70,7 +78,7 @@ class GameScene: SKScene, GameManagerDelegate {
             label.run(SKAction.fadeOut(withDuration: 2.0))
         }
         
-        Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateGame), userInfo: nil, repeats: true)
+        resumeGameUpdateTimer()
     }
     
     /**
@@ -83,16 +91,13 @@ class GameScene: SKScene, GameManagerDelegate {
     }
     
     func didFailWithError(error: Error) {
-        print("didFailWithError")
-        print(error.localizedDescription)
-        errorMessageLabel.removeFromParent()
-        errorMessageLabel.text = "Something went wrong. Try again."
-        self.addChild(errorMessageLabel)
+        displayMessage("Something went wrong. Try again.")
     }
     
     func didStartGame(_ message: Message) {
         if let label = startGameLabel {
-            fadeOutLabel(label)
+            fadeOutNode(label)
+            label.removeFromParent()
         }
         updateGame()
     }
@@ -103,22 +108,30 @@ class GameScene: SKScene, GameManagerDelegate {
         updateLabels()
     }
     
+    func didPlay() {
+        if let label = playLabel {
+            fadeOutNode(label)
+        }
+    }
+    
+    func failedIllegalPlay() {
+        print("failedIllegalPlay")
+        displayMessage("You can't do that now")
+    }
     
     func touchDown(atPoint pos : CGPoint) {
-        let nodesarray = nodes(at: pos)
-        for node in nodesarray {
-            // If the New game button was tapped
-            if node.name == "startGameButton" {
-                if let label = startGameLabel {
-                    pulseLabel(label)
+        if self.isDisplayingMessage {
+            clearMessage()
+        }
+        else {
+            let nodesarray = nodes(at: pos)
+            for node in nodesarray {
+                // If the New game button was tapped
+                if node.name == "startGameButton" {
+                    startGameButtonPressed()
                 }
-                errorMessageLabel.text = ""
-                if let gameUuid = gameUuid, let playerUuid = player?.uuid, let game = self.game, let players = game.players {
-                    if game.status == .notStarted && players.count >= 2 {
-                        print("Going to attempt an API call")
-                        gameManager.startGame(gameUuid: gameUuid, playerUuid: playerUuid)
-                        print("Made API call")
-                    }
+                if node.name == "playButton" {
+                    playButtonPressed()
                 }
             }
         }
@@ -153,16 +166,77 @@ class GameScene: SKScene, GameManagerDelegate {
         // Called before each frame is rendered
     }
     
+    func resumeGameUpdateTimer() {
+        gameUpdateTimer = Timer.scheduledTimer(timeInterval: self.gameUpdateInterval, target: self, selector: #selector(updateGame), userInfo: nil, repeats: true)
+        gameUpdateScheduled = true
+    }
+    
+    func pauseGameUpdateTimer() {
+        if let timer = gameUpdateTimer {
+            timer.invalidate()
+            gameUpdateScheduled = false
+        }
+    }
+    
+    func resetGameUpdateTimer() {
+        pauseGameUpdateTimer()
+        resumeGameUpdateTimer()
+    }
+    
+    func startGameButtonPressed() {
+        if let label = startGameLabel {
+            pulseLabel(label)
+        }
+        errorMessageLabel.text = ""
+        if let gameUuid = gameUuid, let playerUuid = player?.uuid, let game = self.game, let players = game.players {
+            if game.status == .notStarted && players.count >= 2 {
+                print("Going to attempt an API call")
+                gameManager.startGame(gameUuid: gameUuid, playerUuid: playerUuid)
+                print("Made API call")
+                resetGameUpdateTimer()
+            }
+        }
+    }
+    
+    func playButtonPressed() {
+        if let game = game, let player = player {
+            if playerIsCurrentPlayer(player: player, game: game) {
+                if let label = playLabel {
+                    pulseLabel(label)
+                }
+                errorMessageLabel.text = ""
+                if let gameUuid = gameUuid, let players = game.players {
+                    if game.status == .running && players.count >= 2 {
+                        print("Going to attempt an API call")
+                        gameManager.play(gameUuid: gameUuid, playerUuid: player.uuid, action: .highCard9)
+                        print("Made API call")
+                        resetGameUpdateTimer()
+                    }
+                }
+            }
+        }
+    }
+    
     func updateLabels() {
         if let label = self.startGameLabel, let game = self.game, let players = game.players {
             if game.status == .notStarted && players.count >= 2 {
-                label.run(SKAction.fadeIn(withDuration: 1.0))
+                if label.alpha == 0 {
+                    fadeInNode(label)
+                }
+            }
+            else {
+                fadeOutNode(label)
             }
         }
         
-        if let label = self.playLabel, let game = self.game {
-            if game.status == .running && player?.nickname != "" && formatDisplayNickname(game.currentPlayerNickname ?? "") == formatDisplayNickname(player?.nickname ?? "") {
-                label.run(SKAction.fadeIn(withDuration: 1.0))
+        if let label = self.playLabel, let player = self.player, let game = self.game {
+            if game.status == .running && playerIsCurrentPlayer(player: player, game: game) {
+                if label.alpha == 0 {
+                    fadeInNode(label)
+                }
+            }
+            else {
+                fadeOutNode(label)
             }
         }
         
@@ -209,7 +283,7 @@ class GameScene: SKScene, GameManagerDelegate {
         if let label = self.handsLabel, let game = self.game {
             var newLabelText = "Failed getting your hand info"
             if let hand = game.hands?.first(where:{$0.nickname != "" })?.hand {
-                newLabelText = "Your hand: \(hand)"
+                newLabelText = "Your hand: \(hand)})"
             }
             updateLabelText(label, newLabelText)
         }
@@ -219,4 +293,59 @@ class GameScene: SKScene, GameManagerDelegate {
             updateLabelText(label, newLabelText)
         }
     }
+    
+    func displayMessage(_ message: String) {
+        isDisplayingMessage = true
+        
+        pauseGameUpdateTimer()
+        errorMessageLabel.removeFromParent()
+        errorMessageLabel.text = message
+        errorMessageLabel.alpha = 0.0
+        self.addChild(errorMessageLabel)
+        
+        fadeOutNode(gameUuidLabel)
+        fadeOutNode(statusLabel)
+        fadeOutNode(adminLabel)
+        fadeOutNode(playersLabel)
+        fadeOutNode(currentPlayerLabel)
+        fadeOutNode(maxCardsLabel)
+        fadeOutNode(handsLabel)
+        fadeOutNode(historyLabel)
+        fadeOutNode(roundLabel)
+        fadeOutNode(publicLabel)
+        fadeOutNode(playLabel)
+        fadeOutNode(startGameLabel)
+        
+        
+        fadeInNode(errorMessageLabel)
+    }
+    
+    func clearMessage() {
+        isDisplayingMessage = false
+        fadeOutNode(errorMessageLabel)
+        
+        fadeInNode(gameUuidLabel)
+        fadeInNode(statusLabel)
+        fadeInNode(adminLabel)
+        fadeInNode(playersLabel)
+        fadeInNode(currentPlayerLabel)
+        fadeInNode(maxCardsLabel)
+        fadeInNode(handsLabel)
+        fadeInNode(historyLabel)
+        fadeInNode(roundLabel)
+        fadeInNode(publicLabel)
+        
+        if let game = game, let player = player {
+            if game.status == .notStarted {
+                fadeInNode(startGameLabel)
+            }
+            if playerIsCurrentPlayer(player: player, game: game) {
+                fadeInNode(playLabel)
+            }
+        }
+        
+        resumeGameUpdateTimer()
+        
+    }
+    
 }

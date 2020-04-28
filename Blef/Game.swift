@@ -153,7 +153,7 @@ enum Status: String {
 }
 
 enum Action: Int {
-    case highCard9
+    case highCard9 = 0
     case highCard10
     case highCardJ
     case highCardQ
