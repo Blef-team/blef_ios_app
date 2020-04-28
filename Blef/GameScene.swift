@@ -133,6 +133,12 @@ class GameScene: SKScene, GameManagerDelegate {
                 if node.name == "playButton" {
                     playButtonPressed()
                 }
+                if node.name == "gameUuidLabel" {
+                    let pasteboard = UIPasteboard.general
+                    pasteboard.string = gameUuid?.uuidString
+                    pulseLabel(node)
+                    displayMessage("Game ID copied")
+                }
             }
         }
     }
@@ -189,7 +195,7 @@ class GameScene: SKScene, GameManagerDelegate {
         }
         errorMessageLabel.text = ""
         if let gameUuid = gameUuid, let playerUuid = player?.uuid, let game = self.game, let players = game.players {
-            if game.status == .notStarted && players.count >= 2 {
+            if canStartGame(game, players) {
                 print("Going to attempt an API call")
                 gameManager.startGame(gameUuid: gameUuid, playerUuid: playerUuid)
                 print("Made API call")
@@ -205,8 +211,8 @@ class GameScene: SKScene, GameManagerDelegate {
                     pulseLabel(label)
                 }
                 errorMessageLabel.text = ""
-                if let gameUuid = gameUuid, let players = game.players {
-                    if game.status == .running && players.count >= 2 {
+                if let gameUuid = gameUuid {
+                    if game.status == .running {
                         print("Going to attempt an API call")
                         gameManager.play(gameUuid: gameUuid, playerUuid: player.uuid, action: .highCard9)
                         print("Made API call")
@@ -219,7 +225,7 @@ class GameScene: SKScene, GameManagerDelegate {
     
     func updateLabels() {
         if let label = self.startGameLabel, let game = self.game, let players = game.players {
-            if game.status == .notStarted && players.count >= 2 {
+            if canStartGame(game, players) {
                 if label.alpha == 0 {
                     fadeInNode(label)
                 }
@@ -336,11 +342,11 @@ class GameScene: SKScene, GameManagerDelegate {
         fadeInNode(roundLabel)
         fadeInNode(publicLabel)
         
-        if let game = game, let player = player {
-            if game.status == .notStarted {
+        if let game = game, let players = game.players, let player = player, let startGameLabel = startGameLabel, let playLabel = playLabel {
+            if canStartGame(game, players) && startGameLabel.alpha == 0 {
                 fadeInNode(startGameLabel)
             }
-            if playerIsCurrentPlayer(player: player, game: game) {
+            if playerIsCurrentPlayer(player: player, game: game) && playLabel.alpha == 0 {
                 fadeInNode(playLabel)
             }
         }
