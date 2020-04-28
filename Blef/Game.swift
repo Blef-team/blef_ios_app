@@ -152,7 +152,7 @@ enum Status: String {
     case finished = "Finished"
 }
 
-enum Action: Int {
+enum Action: Int, CaseIterable {
     case highCard9 = 0
     case highCard10
     case highCardJ

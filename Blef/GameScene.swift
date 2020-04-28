@@ -10,7 +10,7 @@ import SpriteKit
 import UIKit
 import GameplayKit
 
-class GameScene: SKScene, GameManagerDelegate {
+class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerViewDataSource, UITextFieldDelegate {
     
     var gameManager = GameManager()
     var gameUpdateInterval = 1.0
@@ -20,9 +20,12 @@ class GameScene: SKScene, GameManagerDelegate {
     var player: Player?
     var game: Game?
     var isDisplayingMessage = false
+    var actionSelected: Action?
     private var gameplayGroup: SKNode?
     private var startGameLabel: SKLabelNode?
     private var playLabel: SKLabelNode?
+    private var actionPickerLabel: SKLabelNode?
+    private var actionPickerView : UIPickerView?
     private var helloLabel : SKLabelNode?
     private var gameUuidLabel : SKLabelNode?
     private var adminLabel : SKLabelNode?
@@ -34,6 +37,7 @@ class GameScene: SKScene, GameManagerDelegate {
     private var playersLabel : SKLabelNode?
     private var handsLabel : SKLabelNode?
     private var historyLabel : SKLabelNode?
+    private var myField: UITextField?
     
     override func didMove(to view: SKView) {
         
@@ -45,6 +49,8 @@ class GameScene: SKScene, GameManagerDelegate {
         startGameLabel?.alpha = 0.0
         self.playLabel = childNode(withName: "//playLabel") as? SKLabelNode
         playLabel?.alpha = 0.0
+        self.actionPickerLabel = childNode(withName: "//actionPickerLabel") as? SKLabelNode
+        actionPickerLabel?.alpha = 0.0
         self.gameUuidLabel = self.childNode(withName: "//gameUuidLabel") as? SKLabelNode
         gameUuidLabel?.alpha = 0.0
         self.adminLabel = self.childNode(withName: "//adminLabel") as? SKLabelNode
@@ -65,6 +71,20 @@ class GameScene: SKScene, GameManagerDelegate {
         handsLabel?.alpha = 0.0
         self.historyLabel = self.childNode(withName: "//historyLabel") as? SKLabelNode
         historyLabel?.alpha = 0.0
+        
+        self.myField = UITextField(frame: CGRect(x: UIScreen.main.bounds.size.width * 0.65, y: UIScreen.main.bounds.size.height * 0.2, width: 200, height: 30))
+        
+        actionPickerView = UIPickerView()
+        actionPickerView?.dataSource = self
+        actionPickerView?.delegate = self
+        if let myField = myField {
+            myField.inputView = actionPickerView
+            myField.font = UIFont(name: "HelveticaNeue-UltraLight", size: 20)
+            myField.textColor = .black
+            myField.backgroundColor = .lightGray
+            myField.borderStyle = UITextField.BorderStyle.roundedRect
+            myField.delegate = self
+        }
         
         errorMessageLabel = SKLabelNode(fontNamed:"HelveticaNeue-UltraLight")
         errorMessageLabel.text = ""
@@ -109,8 +129,11 @@ class GameScene: SKScene, GameManagerDelegate {
     }
     
     func didPlay() {
-        if let label = playLabel {
-            fadeOutNode(label)
+        if let playLabel = playLabel, let actionPickerLabel = actionPickerLabel, let actionPickerField = myField {
+            fadeOutNode(playLabel)
+            fadeOutNode(actionPickerLabel)
+            actionPickerField.text = ""
+            actionPickerField.isHidden = true
         }
     }
     
@@ -172,6 +195,37 @@ class GameScene: SKScene, GameManagerDelegate {
         // Called before each frame is rendered
     }
     
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return Action.allCases.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        var actionId = row - 1
+        if row == 0 {
+            actionId = 88
+        }
+        if let action = Action.init(rawValue: actionId) {
+            return String(describing: action)
+        }
+        return "?"
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        var actionId = row - 1
+        if row == 0 {
+            actionId = 88
+        }
+        if let myField = myField, let action = Action.init(rawValue: actionId){
+            myField.text = String(describing: action)
+            self.actionSelected = action
+        }
+        self.view?.endEditing(true)
+    }
+    
     func resumeGameUpdateTimer() {
         gameUpdateTimer = Timer.scheduledTimer(timeInterval: self.gameUpdateInterval, target: self, selector: #selector(updateGame), userInfo: nil, repeats: true)
         gameUpdateScheduled = true
@@ -211,10 +265,10 @@ class GameScene: SKScene, GameManagerDelegate {
                     pulseLabel(label)
                 }
                 errorMessageLabel.text = ""
-                if let gameUuid = gameUuid {
+                if let gameUuid = gameUuid, let action = actionSelected {
                     if game.status == .running {
                         print("Going to attempt an API call")
-                        gameManager.play(gameUuid: gameUuid, playerUuid: player.uuid, action: .highCard9)
+                        gameManager.play(gameUuid: gameUuid, playerUuid: player.uuid, action: action)
                         print("Made API call")
                         resetGameUpdateTimer()
                     }
@@ -235,14 +289,20 @@ class GameScene: SKScene, GameManagerDelegate {
             }
         }
         
-        if let label = self.playLabel, let player = self.player, let game = self.game {
+        if let playLabel = self.playLabel, let actionPickerLabel = actionPickerLabel, let player = self.player, let game = self.game, let actionPickerField = myField {
             if game.status == .running && playerIsCurrentPlayer(player: player, game: game) {
-                if label.alpha == 0 {
-                    fadeInNode(label)
+                if playLabel.alpha == 0 {
+                    fadeInNode(playLabel)
+                }
+                if actionPickerLabel.alpha == 0 {
+                    fadeInNode(actionPickerLabel)
+                    self.view?.addSubview(actionPickerField)
+                    actionPickerField.isHidden = false
                 }
             }
             else {
-                fadeOutNode(label)
+                fadeOutNode(playLabel)
+                fadeOutNode(actionPickerLabel)
             }
         }
         
@@ -296,7 +356,7 @@ class GameScene: SKScene, GameManagerDelegate {
         }
         
         if let label = self.historyLabel, let game = self.game {
-            let newLabelText = "Moves this round: \(game.history?.map{ "\($0.player): \($0.action)"}.joined(separator: " , ") ?? "none yet")"
+            let newLabelText = "Moves this round: \(game.history?.map{ "\(formatDisplayNickname($0.player)): \($0.action)"}.joined(separator: " , ") ?? "none yet")"
             updateLabelText(label, newLabelText)
         }
     }
@@ -322,7 +382,10 @@ class GameScene: SKScene, GameManagerDelegate {
         fadeOutNode(publicLabel)
         fadeOutNode(playLabel)
         fadeOutNode(startGameLabel)
-        
+        fadeOutNode(actionPickerLabel)
+        if let actionPickerField = myField {
+            actionPickerField.isHidden = true
+        }
         
         fadeInNode(errorMessageLabel)
     }
@@ -342,12 +405,14 @@ class GameScene: SKScene, GameManagerDelegate {
         fadeInNode(roundLabel)
         fadeInNode(publicLabel)
         
-        if let game = game, let players = game.players, let player = player, let startGameLabel = startGameLabel, let playLabel = playLabel {
+        if let game = game, let players = game.players, let player = player, let startGameLabel = startGameLabel, let playLabel = playLabel, let actionPickerField = myField {
             if canStartGame(game, players) && startGameLabel.alpha == 0 {
                 fadeInNode(startGameLabel)
             }
             if playerIsCurrentPlayer(player: player, game: game) && playLabel.alpha == 0 {
                 fadeInNode(playLabel)
+                fadeInNode(actionPickerLabel)
+                actionPickerField.isHidden = false
             }
         }
         
