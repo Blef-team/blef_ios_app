@@ -43,3 +43,7 @@ func formatDisplayNickname(_ nickname: String) -> String {
 func playerIsCurrentPlayer(player: Player, game: Game) -> Bool {
     return player.nickname != "" && formatDisplayNickname(game.currentPlayerNickname ?? "") == formatDisplayNickname(player.nickname ?? "")
 }
+
+func stringifyCard(_ card: Card) -> String {
+    return "\(card.value) of \(card.colour)"
+}

@@ -283,7 +283,8 @@ class GameScene: SKScene, GameManagerDelegate {
         if let label = self.handsLabel, let game = self.game {
             var newLabelText = "Failed getting your hand info"
             if let hand = game.hands?.first(where:{$0.nickname != "" })?.hand {
-                newLabelText = "Your hand: \(hand)})"
+                let cards = hand.map(stringifyCard(_:))
+                newLabelText = "Your hand: \(cards.joined(separator: ", "))"
             }
             updateLabelText(label, newLabelText)
         }
