@@ -71,7 +71,7 @@ class GameManager {
     }
     
     func joinGame(gameUuid: UUID, nickname: String) {
-        let urlString = "\(GameEngineServiceURL)/\(gameUuid.uuidString.lowercased())/join?nickname=\(nickname.replacingOccurrences(of: " ", with: "_"))"
+        let urlString = "\(GameEngineServiceURL)/\(gameUuid.uuidString.lowercased())/join?nickname=\(formatSerialisedNickname(nickname))"
         print(urlString)
         performRequest(with: urlString, parser: parseJoinGameResponse(_:))
     }
