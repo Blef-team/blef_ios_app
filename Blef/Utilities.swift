@@ -51,3 +51,7 @@ func stringifyCard(_ card: Card) -> String {
 func canStartGame(_ game: Game, _ players: [PlayerInfo]?) -> Bool {
     return game.status == .notStarted && (players?.count ?? 0) >= 2
 }
+
+func generatePlayerNickname() -> String {
+    return "Haughty Hedgehog"
+}
