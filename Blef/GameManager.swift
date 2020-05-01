@@ -7,9 +7,6 @@
 //
 
 import Foundation
-import Keys
-
-let keys = BlefKeys()
 
 struct RuntimeError: Error {
     let message: String
@@ -61,7 +58,7 @@ extension GameManagerDelegate {
 }
 
 class GameManager {
-    let GameEngineServiceURL = keys.gameEngineServiceBaseURL + "/games"
+    let GameEngineServiceURL = "http://18.132.35.89:8000/v1/games"
     var newGame: NewGame?
     var game: Game?
     var player: Player?
