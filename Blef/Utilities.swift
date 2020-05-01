@@ -57,5 +57,9 @@ func canStartGame(_ game: Game, _ player: Player, _ players: [PlayerInfo]?) -> B
 }
 
 func generatePlayerNickname() -> String {
-    return "Haughty Hedgehog"
+    guard let randomNames = Nicknames.randomElement(), let animal = randomNames.animals.randomElement(), let adjective = randomNames.adjectives.randomElement() else {
+        let number = Int.random(in: 999 ... 9999)
+        return "player_\(number)"
+    }
+    return "\((adjective))_\(animal)"
 }

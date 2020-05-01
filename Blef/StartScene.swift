@@ -24,8 +24,6 @@ class StartScene: SKScene, GameManagerDelegate {
         
         self.gameManager.delegate = self
         
-        self.playerNickname = "Warty Warthog"
-        
         errorMessageLabel = SKLabelNode(fontNamed:"HelveticaNeue-UltraLight")
         errorMessageLabel.text = ""
         errorMessageLabel.fontSize = 15
@@ -67,7 +65,9 @@ class StartScene: SKScene, GameManagerDelegate {
             gameManager.joinGame(gameUuid: newGame.uuid, nickname: nickname)
         }
         else {
-            displayMessage("Something went wrong. Try again.")
+            let nickname = generatePlayerNickname()
+            gameManager.joinGame(gameUuid: newGame.uuid, nickname: nickname)
+            self.playerNickname = nickname
         }
     }
     
