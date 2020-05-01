@@ -9,14 +9,14 @@
 import Foundation
 
 struct NewGame {
-    var game_uuid: String
+    var uuid: UUID
 }
 
 extension NewGame {
     init?(json: JSON) {
-        guard let game_uuid = json["game_uuid"] as? String else {
+        guard let uuidString = json["game_uuid"] as? String, let uuid = UUID(uuidString: uuidString) else {
             return nil
         }
-        self.game_uuid = game_uuid
+        self.uuid = uuid
     }
 }

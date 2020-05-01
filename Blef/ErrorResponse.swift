@@ -11,14 +11,14 @@ import Foundation
 typealias JSON = [String: Any]
 
 struct ErrorResponse {
-    var message: String
+    var error: String
 }
 
 extension ErrorResponse {
     init?(json: JSON) {
-        guard let message = json["message"] as? String else {
+        guard let message = json["error"] as? String else {
             return nil
         }
-        self.message = message
+        self.error = message
     }
 }

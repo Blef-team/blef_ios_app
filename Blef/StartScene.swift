@@ -15,62 +15,61 @@ class StartScene: SKScene, GameManagerDelegate {
     
     var gameManager = GameManager()
     var newGameLabel: SKNode?
+    var gameUuid: UUID?
+    var playerNickname: String?
     
     override func didMove(to view: SKView) {
         
         self.gameManager.delegate = self
         
-        self.newGameLabel = childNode(withName: "//newGameLabel")
+        self.playerNickname = "Warty Warthog"
         
+        self.newGameLabel = childNode(withName: "//newGameLabel")
         errorMessageLabel = SKLabelNode(fontNamed:"Chalkduster")
         errorMessageLabel.text = ""
         errorMessageLabel.fontSize = 12
         errorMessageLabel.position = CGPoint(x:self.frame.midX, y:self.frame.midY-50)
-
+        
         self.addChild(errorMessageLabel)
     }
     
     /**
-    
-    */
+     React to the users touches
+     */
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let touch = touches.first {
             let location = touch.location(in: self)
             let nodesarray = nodes(at: location)
-
+            
             for node in nodesarray {
-                if node.name == "newGameButton" {
-                    pulseLabel()
+                // If the New game button was tapped
+                if node.name == "newGameButton", let label = self.newGameLabel {
+                    pulseLabel(label)
                     errorMessageLabel.text = ""
                     print("Going to attempt an API call")
-                    gameManager.createGame(nickname: "test123")
+                    gameManager.createGame()
                     print("Made API call")
                 }
-
+                
             }
-        }
-    }
-    
-    /**
-     Display a visual effect on tap of the New game label
-     */
-    func pulseLabel () {
-        if let newGameLabel = self.newGameLabel {
-            print(newGameLabel)
-            let pulseSequence = SKAction.sequence([
-                SKAction.fadeAlpha(by: -0.7, duration: 0.1),
-                SKAction.fadeAlpha(by: 0.7, duration: 0.2)
-             ])
-            newGameLabel.run(pulseSequence)
         }
     }
     
     func didCreateNewGame(_ newGame: NewGame) {
         print(newGame)
+        gameUuid = newGame.uuid
+        gameManager.joinGame(gameUuid: newGame.uuid, nickname: self.playerNickname ?? "Warty Warthog")
+    }
+    
+    func didJoinGame(_ player: Player) {
+        print(player)
+        var player = player
+        player.nickname = playerNickname
         let gameScene = GameScene(fileNamed: "GameScene")
-            let transition = SKTransition.fade(withDuration: 1.0)
+        let transition = SKTransition.fade(withDuration: 1.0)
         gameScene?.scaleMode = .aspectFill
-        gameScene?.gameUuid = newGame.game_uuid
+        gameScene?.gameUuid = gameUuid
+        gameScene?.player = player
         scene?.view?.presentScene(gameScene!, transition: transition)
     }
     
@@ -81,5 +80,5 @@ class StartScene: SKScene, GameManagerDelegate {
         errorMessageLabel.text = "Something went wrong. Try again."
         self.addChild(errorMessageLabel)
     }
-
+    
 }
