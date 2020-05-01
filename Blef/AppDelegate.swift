@@ -68,10 +68,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GameManagerDelegate {
         startScene?.scaleMode = .aspectFill
         print("didFailWithError")
         print(error.localizedDescription)
-        errorMessageLabel.removeFromParent()
-        errorMessageLabel.text = "Something went wrong. Try again."
-        startScene?.addChild(errorMessageLabel)
-        (self.window?.rootViewController!.view as! SKView).presentScene(startScene!, transition: transition)
+        if let errorMessageLabel = startScene?.errorMessageLabel {
+            startScene?.errorMessageLabel.removeFromParent()
+            startScene?.errorMessageLabel.text = "Something went wrong. Try again."
+            startScene?.addChild(errorMessageLabel)
+            (self.window?.rootViewController!.view as! SKView).presentScene(startScene!, transition: transition)
+        }
     }
 
     func applicationWillResignActive(_ application: UIApplication) {
