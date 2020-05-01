@@ -86,6 +86,13 @@ class StartScene: SKScene, GameManagerDelegate {
     func didFailWithError(error: Error) {
         print("didFailWithError")
         print(error.localizedDescription)
+        if error.localizedDescription == "Nickname already taken" {
+            if let gameUuid = gameUuid {
+                let nickname = generatePlayerNickname()
+                gameManager.joinGame(gameUuid: gameUuid, nickname: nickname)
+                self.playerNickname = nickname
+            }
+        }
         displayMessage("Something went wrong. Try again.")
     }
  

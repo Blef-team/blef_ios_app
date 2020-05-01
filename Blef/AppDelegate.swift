@@ -63,11 +63,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GameManagerDelegate {
     }
     
     func didFailWithError(error: Error) {
+        print("didFailWithError")
+        print(error.localizedDescription)
+        if error.localizedDescription == "Nickname already taken" {
+            if let gameUuid = gameUuid{
+                let nickname = generatePlayerNickname()
+                gameManager.joinGame(gameUuid: gameUuid, nickname: nickname)
+                self.playerNickname = nickname
+                return
+            }
+        }
         let startScene = StartScene(fileNamed: "StartScene")
         let transition = SKTransition.fade(withDuration: 1.0)
         startScene?.scaleMode = .aspectFill
-        print("didFailWithError")
-        print(error.localizedDescription)
         if let errorMessageLabel = startScene?.errorMessageLabel {
             startScene?.errorMessageLabel.removeFromParent()
             startScene?.errorMessageLabel.text = "Something went wrong. Try again."
