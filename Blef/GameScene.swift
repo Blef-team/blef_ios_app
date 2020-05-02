@@ -341,8 +341,10 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
         
         if let label = self.currentPlayerLabel, let game = self.game {
-            let newLabelText = "Current player: \(formatDisplayNickname(game.currentPlayerNickname ?? "none yet"))"
-            updateLabelText(label, newLabelText)
+            if let currentPlayer = game.currentPlayerNickname {
+                let newLabelText = "Current player: \(formatDisplayNickname(currentPlayer))"
+                updateLabelText(label, newLabelText)
+            }
         }
         
         if let label = self.playersLabel, let game = self.game {
@@ -351,12 +353,12 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
         
         if let label = self.handsLabel, let game = self.game {
-            var newLabelText = "Failed getting your hand info"
-            if let hand = game.hands?.first(where:{$0.nickname != "" })?.hand {
-                let cards = hand.map(stringifyCard(_:))
-                newLabelText = "Your hand: \(cards.joined(separator: ", "))"
+            if game.status != .notStarted {
+                if let hand = game.hands?.first(where:{$0.nickname != "" })?.hand {
+                    let cards = hand.map(stringifyCard(_:))
+                    updateLabelText(label, "Your hand: \(cards.joined(separator: ", "))")
+                }
             }
-            updateLabelText(label, newLabelText)
         }
         
         if let label = self.historyLabel, let game = self.game {
