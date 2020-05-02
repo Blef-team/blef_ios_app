@@ -147,6 +147,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         if self.isDisplayingMessage {
             clearMessage()
         }
+        else{
+            self.view?.endEditing(true)
+        }
         
     }
     
@@ -247,7 +250,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             myField.text = String(describing: action)
             self.actionSelected = action
         }
-        self.view?.endEditing(true)
     }
     
     func resumeGameUpdateTimer() {
