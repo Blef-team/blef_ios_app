@@ -19,6 +19,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     var gameUuid: UUID?
     var player: Player?
     var game: Game?
+    var lastBet: Action?
     var errorMessageLabel: SKLabelNode!
     var isDisplayingMessage = false
     var actionSelected: Action?
@@ -126,6 +127,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     func didUpdateGame(_ game: Game) {
         print(game)
         self.game = game
+        self.lastBet = game.history?.last?.action
         updateLabels()
     }
     
@@ -227,14 +229,14 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        if let lastBet = lastBet {
+            return Action.allCases.count - lastBet.rawValue - 1
+        }
         return Action.allCases.count
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        var actionId = row - 1
-        if row == 0 {
-            actionId = 88
-        }
+        let actionId = getActionIdForRow(row)
         if let action = Action.init(rawValue: actionId) {
             return String(describing: action)
         }
@@ -242,14 +244,22 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        var actionId = row - 1
-        if row == 0 {
-            actionId = 88
-        }
+        let actionId = getActionIdForRow(row)
         if let myField = myField, let action = Action.init(rawValue: actionId){
             myField.text = String(describing: action)
             self.actionSelected = action
         }
+    }
+    
+    func getActionIdForRow(_ row: Int) -> Int {
+        var actionId = row - 1
+        if let lastBet = lastBet {
+            actionId += lastBet.rawValue + 1
+        }
+        if row == 0 {
+            actionId = 88
+        }
+        return actionId
     }
     
     func resumeGameUpdateTimer() {
