@@ -23,13 +23,12 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     var errorMessageLabel: SKLabelNode!
     var isDisplayingMessage = false
     var actionSelected: Action?
-    private var gameplayGroup: SKNode?
     private var startGameLabel: SKLabelNode?
     private var playLabel: SKLabelNode?
     private var actionPickerLabel: SKLabelNode?
     private var actionPickerView : UIPickerView?
     private var helloLabel : SKLabelNode?
-    private var gameUuidLabel : SKLabelNode?
+    private var shareLabel : SKLabelNode?
     private var adminLabel : SKLabelNode?
     private var publicLabel : SKLabelNode?
     private var statusLabel : SKLabelNode?
@@ -39,13 +38,11 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     private var playersLabel : SKLabelNode?
     private var handsLabel : SKLabelNode?
     private var historyLabel : SKLabelNode?
-    private var myField: UITextField?
+    private var actionPickerField: UITextField?
     
     override func didMove(to view: SKView) {
         
         self.gameManager.delegate = self
-        
-        self.gameplayGroup = childNode(withName: "//gameplayGroup") as? SKLabelNode
         
         self.startGameLabel = childNode(withName: "//startGameLabel") as? SKLabelNode
         startGameLabel?.alpha = 0.0
@@ -53,33 +50,21 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         playLabel?.alpha = 0.0
         self.actionPickerLabel = childNode(withName: "//actionPickerLabel") as? SKLabelNode
         actionPickerLabel?.alpha = 0.0
-        self.gameUuidLabel = self.childNode(withName: "//gameUuidLabel") as? SKLabelNode
-        gameUuidLabel?.alpha = 0.0
-        self.adminLabel = self.childNode(withName: "//adminLabel") as? SKLabelNode
-        adminLabel?.alpha = 0.0
-        self.publicLabel = self.childNode(withName: "//publicLabel") as? SKLabelNode
-        publicLabel?.alpha = 0.0
-        self.statusLabel = self.childNode(withName: "//statusLabel") as? SKLabelNode
-        statusLabel?.alpha = 0.0
-        self.roundLabel = self.childNode(withName: "//roundLabel") as? SKLabelNode
-        roundLabel?.alpha = 0.0
-        self.maxCardsLabel = self.childNode(withName: "//maxCardsLabel") as? SKLabelNode
-        maxCardsLabel?.alpha = 0.0
+        self.shareLabel = self.childNode(withName: "//shareLabel") as? SKLabelNode
+        shareLabel?.alpha = 0.0
         self.currentPlayerLabel = self.childNode(withName: "//currentPlayerLabel") as? SKLabelNode
         currentPlayerLabel?.alpha = 0.0
         self.playersLabel = self.childNode(withName: "//playersLabel") as? SKLabelNode
         playersLabel?.alpha = 0.0
         self.handsLabel = self.childNode(withName: "//handsLabel") as? SKLabelNode
         handsLabel?.alpha = 0.0
-        self.historyLabel = self.childNode(withName: "//historyLabel") as? SKLabelNode
-        historyLabel?.alpha = 0.0
         
-        self.myField = UITextField(frame: CGRect(x: UIScreen.main.bounds.size.width * 0.65, y: UIScreen.main.bounds.size.height * 0.2, width: 200, height: 30))
+        self.actionPickerField = UITextField(frame: CGRect(x: UIScreen.main.bounds.size.width * 0.65, y: UIScreen.main.bounds.size.height * 0.2, width: 200, height: 30))
         
         actionPickerView = UIPickerView()
         actionPickerView?.dataSource = self
         actionPickerView?.delegate = self
-        if let myField = myField {
+        if let myField = actionPickerField {
             myField.inputView = actionPickerView
             myField.font = UIFont(name: "HelveticaNeue-UltraLight", size: 20)
             myField.textColor = .black
@@ -132,7 +117,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func didPlay() {
-        if let playLabel = playLabel, let actionPickerLabel = actionPickerLabel, let actionPickerField = myField {
+        if let playLabel = playLabel, let actionPickerLabel = actionPickerLabel, let actionPickerField = actionPickerField {
             fadeOutNode(playLabel)
             fadeOutNode(actionPickerLabel)
             actionPickerField.text = ""
@@ -160,45 +145,50 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func touchUp(atPoint pos : CGPoint) {
-        let nodesarray = nodes(at: pos)
-        for node in nodesarray {
-            // If the New game button was tapped
-            if node.name == "startGameButton" {
-                startGameButtonPressed()
-            }
-            if node.name == "playButton" {
-                playButtonPressed()
-            }
-            if node.name == "gameUuidLabel" {
-                let pasteboard = UIPasteboard.general
-                pulseLabel(node)
-                displayMessage("Game link copied")
-                
-                let firstActivityItem = "Join me for a game of Blef"
-                if let uuid = gameUuid?.uuidString {
-                    let gameUrlString = "blef:///\(uuid)"
-                    pasteboard.string = gameUrlString
-                    let secondActivityItem : NSURL = NSURL(string: gameUrlString)!
-                    let activityViewController : UIActivityViewController = UIActivityViewController(
-                        activityItems: [firstActivityItem, secondActivityItem], applicationActivities: nil)
-                    
-                    activityViewController.popoverPresentationController?.sourceView = node.inputView
-                    activityViewController.popoverPresentationController?.sourceRect = CGRect(x: 150, y: 150, width: 0, height: 0)
-                    
-                    activityViewController.excludedActivityTypes = [
-                        UIActivity.ActivityType.postToWeibo,
-                        UIActivity.ActivityType.print,
-                        UIActivity.ActivityType.assignToContact,
-                        UIActivity.ActivityType.saveToCameraRoll,
-                        UIActivity.ActivityType.addToReadingList,
-                        UIActivity.ActivityType.postToFlickr,
-                        UIActivity.ActivityType.postToVimeo,
-                        UIActivity.ActivityType.postToTencentWeibo,
-                    ]
-                    
-                    self.view?.window?.rootViewController?.present(activityViewController, animated: true, completion: nil)
+        if self.isDisplayingMessage {
+            clearMessage()
+        }
+        else {
+            let nodesarray = nodes(at: pos)
+            for node in nodesarray {
+                // If the New game button was tapped
+                if node.name == "startGameButton" {
+                    startGameButtonPressed()
                 }
-                
+                if node.name == "playButton" {
+                    playButtonPressed()
+                }
+                if node.name == "shareButton" {
+                    let pasteboard = UIPasteboard.general
+                    pulseLabel(node)
+                    displayMessage("Game link copied")
+                    
+                    let firstActivityItem = "Join me for a game of Blef"
+                    if let uuid = gameUuid?.uuidString {
+                        let gameUrlString = "blef:///\(uuid)"
+                        pasteboard.string = gameUrlString
+                        let secondActivityItem : NSURL = NSURL(string: gameUrlString)!
+                        let activityViewController : UIActivityViewController = UIActivityViewController(
+                            activityItems: [firstActivityItem, secondActivityItem], applicationActivities: nil)
+                        
+                        activityViewController.popoverPresentationController?.sourceView = self.view
+                        activityViewController.popoverPresentationController?.sourceRect = CGRect(x: 150, y: 150, width: 0, height: 0)
+                        
+                        activityViewController.excludedActivityTypes = [
+                            UIActivity.ActivityType.postToWeibo,
+                            UIActivity.ActivityType.print,
+                            UIActivity.ActivityType.assignToContact,
+                            UIActivity.ActivityType.saveToCameraRoll,
+                            UIActivity.ActivityType.addToReadingList,
+                            UIActivity.ActivityType.postToFlickr,
+                            UIActivity.ActivityType.postToVimeo,
+                            UIActivity.ActivityType.postToTencentWeibo,
+                        ]
+                        
+                        self.view?.window?.rootViewController?.present(activityViewController, animated: true, completion: nil)
+                    }
+                    
+                }
             }
         }
     }
@@ -245,7 +235,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         let actionId = getActionIdForRow(row)
-        if let myField = myField, let action = Action.init(rawValue: actionId){
+        if let myField = actionPickerField, let action = Action.init(rawValue: actionId){
             myField.text = String(describing: action)
             self.actionSelected = action
         }
@@ -314,6 +304,14 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func updateLabels() {
+        if let label = self.shareLabel, let game = self.game {
+            if game.status == .notStarted {
+                if label.alpha == 0 {
+                    fadeInNode(label)
+                }
+            }
+        }
+        
         if let label = self.startGameLabel, let game = self.game, let player = player, let players = game.players {
             if canStartGame(game, player, players) {
                 if label.alpha == 0 {
@@ -325,7 +323,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
         }
         
-        if let playLabel = self.playLabel, let actionPickerLabel = actionPickerLabel, let player = self.player, let game = self.game, let actionPickerField = myField {
+        if let playLabel = self.playLabel, let actionPickerLabel = actionPickerLabel, let player = self.player, let game = self.game, let actionPickerField = actionPickerField {
             if game.status == .running && playerIsCurrentPlayer(player: player, game: game) {
                 if playLabel.alpha == 0 {
                     fadeInNode(playLabel)
@@ -342,39 +340,11 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
         }
         
-        if let label = self.gameUuidLabel, let id = gameUuid?.uuidString {
-            let newLabelText = "Game ID: \(id)"
-            updateLabelText(label, newLabelText)
-        }
-        
-        if let label = self.adminLabel, let game = self.game {
-            let newLabelText = "Admin: \(game.adminNickname?.replacingOccurrences(of: "_", with: " ") ?? "none yet")"
-            updateLabelText(label, newLabelText)
-        }
-        
-        if let label = self.publicLabel, let game = self.game {
-            let newLabelText = "Is public: \(game.isPublic)"
-            updateLabelText(label, newLabelText)
-        }
-        
-        if let label = self.statusLabel, let game = self.game {
-            let newLabelText = "Status: \(game.status.rawValue)"
-            updateLabelText(label, newLabelText)
-        }
-        
-        if let label = self.roundLabel, let game = self.game {
-            let newLabelText = "Round: \(game.roundNumber)"
-            updateLabelText(label, newLabelText)
-        }
-        
-        if let label = self.maxCardsLabel, let game = self.game {
-            let newLabelText = "Maximum cards: \(game.maxCards)"
-            updateLabelText(label, newLabelText)
-        }
-        
         if let label = self.currentPlayerLabel, let game = self.game {
-            let newLabelText = "Current player: \(formatDisplayNickname(game.currentPlayerNickname ?? "none yet"))"
-            updateLabelText(label, newLabelText)
+            if let currentPlayer = game.currentPlayerNickname {
+                let newLabelText = "Current player: \(formatDisplayNickname(currentPlayer))"
+                updateLabelText(label, newLabelText)
+            }
         }
         
         if let label = self.playersLabel, let game = self.game {
@@ -383,12 +353,12 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
         
         if let label = self.handsLabel, let game = self.game {
-            var newLabelText = "Failed getting your hand info"
-            if let hand = game.hands?.first(where:{$0.nickname != "" })?.hand {
-                let cards = hand.map(stringifyCard(_:))
-                newLabelText = "Your hand: \(cards.joined(separator: ", "))"
+            if game.status != .notStarted {
+                if let hand = game.hands?.first(where:{$0.nickname != "" })?.hand {
+                    let cards = hand.map(stringifyCard(_:))
+                    updateLabelText(label, "Your hand: \(cards.joined(separator: ", "))")
+                }
             }
-            updateLabelText(label, newLabelText)
         }
         
         if let label = self.historyLabel, let game = self.game {
@@ -406,7 +376,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         errorMessageLabel.alpha = 0.0
         self.addChild(errorMessageLabel)
         
-        fadeOutNode(gameUuidLabel)
+        fadeOutNode(shareLabel)
         fadeOutNode(statusLabel)
         fadeOutNode(adminLabel)
         fadeOutNode(playersLabel)
@@ -419,7 +389,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         fadeOutNode(playLabel)
         fadeOutNode(startGameLabel)
         fadeOutNode(actionPickerLabel)
-        if let actionPickerField = myField {
+        if let actionPickerField = actionPickerField {
             actionPickerField.isHidden = true
         }
         
@@ -430,7 +400,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         isDisplayingMessage = false
         fadeOutNode(errorMessageLabel)
         
-        fadeInNode(gameUuidLabel)
+        fadeInNode(shareLabel)
         fadeInNode(statusLabel)
         fadeInNode(adminLabel)
         fadeInNode(playersLabel)
@@ -441,7 +411,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         fadeInNode(roundLabel)
         fadeInNode(publicLabel)
         
-        if let game = game, let players = game.players, let player = player, let startGameLabel = startGameLabel, let playLabel = playLabel, let actionPickerField = myField {
+        if let game = game, let players = game.players, let player = player, let startGameLabel = startGameLabel, let playLabel = playLabel, let actionPickerField = actionPickerField {
             if canStartGame(game, player, players) && startGameLabel.alpha == 0 {
                 fadeInNode(startGameLabel)
             }
