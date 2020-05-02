@@ -147,49 +147,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         if self.isDisplayingMessage {
             clearMessage()
         }
-        else {
-            let nodesarray = nodes(at: pos)
-            for node in nodesarray {
-                // If the New game button was tapped
-                if node.name == "startGameButton" {
-                    startGameButtonPressed()
-                }
-                if node.name == "playButton" {
-                    playButtonPressed()
-                }
-                if node.name == "gameUuidLabel" {
-                    let pasteboard = UIPasteboard.general
-                    pulseLabel(node)
-                    displayMessage("Game link copied")
-
-                    let firstActivityItem = "Join me for a game of Blef"
-                    if let uuid = gameUuid?.uuidString {
-                        let gameUrlString = "blef:///\(uuid)"
-                        pasteboard.string = gameUrlString
-                        let secondActivityItem : NSURL = NSURL(string: gameUrlString)!
-                        let activityViewController : UIActivityViewController = UIActivityViewController(
-                            activityItems: [firstActivityItem, secondActivityItem], applicationActivities: nil)
-
-                        activityViewController.popoverPresentationController?.sourceView = node.inputView
-                        activityViewController.popoverPresentationController?.sourceRect = CGRect(x: 150, y: 150, width: 0, height: 0)
-
-                        activityViewController.excludedActivityTypes = [
-                            UIActivity.ActivityType.postToWeibo,
-                            UIActivity.ActivityType.print,
-                            UIActivity.ActivityType.assignToContact,
-                            UIActivity.ActivityType.saveToCameraRoll,
-                            UIActivity.ActivityType.addToReadingList,
-                            UIActivity.ActivityType.postToFlickr,
-                            UIActivity.ActivityType.postToVimeo,
-                            UIActivity.ActivityType.postToTencentWeibo,
-                        ]
-
-                        self.view?.window?.rootViewController?.present(activityViewController, animated: true, completion: nil)
-                    }
-
-                }
-            }
-        }
+        
     }
     
     func touchMoved(toPoint pos : CGPoint) {
@@ -197,7 +155,47 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func touchUp(atPoint pos : CGPoint) {
-        
+        let nodesarray = nodes(at: pos)
+        for node in nodesarray {
+            // If the New game button was tapped
+            if node.name == "startGameButton" {
+                startGameButtonPressed()
+            }
+            if node.name == "playButton" {
+                playButtonPressed()
+            }
+            if node.name == "gameUuidLabel" {
+                let pasteboard = UIPasteboard.general
+                pulseLabel(node)
+                displayMessage("Game link copied")
+                
+                let firstActivityItem = "Join me for a game of Blef"
+                if let uuid = gameUuid?.uuidString {
+                    let gameUrlString = "blef:///\(uuid)"
+                    pasteboard.string = gameUrlString
+                    let secondActivityItem : NSURL = NSURL(string: gameUrlString)!
+                    let activityViewController : UIActivityViewController = UIActivityViewController(
+                        activityItems: [firstActivityItem, secondActivityItem], applicationActivities: nil)
+                    
+                    activityViewController.popoverPresentationController?.sourceView = node.inputView
+                    activityViewController.popoverPresentationController?.sourceRect = CGRect(x: 150, y: 150, width: 0, height: 0)
+                    
+                    activityViewController.excludedActivityTypes = [
+                        UIActivity.ActivityType.postToWeibo,
+                        UIActivity.ActivityType.print,
+                        UIActivity.ActivityType.assignToContact,
+                        UIActivity.ActivityType.saveToCameraRoll,
+                        UIActivity.ActivityType.addToReadingList,
+                        UIActivity.ActivityType.postToFlickr,
+                        UIActivity.ActivityType.postToVimeo,
+                        UIActivity.ActivityType.postToTencentWeibo,
+                    ]
+                    
+                    self.view?.window?.rootViewController?.present(activityViewController, animated: true, completion: nil)
+                }
+                
+            }
+        }
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
