@@ -7,16 +7,81 @@
 //
 
 import UIKit
+import SpriteKit
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, GameManagerDelegate {
 
+    var gameManager = GameManager()
+    var playerNickname: String?
+    var gameUuid: UUID?
     var window: UIWindow?
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         return true
+    }
+    
+    func application(_ application: UIApplication,
+                     open url: URL,
+                     options: [UIApplication.OpenURLOptionsKey : Any] = [:] ) -> Bool {
+        
+        // Determine who sent the URL.
+        let sendingAppID = options[.sourceApplication]
+        print("source application = \(sendingAppID ?? "Unknown")")
+        
+        // Process the URL.
+        print(url) // DEBUG
+        print(NSURLComponents(url: url, resolvingAgainstBaseURL: true)) // DEBUG
+        print(NSURLComponents(url: url, resolvingAgainstBaseURL: true)?.path?.replacingOccurrences(of: "/", with: ""))
+        guard let components = NSURLComponents(url: url, resolvingAgainstBaseURL: true),
+            let gameUuid = UUID(uuidString: components.path?.replacingOccurrences(of: "/", with: "")  ?? "") else {
+                print("Invalid URL")
+                return false
+        }
+        
+        self.gameManager.delegate = self
+        playerNickname = generatePlayerNickname()
+        self.gameUuid = gameUuid
+        if let playerNickname = playerNickname {
+            gameManager.joinGame(gameUuid: gameUuid, nickname: playerNickname)
+        }
+        return true
+    }
+
+    func didJoinGame(_ player: Player) {
+        print(player)
+        var player = player
+        player.nickname = playerNickname
+        let gameScene = GameScene(fileNamed: "GameScene")
+        let transition = SKTransition.fade(withDuration: 1.0)
+        gameScene?.scaleMode = .aspectFill
+        gameScene?.gameUuid = gameUuid
+        gameScene?.player = player
+        (self.window?.rootViewController!.view as! SKView).presentScene(gameScene!, transition: transition)
+    }
+    
+    func didFailWithError(error: Error) {
+        print("didFailWithError")
+        print(error.localizedDescription)
+        if error.localizedDescription == "Nickname already taken" {
+            if let gameUuid = gameUuid{
+                let nickname = generatePlayerNickname()
+                gameManager.joinGame(gameUuid: gameUuid, nickname: nickname)
+                self.playerNickname = nickname
+                return
+            }
+        }
+        let startScene = StartScene(fileNamed: "StartScene")
+        let transition = SKTransition.fade(withDuration: 1.0)
+        startScene?.scaleMode = .aspectFill
+        if let errorMessageLabel = startScene?.errorMessageLabel {
+            startScene?.errorMessageLabel.removeFromParent()
+            startScene?.errorMessageLabel.text = "Something went wrong. Try again."
+            startScene?.addChild(errorMessageLabel)
+            (self.window?.rootViewController!.view as! SKView).presentScene(startScene!, transition: transition)
+        }
     }
 
     func applicationWillResignActive(_ application: UIApplication) {

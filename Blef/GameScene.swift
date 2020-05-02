@@ -19,6 +19,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     var gameUuid: UUID?
     var player: Player?
     var game: Game?
+    var errorMessageLabel: SKLabelNode!
     var isDisplayingMessage = false
     var actionSelected: Action?
     private var gameplayGroup: SKNode?
@@ -158,9 +159,34 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 }
                 if node.name == "gameUuidLabel" {
                     let pasteboard = UIPasteboard.general
-                    pasteboard.string = gameUuid?.uuidString
                     pulseLabel(node)
-                    displayMessage("Game ID copied")
+                    displayMessage("Game link copied")
+
+                    let firstActivityItem = "Join me for a game of Blef"
+                    if let uuid = gameUuid?.uuidString {
+                        let gameUrlString = "blef:///\(uuid)"
+                        pasteboard.string = gameUrlString
+                        let secondActivityItem : NSURL = NSURL(string: gameUrlString)!
+                        let activityViewController : UIActivityViewController = UIActivityViewController(
+                            activityItems: [firstActivityItem, secondActivityItem], applicationActivities: nil)
+
+                        activityViewController.popoverPresentationController?.sourceView = node.inputView
+                        activityViewController.popoverPresentationController?.sourceRect = CGRect(x: 150, y: 150, width: 0, height: 0)
+
+                        activityViewController.excludedActivityTypes = [
+                            UIActivity.ActivityType.postToWeibo,
+                            UIActivity.ActivityType.print,
+                            UIActivity.ActivityType.assignToContact,
+                            UIActivity.ActivityType.saveToCameraRoll,
+                            UIActivity.ActivityType.addToReadingList,
+                            UIActivity.ActivityType.postToFlickr,
+                            UIActivity.ActivityType.postToVimeo,
+                            UIActivity.ActivityType.postToTencentWeibo,
+                        ]
+
+                        self.view?.window?.rootViewController?.present(activityViewController, animated: true, completion: nil)
+                    }
+
                 }
             }
         }
@@ -248,8 +274,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             pulseLabel(label)
         }
         errorMessageLabel.text = ""
-        if let gameUuid = gameUuid, let playerUuid = player?.uuid, let game = self.game, let players = game.players {
-            if canStartGame(game, players) {
+        if let gameUuid = gameUuid, let playerUuid = player?.uuid, let game = self.game, let players = game.players, let player = player {
+            if canStartGame(game, player, players) {
                 print("Going to attempt an API call")
                 gameManager.startGame(gameUuid: gameUuid, playerUuid: playerUuid)
                 print("Made API call")
@@ -278,8 +304,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func updateLabels() {
-        if let label = self.startGameLabel, let game = self.game, let players = game.players {
-            if canStartGame(game, players) {
+        if let label = self.startGameLabel, let game = self.game, let player = player, let players = game.players {
+            if canStartGame(game, player, players) {
                 if label.alpha == 0 {
                     fadeInNode(label)
                 }
@@ -406,7 +432,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         fadeInNode(publicLabel)
         
         if let game = game, let players = game.players, let player = player, let startGameLabel = startGameLabel, let playLabel = playLabel, let actionPickerField = myField {
-            if canStartGame(game, players) && startGameLabel.alpha == 0 {
+            if canStartGame(game, player, players) && startGameLabel.alpha == 0 {
                 fadeInNode(startGameLabel)
             }
             if playerIsCurrentPlayer(player: player, game: game) && playLabel.alpha == 0 {

@@ -9,35 +9,39 @@
 import SpriteKit
 import GameplayKit
 
-var errorMessageLabel: SKLabelNode!
+var errorMessageLabel: SKLabelNode?
 
 class StartScene: SKScene, GameManagerDelegate {
     
     var gameManager = GameManager()
     var newGameLabel: SKNode?
+    var errorMessageLabel: SKLabelNode!
     var gameUuid: UUID?
     var playerNickname: String?
+    var isDisplayingMessage = false
     
     override func didMove(to view: SKView) {
         
         self.gameManager.delegate = self
         
-        self.playerNickname = "Warty Warthog"
+        errorMessageLabel = SKLabelNode(fontNamed:"HelveticaNeue-UltraLight")
+        errorMessageLabel.text = ""
+        errorMessageLabel.fontSize = 15
+        errorMessageLabel.position = CGPoint(x:self.frame.midX, y:self.frame.midY)
+        self.addChild(errorMessageLabel)
         
         self.newGameLabel = childNode(withName: "//newGameLabel")
-        errorMessageLabel = SKLabelNode(fontNamed:"Chalkduster")
-        errorMessageLabel.text = ""
-        errorMessageLabel.fontSize = 12
-        errorMessageLabel.position = CGPoint(x:self.frame.midX, y:self.frame.midY-50)
         
-        self.addChild(errorMessageLabel)
     }
     
     /**
      React to the users touches
      */
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if let touch = touches.first {
+        if self.isDisplayingMessage {
+            clearMessage()
+        }
+        else if let touch = touches.first {
             let location = touch.location(in: self)
             let nodesarray = nodes(at: location)
             
@@ -45,7 +49,6 @@ class StartScene: SKScene, GameManagerDelegate {
                 // If the New game button was tapped
                 if node.name == "newGameButton", let label = self.newGameLabel {
                     pulseLabel(label)
-                    errorMessageLabel.text = ""
                     print("Going to attempt an API call")
                     gameManager.createGame()
                     print("Made API call")
@@ -58,13 +61,20 @@ class StartScene: SKScene, GameManagerDelegate {
     func didCreateNewGame(_ newGame: NewGame) {
         print(newGame)
         gameUuid = newGame.uuid
-        gameManager.joinGame(gameUuid: newGame.uuid, nickname: self.playerNickname ?? "Warty Warthog")
+        if let nickname = playerNickname {
+            gameManager.joinGame(gameUuid: newGame.uuid, nickname: nickname)
+        }
+        else {
+            let nickname = generatePlayerNickname()
+            gameManager.joinGame(gameUuid: newGame.uuid, nickname: nickname)
+            self.playerNickname = nickname
+        }
     }
     
     func didJoinGame(_ player: Player) {
         print(player)
         var player = player
-        player.nickname = playerNickname
+        player.nickname = formatSerialisedNickname(playerNickname ?? "no name")
         let gameScene = GameScene(fileNamed: "GameScene")
         let transition = SKTransition.fade(withDuration: 1.0)
         gameScene?.scaleMode = .aspectFill
@@ -76,9 +86,36 @@ class StartScene: SKScene, GameManagerDelegate {
     func didFailWithError(error: Error) {
         print("didFailWithError")
         print(error.localizedDescription)
+        if error.localizedDescription == "Nickname already taken" {
+            if let gameUuid = gameUuid {
+                let nickname = generatePlayerNickname()
+                gameManager.joinGame(gameUuid: gameUuid, nickname: nickname)
+                self.playerNickname = nickname
+            }
+        }
+        displayMessage("Something went wrong. Try again.")
+    }
+ 
+    func displayMessage(_ message: String) {
+        isDisplayingMessage = true
+        
         errorMessageLabel.removeFromParent()
-        errorMessageLabel.text = "Something went wrong. Try again."
+        errorMessageLabel.text = message
+        errorMessageLabel.alpha = 0.0
         self.addChild(errorMessageLabel)
+        
+        fadeOutNode(newGameLabel)
+        
+        fadeInNode(errorMessageLabel)
+    }
+    
+    func clearMessage() {
+        isDisplayingMessage = false
+        fadeOutNode(errorMessageLabel)
+        
+        fadeInNode(newGameLabel)
+
+        
     }
     
 }

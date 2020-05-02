@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 50;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -14,6 +14,7 @@
 		47334E5E245308D400F9D4BD /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47334E5D245308D400F9D4BD /* Message.swift */; };
 		47625DD7244A38CC0041E62D /* NewGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47625DD6244A38CC0041E62D /* NewGame.swift */; };
 		47625DD9244A44FF0041E62D /* ErrorResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47625DD8244A44FF0041E62D /* ErrorResponse.swift */; };
+		4765F4F6245CCB9E002A31CA /* Nicknames.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4765F4F5245CCB9E002A31CA /* Nicknames.swift */; };
 		479E2A0B244744EC004BF702 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479E2A0A244744EC004BF702 /* AppDelegate.swift */; };
 		479E2A0D244744EC004BF702 /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 479E2A0C244744EC004BF702 /* GameScene.sks */; };
 		479E2A0F244744EC004BF702 /* Actions.sks in Resources */ = {isa = PBXBuildFile; fileRef = 479E2A0E244744EC004BF702 /* Actions.sks */; };
@@ -60,6 +61,7 @@
 		47334E5D245308D400F9D4BD /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
 		47625DD6244A38CC0041E62D /* NewGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewGame.swift; sourceTree = "<group>"; };
 		47625DD8244A44FF0041E62D /* ErrorResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorResponse.swift; sourceTree = "<group>"; };
+		4765F4F5245CCB9E002A31CA /* Nicknames.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Nicknames.swift; sourceTree = "<group>"; };
 		479E2A07244744EC004BF702 /* Blef.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Blef.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		479E2A0A244744EC004BF702 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		479E2A0C244744EC004BF702 /* GameScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameScene.sks; sourceTree = "<group>"; };
@@ -130,6 +132,7 @@
 			isa = PBXGroup;
 			children = (
 				47625DD8244A44FF0041E62D /* ErrorResponse.swift */,
+				4765F4F5245CCB9E002A31CA /* Nicknames.swift */,
 				472E2080244979C2005915A0 /* GameManager.swift */,
 				47F035F6244B0BFE000136C1 /* Game.swift */,
 				47334E5D245308D400F9D4BD /* Message.swift */,
@@ -426,6 +429,7 @@
 				47625DD9244A44FF0041E62D /* ErrorResponse.swift in Sources */,
 				47334E5A2452EA3900F9D4BD /* Player.swift in Sources */,
 				47F035F7244B0BFE000136C1 /* Game.swift in Sources */,
+				4765F4F6245CCB9E002A31CA /* Nicknames.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
