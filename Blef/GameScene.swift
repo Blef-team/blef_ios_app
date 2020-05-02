@@ -171,7 +171,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                         let activityViewController : UIActivityViewController = UIActivityViewController(
                             activityItems: [firstActivityItem, secondActivityItem], applicationActivities: nil)
                         
-                        activityViewController.popoverPresentationController?.sourceView = node.inputView
+                        activityViewController.popoverPresentationController?.sourceView = self.view
                         activityViewController.popoverPresentationController?.sourceRect = CGRect(x: 150, y: 150, width: 0, height: 0)
                         
                         activityViewController.excludedActivityTypes = [
