@@ -56,6 +56,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         currentPlayerLabel?.alpha = 0.0
         self.playersLabel = self.childNode(withName: "//playersLabel") as? SKLabelNode
         playersLabel?.alpha = 0.0
+        playersLabel?.numberOfLines = 0
+        playersLabel?.preferredMaxLayoutWidth = 400
 
         self.actionPickerField = UITextField(frame: CGRect(x: UIScreen.main.bounds.size.width * 0.65, y: UIScreen.main.bounds.size.height * 0.2, width: 200, height: 30))
         
@@ -371,11 +373,18 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             updateLabelText(label, newLabelText)
         }
         
-        if let label = self.playersLabel, let game = self.game {
-            var newLabelText = "Players: \(game.players?.map { "\(formatDisplayNickname($0.nickname)): \($0.nCards) cards"}.joined(separator: " | ") ?? "no details available")"
-            if let player = player, let playerNickname = player.nickname {
-                newLabelText = newLabelText.replacingOccurrences(of: formatDisplayNickname(playerNickname), with: "You")
+        if let label = self.playersLabel, let game = self.game, let players = game.players, let player = player {
+            var playerStrings: [String] = []
+            for playerObject in players {
+                if player.nickname == playerObject.nickname {
+                    playerStrings.append("You: \(playerObject.nCards)")
+                }
+                else {
+                    playerStrings.append("\(formatDisplayNickname(playerObject.nickname)): \(playerObject.nCards)")
+                }
+                 
             }
+            let newLabelText = playerStrings.joined(separator: " | ")
             updateLabelText(label, newLabelText)
         }
         
