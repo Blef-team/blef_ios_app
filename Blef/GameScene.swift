@@ -151,13 +151,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func touchDown(atPoint pos : CGPoint) {
-        if self.isDisplayingMessage {
-            clearMessage()
-        }
-        else {
-            self.view?.endEditing(true)
-        }
-        
+        self.view?.endEditing(true)
     }
     
     func touchMoved(toPoint pos : CGPoint) {
@@ -361,7 +355,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
             else {
                 fadeOutNode(playLabel)
-                fadeOutNode(actionPickerLabel)
+                actionPickerLabel.isHidden = true
             }
         }
         
