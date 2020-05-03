@@ -359,17 +359,22 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
         }
         
-        if let label = self.currentPlayerLabel, let game = self.game {
-            if let currentPlayer = game.currentPlayerNickname {
-                if game.status == .running {
-                    let newLabelText = "Current player: \(formatDisplayNickname(currentPlayer))"
-                    updateLabelText(label, newLabelText)
-                }
+        if let label = self.currentPlayerLabel, let game = self.game, let currentPlayer = game.currentPlayerNickname, let player = player {
+            var newLabelText: String
+            if currentPlayer == player.nickname {
+                newLabelText = "Current player: You"
             }
+            else {
+                newLabelText = "Current player: \(formatDisplayNickname(currentPlayer))"
+            }
+            updateLabelText(label, newLabelText)
         }
         
         if let label = self.playersLabel, let game = self.game {
-            let newLabelText = "Players: \(game.players?.map { "\(formatDisplayNickname($0.nickname)): \($0.nCards) cards"}.joined(separator: " | ") ?? "no details available")"
+            var newLabelText = "Players: \(game.players?.map { "\(formatDisplayNickname($0.nickname)): \($0.nCards) cards"}.joined(separator: " | ") ?? "no details available")"
+            if let player = player, let playerNickname = player.nickname {
+                newLabelText = newLabelText.replacingOccurrences(of: formatDisplayNickname(playerNickname), with: "You")
+            }
             updateLabelText(label, newLabelText)
         }
         
