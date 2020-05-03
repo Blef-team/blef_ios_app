@@ -24,6 +24,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     var errorMessageLabel: SKLabelNode!
     var isDisplayingMessage = false
     var actionSelected: Action?
+    var pressedPlayButton = false
     private var startGameLabel: SKLabelNode?
     private var playLabel: SKLabelNode?
     private var actionPickerLabel: SKLabelNode?
@@ -175,7 +176,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                     startGameButtonPressed()
                 }
                 if node.name == "playButton" {
-                    playButtonPressed()
+                    if !pressedPlayButton {
+                        playButtonPressed()
+                    }
                 }
                 if node.name == "shareButton" {
                     shareButtonPressed()
@@ -276,6 +279,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func playButtonPressed() {
+        pressedPlayButton = true
         if let game = game, let player = player {
             if playerIsCurrentPlayer(player: player, game: game) {
                 if let label = playLabel {
@@ -346,6 +350,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         
         if let playLabel = self.playLabel, let actionPickerLabel = actionPickerLabel, let player = self.player, let game = self.game, let actionPickerField = actionPickerField {
             if game.status == .running && playerIsCurrentPlayer(player: player, game: game) {
+                pressedPlayButton = false
                 if playLabel.alpha == 0 {
                     fadeInNode(playLabel)
                 }
