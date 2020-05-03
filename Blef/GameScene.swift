@@ -295,6 +295,11 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func shareButtonPressed() {
+        if let game = game {
+            if game.status != .notStarted {
+                return
+            }
+        }
         let pasteboard = UIPasteboard.general
         displayMessage("Game link copied")
         
@@ -329,6 +334,11 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             if game.status == .notStarted {
                 if label.alpha == 0 {
                     fadeInNode(label)
+                }
+            }
+            else {
+                if label.alpha > 0 {
+                    fadeOutNode(label)
                 }
             }
         }
