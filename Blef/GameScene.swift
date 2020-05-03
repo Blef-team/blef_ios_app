@@ -178,35 +178,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                     playButtonPressed()
                 }
                 if node.name == "shareButton" {
-                    let pasteboard = UIPasteboard.general
-                    pulseLabel(node)
-                    displayMessage("Game link copied")
-                    
-                    let firstActivityItem = "Join me for a game of Blef"
-                    if let uuid = gameUuid?.uuidString {
-                        let gameUrlString = "blef:///\(uuid)"
-                        pasteboard.string = gameUrlString
-                        let secondActivityItem : NSURL = NSURL(string: gameUrlString)!
-                        let activityViewController : UIActivityViewController = UIActivityViewController(
-                            activityItems: [firstActivityItem, secondActivityItem], applicationActivities: nil)
-                        
-                        activityViewController.popoverPresentationController?.sourceView = self.view
-                        activityViewController.popoverPresentationController?.sourceRect = CGRect(x: 150, y: 150, width: 0, height: 0)
-                        
-                        activityViewController.excludedActivityTypes = [
-                            UIActivity.ActivityType.postToWeibo,
-                            UIActivity.ActivityType.print,
-                            UIActivity.ActivityType.assignToContact,
-                            UIActivity.ActivityType.saveToCameraRoll,
-                            UIActivity.ActivityType.addToReadingList,
-                            UIActivity.ActivityType.postToFlickr,
-                            UIActivity.ActivityType.postToVimeo,
-                            UIActivity.ActivityType.postToTencentWeibo,
-                        ]
-                        
-                        self.view?.window?.rootViewController?.present(activityViewController, animated: true, completion: nil)
-                    }
-                    
+                    shareButtonPressed()
                 }
             }
         }
@@ -319,6 +291,36 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                     }
                 }
             }
+        }
+    }
+    
+    func shareButtonPressed() {
+        let pasteboard = UIPasteboard.general
+        displayMessage("Game link copied")
+        
+        let firstActivityItem = "Join me for a game of Blef"
+        if let uuid = gameUuid?.uuidString {
+            let gameUrlString = "blef:///\(uuid)"
+            pasteboard.string = gameUrlString
+            let secondActivityItem : NSURL = NSURL(string: gameUrlString)!
+            let activityViewController : UIActivityViewController = UIActivityViewController(
+                activityItems: [firstActivityItem, secondActivityItem], applicationActivities: nil)
+            
+            activityViewController.popoverPresentationController?.sourceView = self.view
+            activityViewController.popoverPresentationController?.sourceRect = CGRect(x: 150, y: 150, width: 0, height: 0)
+            
+            activityViewController.excludedActivityTypes = [
+                UIActivity.ActivityType.postToWeibo,
+                UIActivity.ActivityType.print,
+                UIActivity.ActivityType.assignToContact,
+                UIActivity.ActivityType.saveToCameraRoll,
+                UIActivity.ActivityType.addToReadingList,
+                UIActivity.ActivityType.postToFlickr,
+                UIActivity.ActivityType.postToVimeo,
+                UIActivity.ActivityType.postToTencentWeibo,
+            ]
+            
+            self.view?.window?.rootViewController?.present(activityViewController, animated: true, completion: nil)
         }
     }
     
