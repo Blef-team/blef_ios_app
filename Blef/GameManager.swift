@@ -67,37 +67,52 @@ class GameManager {
     func createGame() {
         let urlString = "\(GameEngineServiceURL)/create"
         print(urlString)
-        performRequest(with: urlString, parser: parseNewGameResponse(_:))
+        performRequest(with: urlString, httpMethod: .GET, params: nil, parser: parseNewGameResponse(_:))
     }
     
     func joinGame(gameUuid: UUID, nickname: String) {
-        let urlString = "\(GameEngineServiceURL)/\(gameUuid.uuidString.lowercased())/join?nickname=\(formatSerialisedNickname(nickname))"
+        let urlString = "\(GameEngineServiceURL)/\(gameUuid.uuidString.lowercased())/join"
         print(urlString)
-        performRequest(with: urlString, parser: parseJoinGameResponse(_:))
+        let params = ["nickname": formatSerialisedNickname(nickname)]
+        performRequest(with: urlString, httpMethod: .POST, params: params, parser: parseJoinGameResponse(_:))
     }
     
     func startGame(gameUuid: UUID, playerUuid: UUID) {
-        let urlString = "\(GameEngineServiceURL)/\(gameUuid.uuidString.lowercased())/start?admin_uuid=\(playerUuid.uuidString.lowercased())"
+        let urlString = "\(GameEngineServiceURL)/\(gameUuid.uuidString.lowercased())/start"
         print(urlString)
-        performRequest(with: urlString, parser: parseStartGameResponse(_:))
+        let params = ["admin_uuid": playerUuid.uuidString.lowercased()]
+        performRequest(with: urlString, httpMethod: .POST, params: params, parser: parseStartGameResponse(_:))
     }
     
     func updateGame(gameUuid: UUID, playerUuid: UUID) {
-        let urlString = "\(GameEngineServiceURL)/\(gameUuid.uuidString.lowercased())?player_uuid=\(playerUuid.uuidString.lowercased())"
+        let urlString = "\(GameEngineServiceURL)/\(gameUuid.uuidString.lowercased())"
         print(urlString)
-        performRequest(with: urlString, parser: parseUpdateGameResponse(_:))
+        let params = ["player_uuid": playerUuid.uuidString.lowercased()]
+        performRequest(with: urlString, httpMethod: .POST, params: params, parser: parseUpdateGameResponse(_:))
     }
     
     func play(gameUuid: UUID, playerUuid: UUID, action: Action) {
-        let urlString = "\(GameEngineServiceURL)/\(gameUuid.uuidString.lowercased())/play?player_uuid=\(playerUuid.uuidString.lowercased())&action_id=\(action.rawValue)"
+        let urlString = "\(GameEngineServiceURL)/\(gameUuid.uuidString.lowercased())/play"
         print(urlString)
-        performRequest(with: urlString, parser: parsePlayResponse(_:))
+        let params = ["player_uuid": playerUuid.uuidString.lowercased(), "action_id": String(action.rawValue)] as [String : String]
+        performRequest(with: urlString, httpMethod: .POST, params: params, parser: parsePlayResponse(_:))
     }
     
-    func performRequest(with urlString: String, parser parseResponse: @escaping (JSON?) -> Bool) {
+    func performRequest(with urlString: String, httpMethod: HTTPMethod, params: [String: String]?, parser parseResponse: @escaping (JSON?) -> Bool) {
         if let url = URL(string: urlString) {
             let session = URLSession(configuration: .default)
-            let task = session.dataTask(with: url) {(data, response, error) in
+            var request = URLRequest(url: url)
+            request.setValue("charset=ISO-8859-1", forHTTPHeaderField: "Content-Type")  // the request is JSON
+            request.setValue("application/json; charset=ISO-8859-1", forHTTPHeaderField: "Accept")        // the expected response is also JSON
+            request.httpMethod = httpMethod.rawValue
+            if let params = params {
+                request.httpBody = try! JSONEncoder().encode(params)
+            }
+            else {
+                request.httpBody = nil
+            }
+            print(request.httpBody)
+            let task = session.dataTask(with: request) {(data, response, error) in
                 if error != nil {
                     print(error!)
                     self.delegate?.didFailWithError(error: error!)
