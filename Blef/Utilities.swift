@@ -52,8 +52,8 @@ func stringifyCard(_ card: Card) -> String {
     return "\(card.value) of \(card.colour)"
 }
 
-func resetCardSprites(_ playerCardSprites: [SKSpriteNode]) {
-    for sprite in playerCardSprites {
+func resetCardSprites(_ cardSprites: [SKSpriteNode]) {
+    for sprite in cardSprites {
         sprite.texture = SKTexture(image: #imageLiteral(resourceName: "empty"))
     }
 }
