@@ -459,6 +459,13 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             actionPickerField.isHidden = true
         }
         
+        for sprite in playerCardSprites ?? [] {
+            fadeOutNode(sprite)
+        }
+        for sprite in betSprites ?? [] {
+            fadeOutNode(sprite)
+        }
+        
         fadeInNode(errorMessageLabel)
     }
     
@@ -481,6 +488,13 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             if game.status == .running && currentPlayerLabel?.alpha == 0 {
                 fadeInNode(currentPlayerLabel)
             }
+        }
+        
+        for sprite in playerCardSprites ?? [] {
+            fadeInNode(sprite)
+        }
+        for sprite in betSprites ?? [] {
+            fadeInNode(sprite)
         }
         
         resumeGameUpdateTimer()
