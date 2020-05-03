@@ -52,6 +52,27 @@ func stringifyCard(_ card: Card) -> String {
     return "\(card.value) of \(card.colour)"
 }
 
+func resetCardSprites(_ playerCardSprites: [SKSpriteNode]) {
+    for sprite in playerCardSprites {
+        sprite.texture = SKTexture(image: #imageLiteral(resourceName: "empty"))
+    }
+}
+
+func getCardImage(_ card: Card) -> SKTexture? {
+    let imageName = "card-\(card.value)-\(card.colour)"
+    if let image = UIImage(named: imageName) {
+        return SKTexture(image: image)
+    }
+    return nil
+}
+
+func getCardLabel(_ card: Card) -> SKLabelNode {
+    let label = SKLabelNode(fontNamed:"HelveticaNeue-UltraLight")
+    label.fontSize = 10
+    label.text = "\(card.value) of \(card.colour)"
+    return label
+}
+
 func canStartGame(_ game: Game, _ player: Player, _ players: [PlayerInfo]?) -> Bool {
     return game.status == .notStarted && game.adminNickname == player.nickname && (players?.count ?? 0) >= 2 
 }

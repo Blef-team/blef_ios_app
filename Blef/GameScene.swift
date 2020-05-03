@@ -29,16 +29,10 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     private var actionPickerView : UIPickerView?
     private var helloLabel : SKLabelNode?
     private var shareLabel : SKLabelNode?
-    private var adminLabel : SKLabelNode?
-    private var publicLabel : SKLabelNode?
-    private var statusLabel : SKLabelNode?
-    private var roundLabel : SKLabelNode?
-    private var maxCardsLabel : SKLabelNode?
     private var currentPlayerLabel : SKLabelNode?
     private var playersLabel : SKLabelNode?
-    private var handsLabel : SKLabelNode?
-    private var historyLabel : SKLabelNode?
     private var actionPickerField: UITextField?
+    private var playerCardSprites: [SKSpriteNode]?
     
     override func didMove(to view: SKView) {
         
@@ -56,9 +50,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         currentPlayerLabel?.alpha = 0.0
         self.playersLabel = self.childNode(withName: "//playersLabel") as? SKLabelNode
         playersLabel?.alpha = 0.0
-        self.handsLabel = self.childNode(withName: "//handsLabel") as? SKLabelNode
-        handsLabel?.alpha = 0.0
-        
+
         self.actionPickerField = UITextField(frame: CGRect(x: UIScreen.main.bounds.size.width * 0.65, y: UIScreen.main.bounds.size.height * 0.2, width: 200, height: 30))
         
         actionPickerView = UIPickerView()
@@ -83,6 +75,14 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         if let label = self.helloLabel {
             label.text = "Hello, \(formatDisplayNickname(player?.nickname ?? "new player"))"
             label.run(SKAction.fadeOut(withDuration: 2.0))
+        }
+        
+        playerCardSprites = []
+        for cardIndex in 0...14 {
+            let sprite = SKSpriteNode(texture: SKTexture(image: #imageLiteral(resourceName: "empty")), size: CGSize(width: 70, height: 70))
+            sprite.position = getPlayerCardPosition(cardIndex)
+            addChild(sprite)
+            playerCardSprites?.append(sprite)
         }
         
         resumeGameUpdateTimer()
@@ -342,8 +342,10 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         
         if let label = self.currentPlayerLabel, let game = self.game {
             if let currentPlayer = game.currentPlayerNickname {
-                let newLabelText = "Current player: \(formatDisplayNickname(currentPlayer))"
-                updateLabelText(label, newLabelText)
+                if game.status == .running {
+                    let newLabelText = "Current player: \(formatDisplayNickname(currentPlayer))"
+                    updateLabelText(label, newLabelText)
+                }
             }
         }
         
@@ -352,19 +354,27 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             updateLabelText(label, newLabelText)
         }
         
-        if let label = self.handsLabel, let game = self.game {
+        if let game = self.game, let player = player {
             if game.status != .notStarted {
-                if let hand = game.hands?.first(where:{$0.nickname != "" })?.hand {
-                    let cards = hand.map(stringifyCard(_:))
-                    updateLabelText(label, "Your hand: \(cards.joined(separator: ", "))")
+                if let hand = game.hands?.first(where:{$0.nickname == player.nickname })?.hand, let playerCardSprites = playerCardSprites {
+                    resetCardSprites(playerCardSprites)
+                    for (cardIndex, card) in hand.enumerated() {
+                        if let image = getCardImage(card) {
+                            playerCardSprites[cardIndex].texture = image
+                        }
+                        else {
+                            let cardLabel = getCardLabel(card)
+                            cardLabel.position = getPlayerCardPosition(cardIndex)
+                            addChild(cardLabel)
+                        }
+                    }
                 }
             }
         }
-        
-        if let label = self.historyLabel, let game = self.game {
-            let newLabelText = "Moves this round: \(game.history?.map{ "\(formatDisplayNickname($0.player)): \($0.action)"}.joined(separator: " , ") ?? "none yet")"
-            updateLabelText(label, newLabelText)
-        }
+    }
+    
+    func getPlayerCardPosition(_ cardIndex: Int) -> CGPoint {
+        return CGPoint(x: size.width * -0.4 + CGFloat(60*cardIndex), y: size.height * -0.4)
     }
     
     func displayMessage(_ message: String) {
@@ -377,15 +387,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         self.addChild(errorMessageLabel)
         
         fadeOutNode(shareLabel)
-        fadeOutNode(statusLabel)
-        fadeOutNode(adminLabel)
         fadeOutNode(playersLabel)
         fadeOutNode(currentPlayerLabel)
-        fadeOutNode(maxCardsLabel)
-        fadeOutNode(handsLabel)
-        fadeOutNode(historyLabel)
-        fadeOutNode(roundLabel)
-        fadeOutNode(publicLabel)
         fadeOutNode(playLabel)
         fadeOutNode(startGameLabel)
         fadeOutNode(actionPickerLabel)
@@ -401,15 +404,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         fadeOutNode(errorMessageLabel)
         
         fadeInNode(shareLabel)
-        fadeInNode(statusLabel)
-        fadeInNode(adminLabel)
         fadeInNode(playersLabel)
-        fadeInNode(currentPlayerLabel)
-        fadeInNode(maxCardsLabel)
-        fadeInNode(handsLabel)
-        fadeInNode(historyLabel)
-        fadeInNode(roundLabel)
-        fadeInNode(publicLabel)
         
         if let game = game, let players = game.players, let player = player, let startGameLabel = startGameLabel, let playLabel = playLabel, let actionPickerField = actionPickerField {
             if canStartGame(game, player, players) && startGameLabel.alpha == 0 {
@@ -419,6 +414,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 fadeInNode(playLabel)
                 fadeInNode(actionPickerLabel)
                 actionPickerField.isHidden = false
+            }
+            if game.status == .running && currentPlayerLabel?.alpha == 0 {
+                fadeInNode(currentPlayerLabel)
             }
         }
         
