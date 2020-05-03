@@ -32,9 +32,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GameManagerDelegate {
         print("source application = \(sendingAppID ?? "Unknown")")
         
         // Process the URL.
-        print(url) // DEBUG
-        print(NSURLComponents(url: url, resolvingAgainstBaseURL: true)) // DEBUG
-        print(NSURLComponents(url: url, resolvingAgainstBaseURL: true)?.path?.replacingOccurrences(of: "/", with: ""))
         guard let components = NSURLComponents(url: url, resolvingAgainstBaseURL: true),
             let gameUuid = UUID(uuidString: components.path?.replacingOccurrences(of: "/", with: "")  ?? "") else {
                 print("Invalid URL")
@@ -56,7 +53,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GameManagerDelegate {
         player.nickname = playerNickname
         let gameScene = GameScene(fileNamed: "GameScene")
         let transition = SKTransition.fade(withDuration: 1.0)
-        gameScene?.scaleMode = .aspectFill
+        gameScene?.scaleMode = .aspectFit
         gameScene?.gameUuid = gameUuid
         gameScene?.player = player
         (self.window?.rootViewController!.view as! SKView).presentScene(gameScene!, transition: transition)
