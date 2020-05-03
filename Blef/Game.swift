@@ -91,13 +91,10 @@ struct NamedHand {
     let hand: [Card]
     
     init?(json: Dictionary<String, Any>) {
-        print("GOING TO PARSE A HAND:")
         guard let nickname = json["nickname"] as? String else {
             return nil
         }
-        print(nickname)
         self.nickname = nickname
-        print(json["hand"] as? [Dictionary<String, Any>])
         guard let handJson = json["hand"] as? [Dictionary<String, Int>], let hand = handJson.map({ Card($0)}) as? [Card] else {
             return nil
         }
@@ -116,16 +113,13 @@ struct Card {
     let colour: Colour
     
     init?(_ json: Dictionary<String, Int>) {
-        print("MAPPING A CARD:")
         guard let jsonValue = json["value"], let value = Value(rawValue: jsonValue) else {
             return nil
         }
-        print(value)
         self.value = value
         guard let jsonColour = json["colour"], let colour = Colour(rawValue: jsonColour) else {
             return nil
         }
-        print(colour)
         self.colour = colour
     }
 }

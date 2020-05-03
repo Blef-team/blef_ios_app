@@ -32,9 +32,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GameManagerDelegate {
         print("source application = \(sendingAppID ?? "Unknown")")
         
         // Process the URL.
-        print(url) // DEBUG
-        print(NSURLComponents(url: url, resolvingAgainstBaseURL: true)) // DEBUG
-        print(NSURLComponents(url: url, resolvingAgainstBaseURL: true)?.path?.replacingOccurrences(of: "/", with: ""))
         guard let components = NSURLComponents(url: url, resolvingAgainstBaseURL: true),
             let gameUuid = UUID(uuidString: components.path?.replacingOccurrences(of: "/", with: "")  ?? "") else {
                 print("Invalid URL")
