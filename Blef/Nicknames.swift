@@ -167,7 +167,7 @@ let Nicknames = [
             "Caterpillar",
             "Centipede",
             "Chameleon",
-            "Chapulín",
+            "Chapulin",
             "Cheetah",
             "Chickadee",
             "Chicken",
@@ -1073,7 +1073,7 @@ let Nicknames = [
             "Pigeon",
             "Piglet",
             "Pika",
-            "Piraña",
+            "Pirana",
             "Piranha",
             "Pitbull",
             "Pixi",
@@ -1473,7 +1473,7 @@ let Nicknames = [
             "Veery",
             "Velociraptor",
             "Vervet",
-            "Vicuña",
+            "Vicuna",
             "Viper",
             "Vixen",
             "Vizcacha",
@@ -1541,7 +1541,7 @@ let Nicknames = [
             "XrayFish",
             "XueBao",
             "Xoloitzcuintle",
-            "Xólotl"
+            "Xolotl"
         ]
     ),
     LetterNames(
