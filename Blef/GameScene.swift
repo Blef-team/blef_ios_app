@@ -154,7 +154,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         if self.isDisplayingMessage {
             clearMessage()
         }
-        else{
+        else {
             self.view?.endEditing(true)
         }
         
@@ -171,7 +171,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         else {
             let nodesarray = nodes(at: pos)
             for node in nodesarray {
-                // If the New game button was tapped
                 if node.name == "startGameButton" {
                     startGameButtonPressed()
                 }
