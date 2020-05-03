@@ -25,6 +25,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     var isDisplayingMessage = false
     var actionSelected: Action?
     var pressedPlayButton = false
+    var playerLost = false
     private var startGameLabel: SKLabelNode?
     private var playLabel: SKLabelNode?
     private var actionPickerLabel: SKLabelNode?
@@ -392,19 +393,22 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                     }
                 }
             }
-            
+            if let playerCardSprites = playerCardSprites {
+                resetCardSprites(playerCardSprites)
+            }
             if game.status != .notStarted {
                 if let hand = game.hands?.first(where:{$0.nickname == player.nickname })?.hand, let playerCardSprites = playerCardSprites {
-                    resetCardSprites(playerCardSprites)
-                    for (cardIndex, card) in hand.enumerated() {
-                        if let image = getCardImage(card) {
-                            playerCardSprites[cardIndex].texture = image
-                        }
-                        else {
-                            let cardLabel = getCardLabel(card)
-                            cardLabel.position = getPlayerCardPosition(cardIndex)
-                            addChild(cardLabel)
-                            cardLabels?.append(cardLabel)
+                    if !playerLost {
+                        for (cardIndex, card) in hand.enumerated() {
+                            if let image = getCardImage(card) {
+                                playerCardSprites[cardIndex].texture = image
+                            }
+                            else {
+                                let cardLabel = getCardLabel(card)
+                                cardLabel.position = getPlayerCardPosition(cardIndex)
+                                addChild(cardLabel)
+                                cardLabels?.append(cardLabel)
+                            }
                         }
                     }
                 }
@@ -428,6 +432,18 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                         self.displayedBet = nil
                     }
                 }
+            }
+        }
+        if let game = game, let player = player {
+            print(game.players?.first(where:{$0.nickname == player.nickname }))
+            if let playerInfo =  game.players?.first(where:{$0.nickname == player.nickname }) {
+                if game.status != .notStarted && playerInfo.nCards == 0 {
+                    playerLost = true
+                    displayMessage("You lost")
+                }
+            }
+            if game.status == .finished {
+                displayMessage("Game over")
             }
         }
     }
