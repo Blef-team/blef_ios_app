@@ -77,7 +77,7 @@ class StartScene: SKScene, GameManagerDelegate {
         player.nickname = formatSerialisedNickname(playerNickname ?? "no name")
         let gameScene = GameScene(fileNamed: "GameScene")
         let transition = SKTransition.fade(withDuration: 1.0)
-        gameScene?.scaleMode = .aspectFill
+        gameScene?.scaleMode = .aspectFit
         gameScene?.gameUuid = gameUuid
         gameScene?.player = player
         scene?.view?.presentScene(gameScene!, transition: transition)

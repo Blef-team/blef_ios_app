@@ -374,7 +374,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func getPlayerCardPosition(_ cardIndex: Int) -> CGPoint {
-        return CGPoint(x: size.width * -0.4 + CGFloat(60*cardIndex), y: size.height * -0.4)
+        return CGPoint(x: size.width * -0.45 + CGFloat(60*cardIndex), y: size.height * -0.4)
     }
     
     func displayMessage(_ message: String) {

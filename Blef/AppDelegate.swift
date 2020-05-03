@@ -56,7 +56,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GameManagerDelegate {
         player.nickname = playerNickname
         let gameScene = GameScene(fileNamed: "GameScene")
         let transition = SKTransition.fade(withDuration: 1.0)
-        gameScene?.scaleMode = .aspectFill
+        gameScene?.scaleMode = .aspectFit
         gameScene?.gameUuid = gameUuid
         gameScene?.player = player
         (self.window?.rootViewController!.view as! SKView).presentScene(gameScene!, transition: transition)
