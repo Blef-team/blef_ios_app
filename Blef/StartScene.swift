@@ -19,6 +19,7 @@ class StartScene: SKScene, GameManagerDelegate {
     var gameUuid: UUID?
     var playerNickname: String?
     var isDisplayingMessage = false
+    var newGameButtonPressed = false
     
     override func didMove(to view: SKView) {
         
@@ -48,10 +49,13 @@ class StartScene: SKScene, GameManagerDelegate {
             for node in nodesarray {
                 // If the New game button was tapped
                 if node.name == "newGameButton", let label = self.newGameLabel {
-                    pulseLabel(label)
-                    print("Going to attempt an API call")
-                    gameManager.createGame()
-                    print("Made API call")
+                    if !newGameButtonPressed {
+                        newGameButtonPressed = true
+                        pulseLabel(label)
+                        print("Going to attempt an API call")
+                        gameManager.createGame()
+                        print("Made API call")
+                    }
                 }
                 
             }

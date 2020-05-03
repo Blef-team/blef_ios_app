@@ -24,6 +24,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     var errorMessageLabel: SKLabelNode!
     var isDisplayingMessage = false
     var actionSelected: Action?
+    var pressedPlayButton = false
+    var playerLost = false
     private var startGameLabel: SKLabelNode?
     private var playLabel: SKLabelNode?
     private var actionPickerLabel: SKLabelNode?
@@ -54,6 +56,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         currentPlayerLabel?.alpha = 0.0
         self.playersLabel = self.childNode(withName: "//playersLabel") as? SKLabelNode
         playersLabel?.alpha = 0.0
+        playersLabel?.numberOfLines = 0
+        playersLabel?.preferredMaxLayoutWidth = 400
 
         self.actionPickerField = UITextField(frame: CGRect(x: UIScreen.main.bounds.size.width * 0.65, y: UIScreen.main.bounds.size.height * 0.2, width: 200, height: 30))
         
@@ -150,13 +154,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func touchDown(atPoint pos : CGPoint) {
-        if self.isDisplayingMessage {
-            clearMessage()
-        }
-        else{
-            self.view?.endEditing(true)
-        }
-        
+        self.view?.endEditing(true)
     }
     
     func touchMoved(toPoint pos : CGPoint) {
@@ -170,43 +168,16 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         else {
             let nodesarray = nodes(at: pos)
             for node in nodesarray {
-                // If the New game button was tapped
                 if node.name == "startGameButton" {
                     startGameButtonPressed()
                 }
                 if node.name == "playButton" {
-                    playButtonPressed()
+                    if !pressedPlayButton {
+                        playButtonPressed()
+                    }
                 }
                 if node.name == "shareButton" {
-                    let pasteboard = UIPasteboard.general
-                    pulseLabel(node)
-                    displayMessage("Game link copied")
-                    
-                    let firstActivityItem = "Join me for a game of Blef"
-                    if let uuid = gameUuid?.uuidString {
-                        let gameUrlString = "blef:///\(uuid)"
-                        pasteboard.string = gameUrlString
-                        let secondActivityItem : NSURL = NSURL(string: gameUrlString)!
-                        let activityViewController : UIActivityViewController = UIActivityViewController(
-                            activityItems: [firstActivityItem, secondActivityItem], applicationActivities: nil)
-                        
-                        activityViewController.popoverPresentationController?.sourceView = self.view
-                        activityViewController.popoverPresentationController?.sourceRect = CGRect(x: 150, y: 150, width: 0, height: 0)
-                        
-                        activityViewController.excludedActivityTypes = [
-                            UIActivity.ActivityType.postToWeibo,
-                            UIActivity.ActivityType.print,
-                            UIActivity.ActivityType.assignToContact,
-                            UIActivity.ActivityType.saveToCameraRoll,
-                            UIActivity.ActivityType.addToReadingList,
-                            UIActivity.ActivityType.postToFlickr,
-                            UIActivity.ActivityType.postToVimeo,
-                            UIActivity.ActivityType.postToTencentWeibo,
-                        ]
-                        
-                        self.view?.window?.rootViewController?.present(activityViewController, animated: true, completion: nil)
-                    }
-                    
+                    shareButtonPressed()
                 }
             }
         }
@@ -304,6 +275,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func playButtonPressed() {
+        pressedPlayButton = true
         if let game = game, let player = player {
             if playerIsCurrentPlayer(player: player, game: game) {
                 if let label = playLabel {
@@ -322,11 +294,51 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
     }
     
+    func shareButtonPressed() {
+        if let game = game {
+            if game.status != .notStarted {
+                return
+            }
+        }
+        let pasteboard = UIPasteboard.general
+        displayMessage("Game link copied")
+        
+        let firstActivityItem = "Join me for a game of Blef"
+        if let uuid = gameUuid?.uuidString {
+            let gameUrlString = "blef:///\(uuid)"
+            pasteboard.string = gameUrlString
+            let secondActivityItem : NSURL = NSURL(string: gameUrlString)!
+            let activityViewController : UIActivityViewController = UIActivityViewController(
+                activityItems: [firstActivityItem, secondActivityItem], applicationActivities: nil)
+            
+            activityViewController.popoverPresentationController?.sourceView = self.view
+            activityViewController.popoverPresentationController?.sourceRect = CGRect(x: 150, y: 150, width: 0, height: 0)
+            
+            activityViewController.excludedActivityTypes = [
+                UIActivity.ActivityType.postToWeibo,
+                UIActivity.ActivityType.print,
+                UIActivity.ActivityType.assignToContact,
+                UIActivity.ActivityType.saveToCameraRoll,
+                UIActivity.ActivityType.addToReadingList,
+                UIActivity.ActivityType.postToFlickr,
+                UIActivity.ActivityType.postToVimeo,
+                UIActivity.ActivityType.postToTencentWeibo,
+            ]
+            
+            self.view?.window?.rootViewController?.present(activityViewController, animated: true, completion: nil)
+        }
+    }
+    
     func updateLabels() {
         if let label = self.shareLabel, let game = self.game {
             if game.status == .notStarted {
                 if label.alpha == 0 {
                     fadeInNode(label)
+                }
+            }
+            else {
+                if label.alpha > 0 {
+                    fadeOutNode(label)
                 }
             }
         }
@@ -344,6 +356,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         
         if let playLabel = self.playLabel, let actionPickerLabel = actionPickerLabel, let player = self.player, let game = self.game, let actionPickerField = actionPickerField {
             if game.status == .running && playerIsCurrentPlayer(player: player, game: game) {
+                pressedPlayButton = false
                 if playLabel.alpha == 0 {
                     fadeInNode(playLabel)
                 }
@@ -355,7 +368,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
             else {
                 fadeOutNode(playLabel)
-                fadeOutNode(actionPickerLabel)
+                actionPickerLabel.isHidden = true
             }
         }
         
@@ -370,11 +383,18 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             updateLabelText(label, newLabelText)
         }
         
-        if let label = self.playersLabel, let game = self.game {
-            var newLabelText = "Players: \(game.players?.map { "\(formatDisplayNickname($0.nickname)): \($0.nCards) cards"}.joined(separator: " | ") ?? "no details available")"
-            if let player = player, let playerNickname = player.nickname {
-                newLabelText = newLabelText.replacingOccurrences(of: formatDisplayNickname(playerNickname), with: "You")
+        if let label = self.playersLabel, let game = self.game, let players = game.players, let player = player {
+            var playerStrings: [String] = []
+            for playerObject in players {
+                if player.nickname == playerObject.nickname {
+                    playerStrings.append("You: \(playerObject.nCards)")
+                }
+                else {
+                    playerStrings.append("\(formatDisplayNickname(playerObject.nickname)): \(playerObject.nCards)")
+                }
+                 
             }
+            let newLabelText = playerStrings.joined(separator: " | ")
             updateLabelText(label, newLabelText)
         }
         
@@ -392,19 +412,22 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                     }
                 }
             }
-            
+            if let playerCardSprites = playerCardSprites {
+                resetCardSprites(playerCardSprites)
+            }
             if game.status != .notStarted {
                 if let hand = game.hands?.first(where:{$0.nickname == player.nickname })?.hand, let playerCardSprites = playerCardSprites {
-                    resetCardSprites(playerCardSprites)
-                    for (cardIndex, card) in hand.enumerated() {
-                        if let image = getCardImage(card) {
-                            playerCardSprites[cardIndex].texture = image
-                        }
-                        else {
-                            let cardLabel = getCardLabel(card)
-                            cardLabel.position = getPlayerCardPosition(cardIndex)
-                            addChild(cardLabel)
-                            cardLabels?.append(cardLabel)
+                    if !playerLost {
+                        for (cardIndex, card) in hand.enumerated() {
+                            if let image = getCardImage(card) {
+                                playerCardSprites[cardIndex].texture = image
+                            }
+                            else {
+                                let cardLabel = getCardLabel(card)
+                                cardLabel.position = getPlayerCardPosition(cardIndex)
+                                addChild(cardLabel)
+                                cardLabels?.append(cardLabel)
+                            }
                         }
                     }
                 }
@@ -428,6 +451,18 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                         self.displayedBet = nil
                     }
                 }
+            }
+        }
+        if let game = game, let player = player {
+            print(game.players?.first(where:{$0.nickname == player.nickname }))
+            if let playerInfo =  game.players?.first(where:{$0.nickname == player.nickname }) {
+                if game.status != .notStarted && playerInfo.nCards == 0 {
+                    playerLost = true
+                    displayMessage("You lost")
+                }
+            }
+            if game.status == .finished {
+                displayMessage("Game over")
             }
         }
     }
