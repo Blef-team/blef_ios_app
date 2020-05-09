@@ -301,7 +301,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
         }
         let pasteboard = UIPasteboard.general
-        displayMessage("Game link copied")
+        displayMessage("Share the link with another player")
         
         let firstActivityItem = "Join me for a game of Blef"
         if let uuid = gameUuid?.uuidString {
@@ -334,6 +334,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             if game.status == .notStarted {
                 if label.alpha == 0 {
                     fadeInNode(label)
+                }
+                else {
+                    slowPulseLabel(label)
                 }
             }
             else {
@@ -385,16 +388,27 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         
         if let label = self.playersLabel, let game = self.game, let players = game.players, let player = player {
             var playerStrings: [String] = []
-            for playerObject in players {
-                if player.nickname == playerObject.nickname {
-                    playerStrings.append("You: \(playerObject.nCards)")
+            if game.status == .notStarted {
+                for playerObject in players {
+                    if player.nickname == playerObject.nickname {
+                        playerStrings.append("You")
+                    }
+                    else {
+                        playerStrings.append("\(formatDisplayNickname(playerObject.nickname))")
+                    }
                 }
-                else {
-                    playerStrings.append("\(formatDisplayNickname(playerObject.nickname)): \(playerObject.nCards)")
-                }
-                 
             }
-            let newLabelText = playerStrings.joined(separator: " | ")
+            else {
+                for playerObject in players {
+                    if player.nickname == playerObject.nickname {
+                        playerStrings.append("You: \(playerObject.nCards)")
+                    }
+                    else {
+                        playerStrings.append("\(formatDisplayNickname(playerObject.nickname)): \(playerObject.nCards)")
+                    }
+                }
+            }
+            let newLabelText = "Players: \(playerStrings.joined(separator: " | "))"
             updateLabelText(label, newLabelText)
         }
         
