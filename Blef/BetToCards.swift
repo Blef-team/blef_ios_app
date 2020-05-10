@@ -25,7 +25,7 @@ func makeBetToCards() -> [Action: [UIImage]] {
         .pairOfQs: [#imageLiteral(resourceName: "card-queen"),#imageLiteral(resourceName: "card-queen")],
         .pairOfKs: [#imageLiteral(resourceName: "card-king"),#imageLiteral(resourceName: "card-king")],
         .pairOfAs: [#imageLiteral(resourceName: "card-ace"),#imageLiteral(resourceName: "card-ace")],
-        .twoPairs10sAnd9s: [#imageLiteral(resourceName: "card-nine"),#imageLiteral(resourceName: "card-nine"),#imageLiteral(resourceName: "card-ten"),#imageLiteral(resourceName: "card-ten")],
+        .twoPairs10sAnd9s: [#imageLiteral(resourceName: "card-ten"),#imageLiteral(resourceName: "card-ten"),#imageLiteral(resourceName: "card-nine"),#imageLiteral(resourceName: "card-nine")],
         .twoPairsJsAnd9s: [#imageLiteral(resourceName: "card-jack"),#imageLiteral(resourceName: "card-jack"),#imageLiteral(resourceName: "card-nine"),#imageLiteral(resourceName: "card-nine")],
         .twoPairsJsAnd10s: [#imageLiteral(resourceName: "card-jack"),#imageLiteral(resourceName: "card-jack"),#imageLiteral(resourceName: "card-ten"),#imageLiteral(resourceName: "card-ten")],
         .twoPairsQsAnd9s: [#imageLiteral(resourceName: "card-queen"),#imageLiteral(resourceName: "card-queen"),#imageLiteral(resourceName: "card-nine"),#imageLiteral(resourceName: "card-nine")],
