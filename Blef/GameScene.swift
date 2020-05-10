@@ -398,13 +398,37 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                     }
                 }
             }
-            else {
+            else if game.status == .finished {
                 for playerObject in players {
-                    if player.nickname == playerObject.nickname {
-                        playerStrings.append("You: \(playerObject.nCards)")
+                    var statusString = ""
+                    if playerObject.nCards == 0 {
+                        statusString = "lost"
                     }
                     else {
-                        playerStrings.append("\(formatDisplayNickname(playerObject.nickname)): \(playerObject.nCards)")
+                        statusString = "won"
+                    }
+                    if player.nickname == playerObject.nickname {
+                        playerStrings.append("You: \(statusString)")
+                    }
+                    else {
+                        playerStrings.append("\(formatDisplayNickname(playerObject.nickname)): \(statusString)")
+                    }
+                }
+            }
+            else {
+                for playerObject in players {
+                    var nCardsString = ""
+                    if playerObject.nCards == 0 {
+                        nCardsString = "lost"
+                    }
+                    else {
+                        nCardsString = String(playerObject.nCards)
+                    }
+                    if player.nickname == playerObject.nickname {
+                        playerStrings.append("You: \(nCardsString)")
+                    }
+                    else {
+                        playerStrings.append("\(formatDisplayNickname(playerObject.nickname)): \(nCardsString)")
                     }
                 }
             }
@@ -431,7 +455,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
             if game.status != .notStarted {
                 if let hand = game.hands?.first(where:{$0.nickname == player.nickname })?.hand, let playerCardSprites = playerCardSprites {
-                    if !playerLost {
+                    if !playerLost && game.status != .finished {
                         for (cardIndex, card) in hand.enumerated() {
                             if let image = getCardImage(card) {
                                 playerCardSprites[cardIndex].texture = image
@@ -469,14 +493,22 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
         if let game = game, let player = player {
             print(game.players?.first(where:{$0.nickname == player.nickname }))
-            if let playerInfo =  game.players?.first(where:{$0.nickname == player.nickname }) {
-                if game.status != .notStarted && playerInfo.nCards == 0 {
-                    playerLost = true
-                    displayMessage("You lost")
+            if let playerInfo = game.players?.first(where:{$0.nickname == player.nickname }) {
+                
+                if game.status == .finished {
+                    if playerInfo.nCards > 0 {
+                        displayMessage("You won")
+                    }
+                    else {
+                        displayMessage("Game over")
+                    }
                 }
-            }
-            if game.status == .finished {
-                displayMessage("Game over")
+                else if game.status != .notStarted && playerInfo.nCards == 0 {
+                    if !playerLost {
+                        playerLost = true
+                        displayMessage("You lost")
+                    }
+                }
             }
         }
     }
@@ -522,7 +554,12 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         isDisplayingMessage = false
         fadeOutNode(errorMessageLabel)
         
-        fadeInNode(shareLabel)
+        if let game = game {
+            if game.status == .notStarted {
+                fadeInNode(shareLabel)
+            }
+        }
+        
         fadeInNode(playersLabel)
         
         if let game = game, let players = game.players, let player = player, let startGameLabel = startGameLabel, let playLabel = playLabel, let actionPickerField = actionPickerField {
