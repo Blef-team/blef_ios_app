@@ -16,6 +16,14 @@ func pulseLabel (_ label: SKNode) {
     label.run(pulseSequence)
 }
 
+func slowPulseLabel (_ label: SKNode) {
+    let pulseSequence = SKAction.sequence([
+        SKAction.fadeAlpha(by: -0.7, duration: 0.5),
+        SKAction.fadeAlpha(by: 0.7, duration: 0.5)
+    ])
+    label.run(pulseSequence)
+}
+
 func updateLabelText(_ label: SKLabelNode, _ newLabelText: String) {
     if label.text?.lowercased() != newLabelText.lowercased() {
         label.text = newLabelText
