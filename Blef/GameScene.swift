@@ -398,13 +398,37 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                     }
                 }
             }
-            else {
+            else if game.status == .finished {
                 for playerObject in players {
-                    if player.nickname == playerObject.nickname {
-                        playerStrings.append("You: \(playerObject.nCards)")
+                    var statusString = ""
+                    if playerObject.nCards == 0 {
+                        statusString = "lost"
                     }
                     else {
-                        playerStrings.append("\(formatDisplayNickname(playerObject.nickname)): \(playerObject.nCards)")
+                        statusString = "won"
+                    }
+                    if player.nickname == playerObject.nickname {
+                        playerStrings.append("You: \(statusString)")
+                    }
+                    else {
+                        playerStrings.append("\(formatDisplayNickname(playerObject.nickname)): \(statusString)")
+                    }
+                }
+            }
+            else {
+                for playerObject in players {
+                    var nCardsString = ""
+                    if playerObject.nCards == 0 {
+                        nCardsString = "lost"
+                    }
+                    else {
+                        nCardsString = String(playerObject.nCards)
+                    }
+                    if player.nickname == playerObject.nickname {
+                        playerStrings.append("You: \(nCardsString)")
+                    }
+                    else {
+                        playerStrings.append("\(formatDisplayNickname(playerObject.nickname)): \(nCardsString)")
                     }
                 }
             }
