@@ -469,14 +469,22 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
         if let game = game, let player = player {
             print(game.players?.first(where:{$0.nickname == player.nickname }))
-            if let playerInfo =  game.players?.first(where:{$0.nickname == player.nickname }) {
-                if game.status != .notStarted && playerInfo.nCards == 0 {
-                    playerLost = true
-                    displayMessage("You lost")
+            if let playerInfo = game.players?.first(where:{$0.nickname == player.nickname }) {
+                
+                if game.status == .finished {
+                    if playerInfo.nCards > 0 {
+                        displayMessage("You won")
+                    }
+                    else {
+                        displayMessage("Game over")
+                    }
                 }
-            }
-            if game.status == .finished {
-                displayMessage("Game over")
+                else if game.status != .notStarted && playerInfo.nCards == 0 {
+                    if !playerLost {
+                        playerLost = true
+                        displayMessage("You lost")
+                    }
+                }
             }
         }
     }
