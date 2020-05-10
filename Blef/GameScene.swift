@@ -431,7 +431,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
             if game.status != .notStarted {
                 if let hand = game.hands?.first(where:{$0.nickname == player.nickname })?.hand, let playerCardSprites = playerCardSprites {
-                    if !playerLost {
+                    if !playerLost && game.status != .finished {
                         for (cardIndex, card) in hand.enumerated() {
                             if let image = getCardImage(card) {
                                 playerCardSprites[cardIndex].texture = image
