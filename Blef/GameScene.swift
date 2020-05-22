@@ -226,7 +226,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         let actionId = getActionIdForRow(row)
         if let myField = actionPickerField, let action = Action.init(rawValue: actionId){
-            myField.text = String(describing: action)
+            myField.text = String(describing: action.description)
             self.actionSelected = action
         }
     }
