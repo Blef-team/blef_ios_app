@@ -58,7 +58,7 @@ extension GameManagerDelegate {
 }
 
 class GameManager {
-    let GameEngineServiceURL = "http://18.132.35.89:8001/v2/games"
+    let GameEngineServiceURL = "http://18.132.35.89:8002/v2.1/games"
     var newGame: NewGame?
     var game: Game?
     var player: Player?
