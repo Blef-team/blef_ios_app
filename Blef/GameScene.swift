@@ -137,8 +137,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         self.game = game
         self.lastBet = game.history?.last?.action
         if actionSelected != nil {
-            if let game = self.game, let currentPlayer = game.currentPlayerNickname, let player = player {
-                if currentPlayer != player.nickname {
+            if let game = self.game, let player = player {
+                if !playerIsCurrentPlayer(player: player, game: game) {
                     actionSelected = nil
                 }
             }
@@ -384,7 +384,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         
         if let label = self.currentPlayerLabel, let game = self.game, let currentPlayer = game.currentPlayerNickname, let player = player {
             var newLabelText: String
-            if currentPlayer == player.nickname {
+            if playerIsCurrentPlayer(player: player, game: game) {
                 newLabelText = "Current player: You"
             }
             else {
@@ -499,7 +499,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
         }
         if let game = game, let player = player {
-            print(game.players?.first(where:{$0.nickname == player.nickname }))
             if let playerInfo = game.players?.first(where:{$0.nickname == player.nickname }) {
                 
                 if game.status == .finished {
@@ -573,10 +572,17 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             if canStartGame(game, player, players) && startGameLabel.alpha == 0 {
                 fadeInNode(startGameLabel)
             }
-            if playerIsCurrentPlayer(player: player, game: game) && playLabel.alpha == 0 {
-                fadeInNode(playLabel)
-                fadeInNode(actionPickerLabel)
+            if playerIsCurrentPlayer(player: player, game: game) {
+                if playLabel.alpha == 0 {
+                    fadeInNode(playLabel)
+                }
+                if actionPickerLabel?.alpha == 0 {
+                    fadeInNode(actionPickerLabel)
+                }
                 actionPickerField.isHidden = false
+            }
+            else {
+                actionPickerField.isHidden = true
             }
             if game.status == .running && currentPlayerLabel?.alpha == 0 {
                 fadeInNode(currentPlayerLabel)
