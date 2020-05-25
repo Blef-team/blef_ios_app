@@ -136,6 +136,13 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         print(game)
         self.game = game
         self.lastBet = game.history?.last?.action
+        if actionSelected != nil {
+            if let game = self.game, let currentPlayer = game.currentPlayerNickname, let player = player {
+                if currentPlayer != player.nickname {
+                    actionSelected = nil
+                }
+            }
+        }
         updateLabels()
     }
     
