@@ -499,7 +499,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
         }
         if let game = game, let player = player {
-            print(game.players?.first(where:{$0.nickname == player.nickname }))
             if let playerInfo = game.players?.first(where:{$0.nickname == player.nickname }) {
                 
                 if game.status == .finished {
@@ -581,6 +580,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                     fadeInNode(actionPickerLabel)
                 }
                 actionPickerField.isHidden = false
+            }
+            else {
+                actionPickerField.isHidden = true
             }
             if game.status == .running && currentPlayerLabel?.alpha == 0 {
                 fadeInNode(currentPlayerLabel)
