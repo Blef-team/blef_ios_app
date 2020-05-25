@@ -573,9 +573,13 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             if canStartGame(game, player, players) && startGameLabel.alpha == 0 {
                 fadeInNode(startGameLabel)
             }
-            if playerIsCurrentPlayer(player: player, game: game) && playLabel.alpha == 0 {
-                fadeInNode(playLabel)
-                fadeInNode(actionPickerLabel)
+            if playerIsCurrentPlayer(player: player, game: game) {
+                if playLabel.alpha == 0 {
+                    fadeInNode(playLabel)
+                }
+                if actionPickerLabel?.alpha == 0 {
+                    fadeInNode(actionPickerLabel)
+                }
                 actionPickerField.isHidden = false
             }
             if game.status == .running && currentPlayerLabel?.alpha == 0 {
