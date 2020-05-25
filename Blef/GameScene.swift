@@ -137,8 +137,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         self.game = game
         self.lastBet = game.history?.last?.action
         if actionSelected != nil {
-            if let game = self.game, let currentPlayer = game.currentPlayerNickname, let player = player {
-                if currentPlayer != player.nickname {
+            if let game = self.game, let player = player {
+                if !playerIsCurrentPlayer(player: player, game: game) {
                     actionSelected = nil
                 }
             }
@@ -384,7 +384,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         
         if let label = self.currentPlayerLabel, let game = self.game, let currentPlayer = game.currentPlayerNickname, let player = player {
             var newLabelText: String
-            if currentPlayer == player.nickname {
+            if playerIsCurrentPlayer(player: player, game: game) {
                 newLabelText = "Current player: You"
             }
             else {
