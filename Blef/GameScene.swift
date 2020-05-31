@@ -26,7 +26,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     var actionSelected: Action?
     var pressedPlayButton = false
     var playerLost = false
-    var roundNumber: Int = 0
+    var roundNumber: Int = -1
     private var startGameLabel: SKLabelNode?
     private var playLabel: SKLabelNode?
     private var actionPickerLabel: SKLabelNode?
@@ -163,14 +163,15 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         print(game)
         self.game = game
         self.lastBet = game.history?.last?.action
-        self.roundNumber = game.roundNumber
+        if game.status == .running {
+            self.roundNumber = game.roundNumber
+        }
         
         if let hands = game.hands {
             
             if hands.count > 1 {
                 displayHands(hands)
-                print(hands)
-                self.roundNumber += 1
+                self.roundNumber = -1 // Go to the latest round
             }
         }
         
