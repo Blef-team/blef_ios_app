@@ -148,7 +148,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func didFailWithError(error: Error) {
-        displayMessage("Something went wrong. Try again.")
+        displayMessage("Something went wrong.")
     }
     
     func didStartGame(_ message: Message) {
