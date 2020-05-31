@@ -89,7 +89,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
         
         playerCardSprites = []
-        for cardIndex in 0...14 {
+        for cardIndex in 0...10 {
             let sprite = SKSpriteNode(texture: SKTexture(image: #imageLiteral(resourceName: "empty")), size: CGSize(width: 70, height: 70))
             sprite.position = getPlayerCardPosition(cardIndex)
             addChild(sprite)
@@ -100,7 +100,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         revealCardSprites = []
         for playerIndex in 0...7 {
             var sprites: [SKSpriteNode] = []
-            for cardIndex in 0...14 {
+            for cardIndex in 0...10 {
                 let sprite = SKSpriteNode(texture: SKTexture(image: #imageLiteral(resourceName: "empty")), size: CGSize(width: 50, height: 50))
                 sprite.position = getOthersCardPosition(cardIndex: cardIndex, playerIndex: playerIndex)
                 addChild(sprite)
