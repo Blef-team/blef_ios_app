@@ -82,8 +82,12 @@ class GameManager {
         performRequest(with: urlString, parser: parseStartGameResponse(_:))
     }
     
-    func updateGame(gameUuid: UUID, playerUuid: UUID) {
-        let urlString = "\(GameEngineServiceURL)/\(gameUuid.uuidString.lowercased())?player_uuid=\(playerUuid.uuidString.lowercased())"
+    func updateGame(gameUuid: UUID, playerUuid: UUID, round: Int = -1) {
+        var roundNumber = -1
+        if round != 0 {
+            roundNumber = round
+        }
+        let urlString = "\(GameEngineServiceURL)/\(gameUuid.uuidString.lowercased())?player_uuid=\(playerUuid.uuidString.lowercased())&round=\(roundNumber)"
         print(urlString)
         performRequest(with: urlString, parser: parseUpdateGameResponse(_:))
     }

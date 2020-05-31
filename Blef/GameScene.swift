@@ -20,13 +20,13 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     var player: Player?
     var game: Game?
     var lastBet: Action?
-    var lastRound: Int?
     var displayedBet: Action?
     var errorMessageLabel: SKLabelNode!
     var isDisplayingMessage = false
     var actionSelected: Action?
     var pressedPlayButton = false
     var playerLost = false
+    var roundNumber: Int = 0
     private var startGameLabel: SKLabelNode?
     private var playLabel: SKLabelNode?
     private var actionPickerLabel: SKLabelNode?
@@ -120,8 +120,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             self.addChild(nicknameLabel)
         }
         
-        lastRound = 0
-        
         betSprites = []
         for cardIndex in 0...5 {
             let sprite = SKSpriteNode(texture: SKTexture(image: #imageLiteral(resourceName: "empty")), size: CGSize(width: 80, height: 80))
@@ -134,7 +132,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             betLabel.alpha = 0.0
             betLabel.position = getBetCardPosition(0)
         }
-        
+
         
         resumeGameUpdateTimer()
     }
@@ -144,7 +142,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
      */
     @objc func updateGame() {
         if let gameUuid = self.gameUuid, let playerUuid = player?.uuid {
-            gameManager.updateGame(gameUuid: gameUuid, playerUuid: playerUuid)
+            gameManager.updateGame(gameUuid: gameUuid, playerUuid: playerUuid, round: roundNumber)
         }
     }
     
@@ -164,13 +162,16 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         print(game)
         self.game = game
         self.lastBet = game.history?.last?.action
+        self.roundNumber = game.roundNumber
         
-        if self.lastRound != game.roundNumber {
-            if let hands = game.hands {
+        if let hands = game.hands {
+            
+            if hands.count > 1 {
                 displayHands(hands)
+                print(hands)
+                self.roundNumber += 1
             }
         }
-        self.lastRound = game.roundNumber
         
         if actionSelected != nil {
             if let game = self.game, let player = player {
@@ -375,9 +376,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     func displayHands(_ hands: [NamedHand]) {
         if let othersCardSprites = othersCardSprites, let othersNicknameLabels = othersNicknameLabels {
             displayMessage("")
-            for sprite in playerCardSprites ?? [] {
-                fadeInNode(sprite)
-            }
             
             var playerIndex = 0
             for namedHand in hands {
@@ -390,12 +388,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 for (cardIndex, card) in namedHand.hand.enumerated() {
                     if let image = getCardImage(card) {
                         othersCardSprites[playerIndex][cardIndex].texture = image
-                    }
-                    else {
-                        let cardLabel = getCardLabel(card)
-                        cardLabel.position = getPlayerCardPosition(cardIndex)
-                        addChild(cardLabel)
-                        cardLabels?.append(cardLabel)
                     }
                 }
             }
