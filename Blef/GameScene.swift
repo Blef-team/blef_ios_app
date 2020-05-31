@@ -587,11 +587,11 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     func getOthersCardPosition(cardIndex: Int, playerIndex: Int) -> CGPoint {
         var xOffset = CGFloat(40*cardIndex)
         var yOffset = CGFloat(-70*playerIndex)
-        if playerIndex > 3 {
-            xOffset += size.width * 0.35
-            yOffset += CGFloat(240)
+        if playerIndex > 4 {
+            xOffset += size.width * 0.4
+            yOffset += CGFloat(310)
         }
-        return CGPoint(x: size.width * -0.1 + xOffset, y: CGFloat(100) + yOffset)
+        return CGPoint(x: size.width * -0.15 + xOffset, y: size.width * 0.2 + yOffset)
     }
     
     func getBetCardPosition(_ cardIndex: Int) -> CGPoint {
