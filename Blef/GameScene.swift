@@ -37,8 +37,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     private var playersLabel : SKLabelNode?
     private var actionPickerField: UITextField?
     private var playerCardSprites: [SKSpriteNode]?
-    private var othersCardSprites: [[SKSpriteNode]]?
-    private var othersNicknameLabels: [SKLabelNode]?
+    private var revealCardSprites: [[SKSpriteNode]]?
+    private var revealNicknameLabels: [SKLabelNode]?
     private var cardLabels: [SKLabelNode]?
     private var betSprites: [SKSpriteNode]?
     private var betLabel: SKLabelNode?
@@ -97,7 +97,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
         cardLabels = []
         
-        othersCardSprites = []
+        revealCardSprites = []
         for playerIndex in 0...6 {
             var sprites: [SKSpriteNode] = []
             for cardIndex in 0...14 {
@@ -106,17 +106,17 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 addChild(sprite)
                 sprites.append(sprite)
             }
-            othersCardSprites?.append(sprites)
+            revealCardSprites?.append(sprites)
         }
         
-        othersNicknameLabels = []
+        revealNicknameLabels = []
         for playerIndex in 0...6 {
             let nicknameLabel = SKLabelNode(fontNamed:"HelveticaNeue-UltraLight")
             nicknameLabel.text = ""
             nicknameLabel.fontSize = 15
             nicknameLabel.position = getOthersCardPosition(cardIndex: 0, playerIndex: playerIndex)
             nicknameLabel.position.x -= size.width * 0.15
-            othersNicknameLabels?.append(nicknameLabel)
+            revealNicknameLabels?.append(nicknameLabel)
             self.addChild(nicknameLabel)
         }
         
@@ -374,12 +374,12 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func displayHands(_ hands: [NamedHand]) {
-        if let othersCardSprites = othersCardSprites, let othersNicknameLabels = othersNicknameLabels {
+        if let othersCardSprites = revealCardSprites, let othersNicknameLabels = revealNicknameLabels {
             displayMessage("")
             
             var playerIndex = 0
             for namedHand in hands {
-                let nickname = namedHand.nickname
+                let nickname = (namedHand.nickname == player?.nickname ? "You" : formatDisplayNickname(namedHand.nickname) )
                 if namedHand.hand.count == 0 {
                     continue
                 }
@@ -388,6 +388,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 for (cardIndex, card) in namedHand.hand.enumerated() {
                     if let image = getCardImage(card) {
                         othersCardSprites[playerIndex][cardIndex].texture = image
+                        fadeInNode(othersCardSprites[playerIndex][cardIndex])
                     }
                 }
             }
@@ -582,7 +583,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func getOthersCardPosition(cardIndex: Int, playerIndex: Int) -> CGPoint {
-        return CGPoint(x: size.width * -0.25 + CGFloat(40*cardIndex), y: size.height * 0.4 - CGFloat(50*playerIndex))
+        return CGPoint(x: size.width * -0.25 + CGFloat(40*cardIndex), y: size.height * 0.5 - CGFloat(50*playerIndex))
     }
     
     func getBetCardPosition(_ cardIndex: Int) -> CGPoint {
@@ -648,6 +649,21 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
             if game.status == .running && currentPlayerLabel?.alpha == 0 {
                 fadeInNode(currentPlayerLabel)
+            }
+        }
+        
+        
+        if let revealNicknameLabels = revealNicknameLabels {
+            for label in revealNicknameLabels {
+                fadeOutNode(label)
+                label.text = ""
+            }
+        }
+        if let revealCardSprites = revealCardSprites {
+            for sprites in revealCardSprites {
+                for sprite in sprites {
+                    fadeOutNode(sprite)
+                }
             }
         }
         
