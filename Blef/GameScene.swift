@@ -115,7 +115,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             nicknameLabel.text = ""
             nicknameLabel.fontSize = 15
             nicknameLabel.position = getOthersCardPosition(cardIndex: 0, playerIndex: playerIndex)
-            nicknameLabel.position.x -= size.width * 0.15
+            nicknameLabel.position.x -= size.width * 0.05
+            nicknameLabel.horizontalAlignmentMode = .right
             revealNicknameLabels?.append(nicknameLabel)
             self.addChild(nicknameLabel)
         }
@@ -583,7 +584,13 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func getOthersCardPosition(cardIndex: Int, playerIndex: Int) -> CGPoint {
-        return CGPoint(x: size.width * -0.25 + CGFloat(40*cardIndex), y: size.height * 0.5 - CGFloat(50*playerIndex))
+        var xOffset = CGFloat(40*cardIndex)
+        var yOffset = CGFloat(-70*playerIndex)
+        if playerIndex > 3 {
+            xOffset += size.width * 0.35
+            yOffset += CGFloat(240)
+        }
+        return CGPoint(x: size.width * -0.1 + xOffset, y: CGFloat(100) + yOffset)
     }
     
     func getBetCardPosition(_ cardIndex: Int) -> CGPoint {
