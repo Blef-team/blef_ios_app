@@ -98,7 +98,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         cardLabels = []
         
         revealCardSprites = []
-        for playerIndex in 0...6 {
+        for playerIndex in 0...7 {
             var sprites: [SKSpriteNode] = []
             for cardIndex in 0...14 {
                 let sprite = SKSpriteNode(texture: SKTexture(image: #imageLiteral(resourceName: "empty")), size: CGSize(width: 50, height: 50))
@@ -110,7 +110,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
         
         revealNicknameLabels = []
-        for playerIndex in 0...6 {
+        for playerIndex in 0...7 {
             let nicknameLabel = SKLabelNode(fontNamed:"HelveticaNeue-UltraLight")
             nicknameLabel.text = ""
             nicknameLabel.fontSize = 15
@@ -374,7 +374,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func displayHands(_ hands: [NamedHand]) {
-        if let othersCardSprites = revealCardSprites, let othersNicknameLabels = revealNicknameLabels {
+        if let revealCardSprites = revealCardSprites, let revealNicknameLabels = revealNicknameLabels {
             displayMessage("")
             
             var playerIndex = 0
@@ -383,14 +383,14 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 if namedHand.hand.count == 0 {
                     continue
                 }
-                playerIndex += 1
-                updateLabelText(othersNicknameLabels[playerIndex], nickname)
+                updateLabelText(revealNicknameLabels[playerIndex], nickname)
                 for (cardIndex, card) in namedHand.hand.enumerated() {
                     if let image = getCardImage(card) {
-                        othersCardSprites[playerIndex][cardIndex].texture = image
-                        fadeInNode(othersCardSprites[playerIndex][cardIndex])
+                        revealCardSprites[playerIndex][cardIndex].texture = image
+                        fadeInNode(revealCardSprites[playerIndex][cardIndex])
                     }
                 }
+                playerIndex += 1
             }
         }
     }
