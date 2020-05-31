@@ -42,6 +42,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     private var cardLabels: [SKLabelNode]?
     private var betSprites: [SKSpriteNode]?
     private var betLabel: SKLabelNode?
+    private var helpLabelSprite: SKSpriteNode?
     
     override func didMove(to view: SKView) {
         
@@ -80,6 +81,10 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         errorMessageLabel.text = ""
         errorMessageLabel.fontSize = 15
         errorMessageLabel.position = CGPoint(x:self.frame.midX, y:self.frame.midY)
+        errorMessageLabel.lineBreakMode = NSLineBreakMode.byWordWrapping
+        errorMessageLabel.numberOfLines = 0
+        errorMessageLabel.preferredMaxLayoutWidth = size.width * 0.8
+        errorMessageLabel.verticalAlignmentMode = .center
         self.addChild(errorMessageLabel)
         
         self.helloLabel = self.childNode(withName: "//helloLabel") as? SKLabelNode
@@ -134,6 +139,11 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             betLabel.position = getBetCardPosition(0)
         }
 
+        let helpLabelSprite = SKSpriteNode(texture: SKTexture(image: #imageLiteral(resourceName: "help")), size: CGSize(width: 30, height: 30))
+        helpLabelSprite.position = CGPoint(x: size.width*0.45, y: size.height*0.45)
+        helpLabelSprite.name = "helpLabelSprite"
+        addChild(helpLabelSprite)
+        self.helpLabelSprite = helpLabelSprite
         
         resumeGameUpdateTimer()
     }
@@ -226,6 +236,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 }
                 if node.name == "exitButton" {
                     exitButtonPressed()
+                }
+                if node.name == "helpLabelSprite" {
+                    helpLabelSpritePressed()
                 }
             }
         }
@@ -396,6 +409,25 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         scene?.view?.presentScene(startScene!, transition: transition)
     }
     
+    func helpLabelSpritePressed() {
+        let gameRules = """
+                        Game rules
+
+                        There are 24 cards in the deck (9 to Ace).
+                        New cards are dealt to each player at the start of each round.
+
+                        In Blef, you can only bet or check.
+                        E.g. if you bet "Pair of 9s", you are betting that at least two 9s can be found among all cards dealt this round.
+                        
+                        If anyone checks, the round ends.
+                        If someone checks your bet and it can't be found among all cards, you lose the round and gain a card.
+                        If your bet was correct, the player who checked you loses and gains a card.
+
+                        Reach too many cards and you're out of the game.
+                        """
+        displayMessage(gameRules)
+    }
+    
     func displayHands(_ hands: [NamedHand]) {
         if let revealCardSprites = revealCardSprites, let revealNicknameLabels = revealNicknameLabels {
             displayMessage("")
@@ -428,6 +460,12 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 if label.alpha == 0 {
                     fadeInNode(label)
                 }
+            }
+        }
+        
+        if let label = self.helpLabelSprite {
+            if label.alpha == 0 {
+                fadeInNode(label)
             }
         }
         
@@ -638,6 +676,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         
         fadeOutNode(shareLabel)
         fadeOutNode(exitLabel)
+        fadeOutNode(helpLabelSprite)
         fadeOutNode(playersLabel)
         fadeOutNode(currentPlayerLabel)
         fadeOutNode(playLabel)
@@ -666,6 +705,12 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
             if game.status == .finished {
                 fadeInNode(exitLabel)
+            }
+        }
+        
+        if let label = self.helpLabelSprite {
+            if label.alpha == 0 {
+                fadeInNode(label)
             }
         }
         
