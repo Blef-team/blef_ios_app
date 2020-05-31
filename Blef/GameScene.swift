@@ -139,10 +139,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             betLabel.position = getBetCardPosition(0)
         }
 
-        let helpLabelSprite = SKSpriteNode(texture: SKTexture(image: #imageLiteral(resourceName: "help")), size: CGSize(width: 25, height: 25))
+        let helpLabelSprite = SKSpriteNode(texture: SKTexture(image: #imageLiteral(resourceName: "help")), size: CGSize(width: 30, height: 30))
         helpLabelSprite.position = CGPoint(x: size.width*0.45, y: size.height*0.45)
         helpLabelSprite.name = "helpLabelSprite"
-        helpLabelSprite.alpha = 0.5
         addChild(helpLabelSprite)
         self.helpLabelSprite = helpLabelSprite
         
@@ -464,6 +463,12 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
         }
         
+        if let label = self.helpLabelSprite {
+            if label.alpha == 0 {
+                fadeInNode(label)
+            }
+        }
+        
         if let label = self.shareLabel, let game = self.game {
             if game.status == .notStarted {
                 if label.alpha == 0 {
@@ -671,6 +676,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         
         fadeOutNode(shareLabel)
         fadeOutNode(exitLabel)
+        fadeOutNode(helpLabelSprite)
         fadeOutNode(playersLabel)
         fadeOutNode(currentPlayerLabel)
         fadeOutNode(playLabel)
@@ -699,6 +705,12 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
             if game.status == .finished {
                 fadeInNode(exitLabel)
+            }
+        }
+        
+        if let label = self.helpLabelSprite {
+            if label.alpha == 0 {
+                fadeInNode(label)
             }
         }
         
