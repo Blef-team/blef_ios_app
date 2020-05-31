@@ -29,7 +29,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     var roundNumber: Int = -1
     private var startGameLabel: SKLabelNode?
     private var playLabel: SKLabelNode?
-    private var actionPickerLabel: SKLabelNode?
     private var actionPickerView : UIPickerView?
     private var helloLabel : SKLabelNode?
     private var shareLabel : SKLabelNode?
@@ -51,8 +50,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         startGameLabel?.alpha = 0.0
         self.playLabel = childNode(withName: "//playLabel") as? SKLabelNode
         playLabel?.alpha = 0.0
-        self.actionPickerLabel = childNode(withName: "//actionPickerLabel") as? SKLabelNode
-        actionPickerLabel?.alpha = 0.0
         self.shareLabel = self.childNode(withName: "//shareLabel") as? SKLabelNode
         shareLabel?.alpha = 0.0
         self.currentPlayerLabel = self.childNode(withName: "//currentPlayerLabel") as? SKLabelNode
@@ -69,14 +66,14 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         actionPickerView?.delegate = self
         if let myField = actionPickerField {
             myField.inputView = actionPickerView
-            myField.font = UIFont(name: "HelveticaNeue-UltraLight", size: 20)
+            myField.font = UIFont(name: "HelveticaNeue-Light", size: 20)
             myField.textColor = .black
             myField.backgroundColor = .lightGray
             myField.borderStyle = UITextField.BorderStyle.roundedRect
             myField.delegate = self
         }
         
-        errorMessageLabel = SKLabelNode(fontNamed:"HelveticaNeue-UltraLight")
+        errorMessageLabel = SKLabelNode(fontNamed:"HelveticaNeue-Light")
         errorMessageLabel.text = ""
         errorMessageLabel.fontSize = 15
         errorMessageLabel.position = CGPoint(x:self.frame.midX, y:self.frame.midY)
@@ -111,7 +108,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         
         revealNicknameLabels = []
         for playerIndex in 0...7 {
-            let nicknameLabel = SKLabelNode(fontNamed:"HelveticaNeue-UltraLight")
+            let nicknameLabel = SKLabelNode(fontNamed:"HelveticaNeue-Light")
             nicknameLabel.text = ""
             nicknameLabel.fontSize = 15
             nicknameLabel.position = getOthersCardPosition(cardIndex: 0, playerIndex: playerIndex)
@@ -148,7 +145,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func didFailWithError(error: Error) {
-        displayMessage("Something went wrong. Try again.")
+        displayMessage("Something went wrong.")
     }
     
     func didStartGame(_ message: Message) {
@@ -186,9 +183,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func didPlay() {
-        if let playLabel = playLabel, let actionPickerLabel = actionPickerLabel, let actionPickerField = actionPickerField {
+        if let playLabel = playLabel, let actionPickerField = actionPickerField {
             fadeOutNode(playLabel)
-            fadeOutNode(actionPickerLabel)
             actionPickerField.text = ""
             actionPickerField.isHidden = true
         }
@@ -433,21 +429,17 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
         }
         
-        if let playLabel = self.playLabel, let actionPickerLabel = actionPickerLabel, let player = self.player, let game = self.game, let actionPickerField = actionPickerField {
+        if let playLabel = self.playLabel, let player = self.player, let game = self.game, let actionPickerField = actionPickerField {
             if game.status == .running && playerIsCurrentPlayer(player: player, game: game) {
                 pressedPlayButton = false
                 if playLabel.alpha == 0 {
                     fadeInNode(playLabel)
                 }
-                if actionPickerLabel.alpha == 0 {
-                    fadeInNode(actionPickerLabel)
-                    self.view?.addSubview(actionPickerField)
-                    actionPickerField.isHidden = false
-                }
+                self.view?.addSubview(actionPickerField)
+                actionPickerField.isHidden = false
             }
             else {
                 fadeOutNode(playLabel)
-                actionPickerLabel.isHidden = true
             }
         }
         
@@ -620,7 +612,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         fadeOutNode(currentPlayerLabel)
         fadeOutNode(playLabel)
         fadeOutNode(startGameLabel)
-        fadeOutNode(actionPickerLabel)
         if let actionPickerField = actionPickerField {
             actionPickerField.isHidden = true
         }
@@ -654,9 +645,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             if playerIsCurrentPlayer(player: player, game: game) {
                 if playLabel.alpha == 0 {
                     fadeInNode(playLabel)
-                }
-                if actionPickerLabel?.alpha == 0 {
-                    fadeInNode(actionPickerLabel)
                 }
                 actionPickerField.isHidden = false
             }
