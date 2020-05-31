@@ -69,14 +69,14 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         actionPickerView?.delegate = self
         if let myField = actionPickerField {
             myField.inputView = actionPickerView
-            myField.font = UIFont(name: "HelveticaNeue-UltraLight", size: 20)
+            myField.font = UIFont(name: "HelveticaNeue-Light", size: 20)
             myField.textColor = .black
             myField.backgroundColor = .lightGray
             myField.borderStyle = UITextField.BorderStyle.roundedRect
             myField.delegate = self
         }
         
-        errorMessageLabel = SKLabelNode(fontNamed:"HelveticaNeue-UltraLight")
+        errorMessageLabel = SKLabelNode(fontNamed:"HelveticaNeue-Light")
         errorMessageLabel.text = ""
         errorMessageLabel.fontSize = 15
         errorMessageLabel.position = CGPoint(x:self.frame.midX, y:self.frame.midY)
@@ -111,7 +111,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         
         revealNicknameLabels = []
         for playerIndex in 0...7 {
-            let nicknameLabel = SKLabelNode(fontNamed:"HelveticaNeue-UltraLight")
+            let nicknameLabel = SKLabelNode(fontNamed:"HelveticaNeue-Light")
             nicknameLabel.text = ""
             nicknameLabel.fontSize = 15
             nicknameLabel.position = getOthersCardPosition(cardIndex: 0, playerIndex: playerIndex)
