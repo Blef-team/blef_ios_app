@@ -306,6 +306,11 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func startGameButtonPressed() {
+        if let game = game {
+            if game.status != .notStarted {
+                return
+            }
+        }
         if let label = startGameLabel {
             pulseLabel(label)
         }
@@ -398,6 +403,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func updateLabels() {
+        if isDisplayingMessage {
+            return
+        }
         if let label = self.shareLabel, let game = self.game {
             if game.status == .notStarted {
                 if label.alpha == 0 {
