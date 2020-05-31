@@ -26,19 +26,23 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     var actionSelected: Action?
     var pressedPlayButton = false
     var playerLost = false
+    var roundNumber: Int = -1
     private var startGameLabel: SKLabelNode?
     private var playLabel: SKLabelNode?
-    private var actionPickerLabel: SKLabelNode?
     private var actionPickerView : UIPickerView?
     private var helloLabel : SKLabelNode?
     private var shareLabel : SKLabelNode?
+    private var exitLabel : SKLabelNode?
     private var currentPlayerLabel : SKLabelNode?
     private var playersLabel : SKLabelNode?
     private var actionPickerField: UITextField?
     private var playerCardSprites: [SKSpriteNode]?
+    private var revealCardSprites: [[SKSpriteNode]]?
+    private var revealNicknameLabels: [SKLabelNode]?
     private var cardLabels: [SKLabelNode]?
     private var betSprites: [SKSpriteNode]?
     private var betLabel: SKLabelNode?
+    private var helpLabelSprite: SKSpriteNode?
     
     override func didMove(to view: SKView) {
         
@@ -48,10 +52,10 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         startGameLabel?.alpha = 0.0
         self.playLabel = childNode(withName: "//playLabel") as? SKLabelNode
         playLabel?.alpha = 0.0
-        self.actionPickerLabel = childNode(withName: "//actionPickerLabel") as? SKLabelNode
-        actionPickerLabel?.alpha = 0.0
         self.shareLabel = self.childNode(withName: "//shareLabel") as? SKLabelNode
         shareLabel?.alpha = 0.0
+        self.exitLabel = self.childNode(withName: "//exitLabel") as? SKLabelNode
+        exitLabel?.alpha = 0.0
         self.currentPlayerLabel = self.childNode(withName: "//currentPlayerLabel") as? SKLabelNode
         currentPlayerLabel?.alpha = 0.0
         self.playersLabel = self.childNode(withName: "//playersLabel") as? SKLabelNode
@@ -66,17 +70,21 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         actionPickerView?.delegate = self
         if let myField = actionPickerField {
             myField.inputView = actionPickerView
-            myField.font = UIFont(name: "HelveticaNeue-UltraLight", size: 20)
+            myField.font = UIFont(name: "HelveticaNeue-Light", size: 20)
             myField.textColor = .black
             myField.backgroundColor = .lightGray
             myField.borderStyle = UITextField.BorderStyle.roundedRect
             myField.delegate = self
         }
         
-        errorMessageLabel = SKLabelNode(fontNamed:"HelveticaNeue-UltraLight")
+        errorMessageLabel = SKLabelNode(fontNamed:"HelveticaNeue-Light")
         errorMessageLabel.text = ""
         errorMessageLabel.fontSize = 15
         errorMessageLabel.position = CGPoint(x:self.frame.midX, y:self.frame.midY)
+        errorMessageLabel.lineBreakMode = NSLineBreakMode.byWordWrapping
+        errorMessageLabel.numberOfLines = 0
+        errorMessageLabel.preferredMaxLayoutWidth = size.width * 0.8
+        errorMessageLabel.verticalAlignmentMode = .center
         self.addChild(errorMessageLabel)
         
         self.helloLabel = self.childNode(withName: "//helloLabel") as? SKLabelNode
@@ -86,13 +94,37 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
         
         playerCardSprites = []
-        for cardIndex in 0...14 {
+        for cardIndex in 0...10 {
             let sprite = SKSpriteNode(texture: SKTexture(image: #imageLiteral(resourceName: "empty")), size: CGSize(width: 70, height: 70))
             sprite.position = getPlayerCardPosition(cardIndex)
             addChild(sprite)
             playerCardSprites?.append(sprite)
         }
         cardLabels = []
+        
+        revealCardSprites = []
+        for playerIndex in 0...7 {
+            var sprites: [SKSpriteNode] = []
+            for cardIndex in 0...10 {
+                let sprite = SKSpriteNode(texture: SKTexture(image: #imageLiteral(resourceName: "empty")), size: CGSize(width: 50, height: 50))
+                sprite.position = getOthersCardPosition(cardIndex: cardIndex, playerIndex: playerIndex)
+                addChild(sprite)
+                sprites.append(sprite)
+            }
+            revealCardSprites?.append(sprites)
+        }
+        
+        revealNicknameLabels = []
+        for playerIndex in 0...7 {
+            let nicknameLabel = SKLabelNode(fontNamed:"HelveticaNeue-Light")
+            nicknameLabel.text = ""
+            nicknameLabel.fontSize = 15
+            nicknameLabel.position = getOthersCardPosition(cardIndex: 0, playerIndex: playerIndex)
+            nicknameLabel.position.x -= size.width * 0.05
+            nicknameLabel.horizontalAlignmentMode = .right
+            revealNicknameLabels?.append(nicknameLabel)
+            self.addChild(nicknameLabel)
+        }
         
         betSprites = []
         for cardIndex in 0...5 {
@@ -106,7 +138,12 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             betLabel.alpha = 0.0
             betLabel.position = getBetCardPosition(0)
         }
-        
+
+        let helpLabelSprite = SKSpriteNode(texture: SKTexture(image: #imageLiteral(resourceName: "help")), size: CGSize(width: 30, height: 30))
+        helpLabelSprite.position = CGPoint(x: size.width*0.45, y: size.height*0.45)
+        helpLabelSprite.name = "helpLabelSprite"
+        addChild(helpLabelSprite)
+        self.helpLabelSprite = helpLabelSprite
         
         resumeGameUpdateTimer()
     }
@@ -116,12 +153,12 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
      */
     @objc func updateGame() {
         if let gameUuid = self.gameUuid, let playerUuid = player?.uuid {
-            gameManager.updateGame(gameUuid: gameUuid, playerUuid: playerUuid)
+            gameManager.updateGame(gameUuid: gameUuid, playerUuid: playerUuid, round: roundNumber)
         }
     }
     
     func didFailWithError(error: Error) {
-        displayMessage("Something went wrong. Try again.")
+        displayMessage("Something went wrong.")
     }
     
     func didStartGame(_ message: Message) {
@@ -136,13 +173,31 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         print(game)
         self.game = game
         self.lastBet = game.history?.last?.action
+        if game.status == .running {
+            self.roundNumber = game.roundNumber
+        }
+        
+        if let hands = game.hands {
+            
+            if hands.count > 1 {
+                displayHands(hands)
+                self.roundNumber = -1 // Go to the latest round
+            }
+        }
+        
+        if actionSelected != nil {
+            if let game = self.game, let player = player {
+                if !playerIsCurrentPlayer(player: player, game: game) {
+                    actionSelected = nil
+                }
+            }
+        }
         updateLabels()
     }
     
     func didPlay() {
-        if let playLabel = playLabel, let actionPickerLabel = actionPickerLabel, let actionPickerField = actionPickerField {
+        if let playLabel = playLabel, let actionPickerField = actionPickerField {
             fadeOutNode(playLabel)
-            fadeOutNode(actionPickerLabel)
             actionPickerField.text = ""
             actionPickerField.isHidden = true
         }
@@ -178,6 +233,12 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 }
                 if node.name == "shareButton" {
                     shareButtonPressed()
+                }
+                if node.name == "exitButton" {
+                    exitButtonPressed()
+                }
+                if node.name == "helpLabelSprite" {
+                    helpLabelSpritePressed()
                 }
             }
         }
@@ -218,7 +279,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         let actionId = getActionIdForRow(row)
         if let action = Action.init(rawValue: actionId) {
-            return String(describing: action)
+            return String(describing: action.description)
         }
         return "?"
     }
@@ -226,7 +287,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         let actionId = getActionIdForRow(row)
         if let myField = actionPickerField, let action = Action.init(rawValue: actionId){
-            myField.text = String(describing: action)
+            myField.text = String(describing: action.description)
             self.actionSelected = action
         }
     }
@@ -260,6 +321,11 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func startGameButtonPressed() {
+        if let game = game {
+            if game.status != .notStarted {
+                return
+            }
+        }
         if let label = startGameLabel {
             pulseLabel(label)
         }
@@ -301,7 +367,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
         }
         let pasteboard = UIPasteboard.general
-        displayMessage("Game link copied")
+        displayMessage("Share the link with another player")
         
         let firstActivityItem = "Join me for a game of Blef"
         if let uuid = gameUuid?.uuidString {
@@ -329,11 +395,87 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
     }
     
+    func exitButtonPressed() {
+        if let game = game {
+            if game.status != .finished {
+                return
+            }
+        }
+        let startScene = StartScene(fileNamed: "StartScene")
+        let transition = SKTransition.fade(withDuration: 1.0)
+        startScene?.scaleMode = .aspectFit
+        pauseGameUpdateTimer()
+        self.removeFromParent()
+        scene?.view?.presentScene(startScene!, transition: transition)
+    }
+    
+    func helpLabelSpritePressed() {
+        let gameRules = """
+                        Game rules
+
+                        There are 24 cards in the deck (9 to Ace).
+                        New cards are dealt to each player at the start of each round.
+
+                        In Blef, you can only bet or check.
+                        E.g. if you bet "Pair of 9s", you are betting that at least two 9s can be found among all cards dealt this round.
+                        
+                        If anyone checks, the round ends.
+                        If someone checks your bet and it can't be found among all cards, you lose the round and gain a card.
+                        If your bet was correct, the player who checked you loses and gains a card.
+
+                        Reach too many cards and you're out of the game.
+                        """
+        displayMessage(gameRules)
+    }
+    
+    func displayHands(_ hands: [NamedHand]) {
+        if let revealCardSprites = revealCardSprites, let revealNicknameLabels = revealNicknameLabels {
+            displayMessage("")
+            
+            var playerIndex = 0
+            for namedHand in hands {
+                let nickname = (namedHand.nickname == player?.nickname ? "You" : formatDisplayNickname(namedHand.nickname) )
+                if namedHand.hand.count == 0 {
+                    continue
+                }
+                updateLabelText(revealNicknameLabels[playerIndex], nickname)
+                for (cardIndex, card) in namedHand.hand.enumerated() {
+                    if let image = getCardImage(card) {
+                        revealCardSprites[playerIndex][cardIndex].texture = image
+                        fadeInNode(revealCardSprites[playerIndex][cardIndex])
+                    }
+                }
+                playerIndex += 1
+            }
+        }
+    }
+    
     func updateLabels() {
+        if isDisplayingMessage {
+            return
+        }
+        
+        if let label = self.exitLabel, let game = self.game {
+            if game.status == .finished {
+                if label.alpha == 0 {
+                    fadeInNode(label)
+                }
+            }
+        }
+        
+        if let label = self.helpLabelSprite {
+            if label.alpha == 0 {
+                fadeInNode(label)
+            }
+        }
+        
         if let label = self.shareLabel, let game = self.game {
             if game.status == .notStarted {
                 if label.alpha == 0 {
                     fadeInNode(label)
+                }
+                else {
+                    slowPulseLabel(label)
                 }
             }
             else {
@@ -354,27 +496,23 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
         }
         
-        if let playLabel = self.playLabel, let actionPickerLabel = actionPickerLabel, let player = self.player, let game = self.game, let actionPickerField = actionPickerField {
+        if let playLabel = self.playLabel, let player = self.player, let game = self.game, let actionPickerField = actionPickerField {
             if game.status == .running && playerIsCurrentPlayer(player: player, game: game) {
                 pressedPlayButton = false
                 if playLabel.alpha == 0 {
                     fadeInNode(playLabel)
                 }
-                if actionPickerLabel.alpha == 0 {
-                    fadeInNode(actionPickerLabel)
-                    self.view?.addSubview(actionPickerField)
-                    actionPickerField.isHidden = false
-                }
+                self.view?.addSubview(actionPickerField)
+                actionPickerField.isHidden = false
             }
             else {
                 fadeOutNode(playLabel)
-                actionPickerLabel.isHidden = true
             }
         }
         
         if let label = self.currentPlayerLabel, let game = self.game, let currentPlayer = game.currentPlayerNickname, let player = player {
             var newLabelText: String
-            if currentPlayer == player.nickname {
+            if playerIsCurrentPlayer(player: player, game: game) {
                 newLabelText = "Current player: You"
             }
             else {
@@ -385,16 +523,51 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         
         if let label = self.playersLabel, let game = self.game, let players = game.players, let player = player {
             var playerStrings: [String] = []
-            for playerObject in players {
-                if player.nickname == playerObject.nickname {
-                    playerStrings.append("You: \(playerObject.nCards)")
+            if game.status == .notStarted {
+                for playerObject in players {
+                    if player.nickname == playerObject.nickname {
+                        playerStrings.append("You")
+                    }
+                    else {
+                        playerStrings.append("\(formatDisplayNickname(playerObject.nickname))")
+                    }
                 }
-                else {
-                    playerStrings.append("\(formatDisplayNickname(playerObject.nickname)): \(playerObject.nCards)")
-                }
-                 
             }
-            let newLabelText = playerStrings.joined(separator: " | ")
+            else if game.status == .finished {
+                for playerObject in players {
+                    var statusString = ""
+                    if playerObject.nCards == 0 {
+                        statusString = "lost"
+                    }
+                    else {
+                        statusString = "won"
+                    }
+                    if player.nickname == playerObject.nickname {
+                        playerStrings.append("You: \(statusString)")
+                    }
+                    else {
+                        playerStrings.append("\(formatDisplayNickname(playerObject.nickname)): \(statusString)")
+                    }
+                }
+            }
+            else {
+                for playerObject in players {
+                    var nCardsString = ""
+                    if playerObject.nCards == 0 {
+                        nCardsString = "lost"
+                    }
+                    else {
+                        nCardsString = String(playerObject.nCards)
+                    }
+                    if player.nickname == playerObject.nickname {
+                        playerStrings.append("You: \(nCardsString)")
+                    }
+                    else {
+                        playerStrings.append("\(formatDisplayNickname(playerObject.nickname)): \(nCardsString)")
+                    }
+                }
+            }
+            let newLabelText = "Players: \(playerStrings.joined(separator: " | "))"
             updateLabelText(label, newLabelText)
         }
         
@@ -417,7 +590,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
             if game.status != .notStarted {
                 if let hand = game.hands?.first(where:{$0.nickname == player.nickname })?.hand, let playerCardSprites = playerCardSprites {
-                    if !playerLost {
+                    if !playerLost && game.status != .finished {
                         for (cardIndex, card) in hand.enumerated() {
                             if let image = getCardImage(card) {
                                 playerCardSprites[cardIndex].texture = image
@@ -454,21 +627,38 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
         }
         if let game = game, let player = player {
-            print(game.players?.first(where:{$0.nickname == player.nickname }))
-            if let playerInfo =  game.players?.first(where:{$0.nickname == player.nickname }) {
-                if game.status != .notStarted && playerInfo.nCards == 0 {
-                    playerLost = true
-                    displayMessage("You lost")
+            if let playerInfo = game.players?.first(where:{$0.nickname == player.nickname }) {
+                
+                if game.status == .finished {
+                    if playerInfo.nCards > 0 {
+                        displayMessage("You won")
+                    }
+                    else {
+                        displayMessage("Game over")
+                    }
                 }
-            }
-            if game.status == .finished {
-                displayMessage("Game over")
+                else if game.status != .notStarted && playerInfo.nCards == 0 {
+                    if !playerLost {
+                        playerLost = true
+                        displayMessage("You lost")
+                    }
+                }
             }
         }
     }
     
     func getPlayerCardPosition(_ cardIndex: Int) -> CGPoint {
         return CGPoint(x: size.width * -0.45 + CGFloat(60*cardIndex), y: size.height * -0.4)
+    }
+    
+    func getOthersCardPosition(cardIndex: Int, playerIndex: Int) -> CGPoint {
+        var xOffset = CGFloat(40*cardIndex)
+        var yOffset = CGFloat(-70*playerIndex)
+        if playerIndex > 4 {
+            xOffset += size.width * 0.4
+            yOffset += CGFloat(310)
+        }
+        return CGPoint(x: size.width * -0.15 + xOffset, y: size.width * 0.2 + yOffset)
     }
     
     func getBetCardPosition(_ cardIndex: Int) -> CGPoint {
@@ -485,11 +675,12 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         self.addChild(errorMessageLabel)
         
         fadeOutNode(shareLabel)
+        fadeOutNode(exitLabel)
+        fadeOutNode(helpLabelSprite)
         fadeOutNode(playersLabel)
         fadeOutNode(currentPlayerLabel)
         fadeOutNode(playLabel)
         fadeOutNode(startGameLabel)
-        fadeOutNode(actionPickerLabel)
         if let actionPickerField = actionPickerField {
             actionPickerField.isHidden = true
         }
@@ -508,20 +699,53 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         isDisplayingMessage = false
         fadeOutNode(errorMessageLabel)
         
-        fadeInNode(shareLabel)
+        if let game = game {
+            if game.status == .notStarted {
+                fadeInNode(shareLabel)
+            }
+            if game.status == .finished {
+                fadeInNode(exitLabel)
+            }
+        }
+        
+        if let label = self.helpLabelSprite {
+            if label.alpha == 0 {
+                fadeInNode(label)
+            }
+        }
+        
         fadeInNode(playersLabel)
         
         if let game = game, let players = game.players, let player = player, let startGameLabel = startGameLabel, let playLabel = playLabel, let actionPickerField = actionPickerField {
             if canStartGame(game, player, players) && startGameLabel.alpha == 0 {
                 fadeInNode(startGameLabel)
             }
-            if playerIsCurrentPlayer(player: player, game: game) && playLabel.alpha == 0 {
-                fadeInNode(playLabel)
-                fadeInNode(actionPickerLabel)
+            if playerIsCurrentPlayer(player: player, game: game) {
+                if playLabel.alpha == 0 {
+                    fadeInNode(playLabel)
+                }
                 actionPickerField.isHidden = false
+            }
+            else {
+                actionPickerField.isHidden = true
             }
             if game.status == .running && currentPlayerLabel?.alpha == 0 {
                 fadeInNode(currentPlayerLabel)
+            }
+        }
+        
+        
+        if let revealNicknameLabels = revealNicknameLabels {
+            for label in revealNicknameLabels {
+                fadeOutNode(label)
+                label.text = ""
+            }
+        }
+        if let revealCardSprites = revealCardSprites {
+            for sprites in revealCardSprites {
+                for sprite in sprites {
+                    fadeOutNode(sprite)
+                }
             }
         }
         

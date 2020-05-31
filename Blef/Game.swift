@@ -183,57 +183,240 @@ enum Action: Int, CaseIterable {
     case threeQs
     case threeKs
     case threeAs
-    case fullHouse9sOn10s
-    case fullHouse9sOnJs
-    case fullHouse9sOnQs
-    case fullHouse9sOnKs
-    case fullHouse9sOnAs
-    case fullHouse10sOn9s
-    case fullHouse10sOnJs
-    case fullHouse10sOnQs
-    case fullHouse10sOnKs
-    case fullHouse10sOnAs
-    case fullHouseJsOn9s
-    case fullHouseJsOn10s
-    case fullHouseJsOnQs
-    case fullHouseJsOnKs
-    case fullHouseJsOnAs
-    case fullHouseQsOn9s
-    case fullHouseQsOn10s
-    case fullHouseQsOnJs
-    case fullHouseQsOnKs
-    case fullHouseQsOnAs
-    case fullHouseKsOn9s
-    case fullHouseKsOn10s
-    case fullHouseKsOnJs
-    case fullHouseKsOnQs
-    case fullHouseKsOnAs
-    case fullHouseAsOn9s
-    case fullHouseAsOn10s
-    case fullHouseAsOnJs
-    case fullHouseAsOnQs
-    case fullHouseAsOnKs
-    case colourClubs
-    case colourDiamonds
-    case colourHearts
-    case colourSpades
+    case fullHouse9sOver10s
+    case fullHouse9sOverJs
+    case fullHouse9sOverQs
+    case fullHouse9sOverKs
+    case fullHouse9sOverAs
+    case fullHouse10sOver9s
+    case fullHouse10sOverJs
+    case fullHouse10sOverQs
+    case fullHouse10sOverKs
+    case fullHouse10sOverAs
+    case fullHouseJsOver9s
+    case fullHouseJsOver10s
+    case fullHouseJsOverQs
+    case fullHouseJsOverKs
+    case fullHouseJsOverAs
+    case fullHouseQsOver9s
+    case fullHouseQsOver10s
+    case fullHouseQsOverJs
+    case fullHouseQsOverKs
+    case fullHouseQsOverAs
+    case fullHouseKsOver9s
+    case fullHouseKsOver10s
+    case fullHouseKsOverJs
+    case fullHouseKsOverQs
+    case fullHouseKsOverAs
+    case fullHouseAsOver9s
+    case fullHouseAsOver10s
+    case fullHouseAsOverJs
+    case fullHouseAsOverQs
+    case fullHouseAsOverKs
+    case flushClubs
+    case flushDiamonds
+    case flushHearts
+    case flushSpades
     case four9s
     case four10s
     case fourJs
     case fourQs
     case fourKs
     case fourAs
-    case smallFlushClubs
-    case smallFlushDiamonds
-    case smallFlushHearts
-    case smallFlushSpades
-    case bigFlushClubs
-    case bigFlushDiamonds
-    case bigFlushHearts
-    case bigFlushSpades
-    case greatFlushClubs
-    case greatFlushDiamonds
-    case greatFlushHearts
-    case greatFlushSpades
+    case smallStraightFlushClubs
+    case smallStraightFlushDiamonds
+    case smallStraightFlushHearts
+    case smallStraightFlushSpades
+    case bigStraightFlushClubs
+    case bigStraightFlushDiamonds
+    case bigStraightFlushHearts
+    case bigStraightFlushSpades
+    case greatStraightFlushClubs
+    case greatStraightFlushDiamonds
+    case greatStraightFlushHearts
+    case greatStraightFlushSpades
     case check
+    
+    var description: String {
+        switch self {
+        case .highCard9:
+           return "9"
+        case .highCard10:
+            return "10"
+        case .highCardJ:
+            return "Jack"
+        case .highCardQ:
+            return "Queen"
+        case .highCardK:
+            return "King"
+        case .highCardA:
+            return "Ace"
+        case .pairOf9s:
+            return "Pair of 9s"
+        case .pairOf10s:
+            return "Pair of 10s"
+        case .pairOfJs:
+            return "Pair of Jacks"
+        case .pairOfQs:
+            return "Pair of Queens"
+        case .pairOfKs:
+            return "Pair of Kings"
+        case .pairOfAs:
+            return "Pair of Aces"
+        case .twoPairs10sAnd9s:
+            return "Two pair, 10s and 9s"
+        case .twoPairsJsAnd9s:
+            return "Two pair, Jacks and 9s"
+        case .twoPairsJsAnd10s:
+            return "Two pair, Jacks and 10s"
+        case .twoPairsQsAnd9s:
+            return "Two pair, Queens and 9s"
+        case .twoPairsQsAnd10s:
+            return "Two pair, Queens and 10s"
+        case .twoPairsQsAndJs:
+            return "Two pair, Queens and Jacks"
+        case .twoPairsKsAnd9s:
+            return "Two pair, Kings and 9s"
+        case .twoPairsKsAnd10s:
+            return "Two pair, Kings and 10s"
+        case .twoPairsKsAndJs:
+            return "Two pair, Kings and Jacks"
+        case .twoPairsKsAndQs:
+            return "Two pair, Kings and Queens"
+        case .twoPairsAsAnd9s:
+            return "Two pair, Aces and 9s"
+        case .twoPairsAsAnd10s:
+            return "Two pair, Aces and 10s"
+        case .twoPairsAsAndJs:
+            return "Two pair, Aces and Jacks"
+        case .twoPairsAsAndQs:
+            return "Two pair, Aces and Queens"
+        case .twoPairsAsAndKs:
+            return "Two pair, Aces and Kings"
+        case .smallStraight:
+            return "Small straight (9-King)"
+        case .bigStraight:
+            return "Big straight (10-Ace)"
+        case .greatStraight:
+            return "Great straight (9-Ace)"
+        case .three9s:
+            return "Three 9s"
+        case .three10s:
+            return "Three 10s"
+        case .threeJs:
+            return "Three Jacks"
+        case .threeQs:
+            return "Three Queens"
+        case .threeKs:
+            return "Three Kings"
+        case .threeAs:
+            return "Three Aces"
+        case .fullHouse9sOver10s:
+            return "Full house, 9s over 10s"
+        case .fullHouse9sOverJs:
+            return "Full house, 9s over Jacks"
+        case .fullHouse9sOverQs:
+            return "Full house, 9s over Queens"
+        case .fullHouse9sOverKs:
+            return "Full house, 9s over Kings"
+        case .fullHouse9sOverAs:
+            return "Full house, 9s over Aces"
+        case .fullHouse10sOver9s:
+            return "Full house, 10s over 9s"
+        case .fullHouse10sOverJs:
+            return "Full house, 10s over Jacks"
+        case .fullHouse10sOverQs:
+            return "Full house, 10s over Queens"
+        case .fullHouse10sOverKs:
+            return "Full house, 10s over Kings"
+        case .fullHouse10sOverAs:
+            return "Full house, 10s over Aces"
+        case .fullHouseJsOver9s:
+            return "Full house, Jacks over 9s"
+        case .fullHouseJsOver10s:
+            return "Full house, Jacks over 10s"
+        case .fullHouseJsOverQs:
+            return "Full house, Jacks over Queens"
+        case .fullHouseJsOverKs:
+            return "Full house, Jacks over Kings"
+        case .fullHouseJsOverAs:
+            return "Full house, Jacks over Aces"
+        case .fullHouseQsOver9s:
+            return "Full house, Queens over 9s"
+        case .fullHouseQsOver10s:
+            return "Full house, Queens over 10s"
+        case .fullHouseQsOverJs:
+            return "Full house, Queens over Jacks"
+        case .fullHouseQsOverKs:
+            return "Full house, Queens over Kings"
+        case .fullHouseQsOverAs:
+            return "Full house, Queens over Aces"
+        case .fullHouseKsOver9s:
+            return "Full house, Kings over 9s"
+        case .fullHouseKsOver10s:
+            return "Full house, Kings over 10s"
+        case .fullHouseKsOverJs:
+            return "Full house, Kings over Jacks"
+        case .fullHouseKsOverQs:
+            return "Full house, Kings over Queens"
+        case .fullHouseKsOverAs:
+            return "Full house, Kings over Aces"
+        case .fullHouseAsOver9s:
+            return "Full house, Aces over 9s"
+        case .fullHouseAsOver10s:
+            return "Full house, Aces over 10s"
+        case .fullHouseAsOverJs:
+            return "Full house, Aces over Jacks"
+        case .fullHouseAsOverQs:
+            return "Full house, Aces over Queens"
+        case .fullHouseAsOverKs:
+            return "Full house, Aces over Kings"
+        case .flushClubs:
+            return "Flush of ♣"
+        case .flushDiamonds:
+            return "Flush of ♦"
+        case .flushHearts:
+            return "Flush of ♥"
+        case .flushSpades:
+            return "Flush of ♠"
+        case .four9s:
+            return "Four 9s"
+        case .four10s:
+            return "Four 10s"
+        case .fourJs:
+            return "Four Jacks"
+        case .fourQs:
+            return "Four Queens"
+        case .fourKs:
+            return "Four Kings"
+        case .fourAs:
+            return "Four Aces"
+        case .smallStraightFlushClubs:
+            return "Small straight flush (9-King) ♣"
+        case .smallStraightFlushDiamonds:
+            return "Small straight flush (9-King) ♦"
+        case .smallStraightFlushHearts:
+            return "Small straight flush (9-King) ♥"
+        case .smallStraightFlushSpades:
+            return "Small straight flush (9-King) ♠"
+        case .bigStraightFlushClubs:
+            return "Big straight flush (10-Ace) ♣"
+        case .bigStraightFlushDiamonds:
+            return "Big straight flush (10-Ace) ♦"
+        case .bigStraightFlushHearts:
+            return "Big straight flush (10-Ace) ♥"
+        case .bigStraightFlushSpades:
+            return "Big straight flush (10-Ace) ♠"
+        case .greatStraightFlushClubs:
+            return "Great straight flush (9-Ace) ♣"
+        case .greatStraightFlushDiamonds:
+            return "Great straight flush (9-Ace) ♦"
+        case .greatStraightFlushHearts:
+            return "Great straight flush (9-Ace) ♥"
+        case .greatStraightFlushSpades:
+            return "Great straight flush (9-Ace) ♠"
+        case .check:
+            return "CHECK"
+        }
+    }
 }
