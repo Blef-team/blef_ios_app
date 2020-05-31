@@ -20,6 +20,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     var player: Player?
     var game: Game?
     var lastBet: Action?
+    var lastRound: Int?
     var displayedBet: Action?
     var errorMessageLabel: SKLabelNode!
     var isDisplayingMessage = false
@@ -36,6 +37,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     private var playersLabel : SKLabelNode?
     private var actionPickerField: UITextField?
     private var playerCardSprites: [SKSpriteNode]?
+    private var othersCardSprites: [[SKSpriteNode]]?
+    private var othersNicknameLabels: [SKLabelNode]?
     private var cardLabels: [SKLabelNode]?
     private var betSprites: [SKSpriteNode]?
     private var betLabel: SKLabelNode?
@@ -94,6 +97,31 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
         cardLabels = []
         
+        othersCardSprites = []
+        for playerIndex in 0...6 {
+            var sprites: [SKSpriteNode] = []
+            for cardIndex in 0...14 {
+                let sprite = SKSpriteNode(texture: SKTexture(image: #imageLiteral(resourceName: "empty")), size: CGSize(width: 50, height: 50))
+                sprite.position = getOthersCardPosition(cardIndex: cardIndex, playerIndex: playerIndex)
+                addChild(sprite)
+                sprites.append(sprite)
+            }
+            othersCardSprites?.append(sprites)
+        }
+        
+        othersNicknameLabels = []
+        for playerIndex in 0...6 {
+            let nicknameLabel = SKLabelNode(fontNamed:"HelveticaNeue-UltraLight")
+            nicknameLabel.text = ""
+            nicknameLabel.fontSize = 15
+            nicknameLabel.position = getOthersCardPosition(cardIndex: 0, playerIndex: playerIndex)
+            nicknameLabel.position.x -= size.width * 0.15
+            othersNicknameLabels?.append(nicknameLabel)
+            self.addChild(nicknameLabel)
+        }
+        
+        lastRound = 0
+        
         betSprites = []
         for cardIndex in 0...5 {
             let sprite = SKSpriteNode(texture: SKTexture(image: #imageLiteral(resourceName: "empty")), size: CGSize(width: 80, height: 80))
@@ -136,6 +164,14 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         print(game)
         self.game = game
         self.lastBet = game.history?.last?.action
+        
+        if self.lastRound != game.roundNumber {
+            if let hands = game.hands {
+                displayHands(hands)
+            }
+        }
+        self.lastRound = game.roundNumber
+        
         if actionSelected != nil {
             if let game = self.game, let player = player {
                 if !playerIsCurrentPlayer(player: player, game: game) {
@@ -336,6 +372,36 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
     }
     
+    func displayHands(_ hands: [NamedHand]) {
+        if let othersCardSprites = othersCardSprites, let othersNicknameLabels = othersNicknameLabels {
+            displayMessage("")
+            for sprite in playerCardSprites ?? [] {
+                fadeInNode(sprite)
+            }
+            
+            var playerIndex = 0
+            for namedHand in hands {
+                let nickname = namedHand.nickname
+                if namedHand.hand.count == 0 {
+                    continue
+                }
+                playerIndex += 1
+                updateLabelText(othersNicknameLabels[playerIndex], nickname)
+                for (cardIndex, card) in namedHand.hand.enumerated() {
+                    if let image = getCardImage(card) {
+                        othersCardSprites[playerIndex][cardIndex].texture = image
+                    }
+                    else {
+                        let cardLabel = getCardLabel(card)
+                        cardLabel.position = getPlayerCardPosition(cardIndex)
+                        addChild(cardLabel)
+                        cardLabels?.append(cardLabel)
+                    }
+                }
+            }
+        }
+    }
+    
     func updateLabels() {
         if let label = self.shareLabel, let game = self.game {
             if game.status == .notStarted {
@@ -521,6 +587,10 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     
     func getPlayerCardPosition(_ cardIndex: Int) -> CGPoint {
         return CGPoint(x: size.width * -0.45 + CGFloat(60*cardIndex), y: size.height * -0.4)
+    }
+    
+    func getOthersCardPosition(cardIndex: Int, playerIndex: Int) -> CGPoint {
+        return CGPoint(x: size.width * -0.25 + CGFloat(40*cardIndex), y: size.height * 0.4 - CGFloat(50*playerIndex))
     }
     
     func getBetCardPosition(_ cardIndex: Int) -> CGPoint {
