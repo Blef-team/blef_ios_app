@@ -32,6 +32,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     private var actionPickerView : UIPickerView?
     private var helloLabel : SKLabelNode?
     private var shareLabel : SKLabelNode?
+    private var exitLabel : SKLabelNode?
     private var currentPlayerLabel : SKLabelNode?
     private var playersLabel : SKLabelNode?
     private var actionPickerField: UITextField?
@@ -52,6 +53,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         playLabel?.alpha = 0.0
         self.shareLabel = self.childNode(withName: "//shareLabel") as? SKLabelNode
         shareLabel?.alpha = 0.0
+        self.exitLabel = self.childNode(withName: "//exitLabel") as? SKLabelNode
+        exitLabel?.alpha = 0.0
         self.currentPlayerLabel = self.childNode(withName: "//currentPlayerLabel") as? SKLabelNode
         currentPlayerLabel?.alpha = 0.0
         self.playersLabel = self.childNode(withName: "//playersLabel") as? SKLabelNode
@@ -221,6 +224,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 if node.name == "shareButton" {
                     shareButtonPressed()
                 }
+                if node.name == "exitButton" {
+                    exitButtonPressed()
+                }
             }
         }
     }
@@ -376,6 +382,20 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
     }
     
+    func exitButtonPressed() {
+        if let game = game {
+            if game.status != .finished {
+                return
+            }
+        }
+        let startScene = StartScene(fileNamed: "StartScene")
+        let transition = SKTransition.fade(withDuration: 1.0)
+        startScene?.scaleMode = .aspectFit
+        pauseGameUpdateTimer()
+        self.removeFromParent()
+        scene?.view?.presentScene(startScene!, transition: transition)
+    }
+    
     func displayHands(_ hands: [NamedHand]) {
         if let revealCardSprites = revealCardSprites, let revealNicknameLabels = revealNicknameLabels {
             displayMessage("")
@@ -402,6 +422,15 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         if isDisplayingMessage {
             return
         }
+        
+        if let label = self.exitLabel, let game = self.game {
+            if game.status == .finished {
+                if label.alpha == 0 {
+                    fadeInNode(label)
+                }
+            }
+        }
+        
         if let label = self.shareLabel, let game = self.game {
             if game.status == .notStarted {
                 if label.alpha == 0 {
@@ -608,6 +637,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         self.addChild(errorMessageLabel)
         
         fadeOutNode(shareLabel)
+        fadeOutNode(exitLabel)
         fadeOutNode(playersLabel)
         fadeOutNode(currentPlayerLabel)
         fadeOutNode(playLabel)
@@ -633,6 +663,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         if let game = game {
             if game.status == .notStarted {
                 fadeInNode(shareLabel)
+            }
+            if game.status == .finished {
+                fadeInNode(exitLabel)
             }
         }
         
