@@ -58,7 +58,7 @@ extension GameManagerDelegate {
 }
 
 class GameManager {
-    let GameEngineServiceURL = "http://18.132.35.89:8001/v2/games"
+    let GameEngineServiceURL = "https://n4p6oovxsg.execute-api.eu-west-2.amazonaws.com/games"
     var newGame: NewGame?
     var game: Game?
     var player: Player?
@@ -82,8 +82,12 @@ class GameManager {
         performRequest(with: urlString, parser: parseStartGameResponse(_:))
     }
     
-    func updateGame(gameUuid: UUID, playerUuid: UUID, round: Int = -1) {
-        let urlString = "\(GameEngineServiceURL)/\(gameUuid.uuidString.lowercased())?player_uuid=\(playerUuid.uuidString.lowercased())&round=\(round)"
+    func updateGame(gameUuid: UUID, playerUuid: UUID, round: Int?) {
+        var roundString = ""
+        if let r = round {
+            roundString = String(r)
+        }
+        let urlString = "\(GameEngineServiceURL)/\(gameUuid.uuidString.lowercased())?player_uuid=\(playerUuid.uuidString.lowercased())&round=\(roundString)"
         print(urlString)
         performRequest(with: urlString, parser: parseUpdateGameResponse(_:))
     }
