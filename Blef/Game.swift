@@ -26,10 +26,10 @@ extension Game {
             self.adminNickname = adminNickname
         }
         
-        guard let isPublic = json["public"] as? Int else {
+        guard let isPublicString = json["public"] as? String else {
             return nil
         }
-        self.isPublic = isPublic != 0
+        self.isPublic = isPublicString == "true"
         
         guard let statusString = json["status"] as? String, let status = Status(rawValue: statusString) else {
             return nil
