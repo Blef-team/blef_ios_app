@@ -23,7 +23,7 @@ struct RuntimeError: Error {
 protocol GameManagerDelegate {
     func didCreateNewGame(_ newGame: NewGame)
     func didJoinGame(_ player: Player)
-    func didStartGame(_ message: Message)
+    func didStartGame()
     func didUpdateGame(_ game: Game)
     func didPlay()
     func failedIllegalPlay()
@@ -39,7 +39,7 @@ extension GameManagerDelegate {
         print("GameManager let a player join a game, but the result is not being used.")
         //this is a empty implementation to allow this method to be optional
     }
-    func didStartGame(_ message: Message) {
+    func didStartGame() {
         print("GameManager started a game, but the result is not being used.")
         //this is a empty implementation to allow this method to be optional
     }
@@ -108,7 +108,8 @@ class GameManager {
                 }
                 print("Got data")
                 if let safeData = data {
-                    print("Got nonempty data")
+                    print("Got nonempty data:")
+                    print(data?.base64EncodedString())
                     let jsonObject = (try? JSONSerialization.jsonObject(with: safeData, options: [])) as? JSON
                     print(jsonObject as Any)
                     let succeeded = parseResponse(jsonObject)
@@ -167,15 +168,18 @@ class GameManager {
     }
     
     func parseStartGameResponse(_ jsonObject: JSON?) -> Bool {
-        if let message = jsonObject.flatMap(Message.init){
-            print("Made Message object")
+        if let messageObject = jsonObject.flatMap(Message.init){
+            if messageObject.message != "Game started" {
+                return false
+            }
+            print(messageObject)
             /**
              The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
              `invalid use of AppKit, UIKit, and other APIs from a background thread`
              */
             DispatchQueue.main.async {
                 print("Calling didStartGame")
-                self.delegate?.didStartGame(message)
+                self.delegate?.didStartGame()
             }
             return true
         }
@@ -200,8 +204,9 @@ class GameManager {
     }
     
     func parsePlayResponse(_ jsonObject: JSON?) -> Bool {
-        if jsonObject?.count == 0 {
-            print("Received empty JSON - play call was accepted")
+        if let game = jsonObject.flatMap(Game.init){
+            print("Received game state - play call was accepted")
+            self.game = game
             /**
              The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
              `invalid use of AppKit, UIKit, and other APIs from a background thread`
