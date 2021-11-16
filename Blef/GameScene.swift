@@ -200,6 +200,10 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             fadeOutNode(playLabel)
             actionPickerField.text = ""
             actionPickerField.isHidden = true
+            actionPickerField.removeFromSuperview()
+        }
+        if let game = game {
+            didUpdateGame(game)
         }
     }
     
