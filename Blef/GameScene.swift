@@ -161,7 +161,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         displayMessage("Something went wrong.")
     }
     
-    func didStartGame(_ message: Message) {
+    func didStartGame() {
         if let label = startGameLabel {
             fadeOutNode(label)
             label.removeFromParent()
@@ -506,10 +506,16 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 if playLabel.alpha == 0 {
                     fadeInNode(playLabel)
                 }
-                self.view?.addSubview(actionPickerField)
+                if self.view != nil && !actionPickerField.isDescendant(of: self.view!) {
+                    self.view!.addSubview(actionPickerField)
+                }
                 actionPickerField.isHidden = false
             }
             else {
+                if self.view != nil && actionPickerField.isDescendant(of: self.view!) {
+                    actionPickerField.removeFromSuperview()
+                }
+                actionPickerField.isHidden = true
                 fadeOutNode(playLabel)
             }
         }
