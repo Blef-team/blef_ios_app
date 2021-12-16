@@ -52,7 +52,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GameManagerDelegate {
         playerNickname = generatePlayerNickname()
         self.gameUuid = gameUuid
         if let playerNickname = playerNickname {
-            gameManager.joinGame(gameUuid: gameUuid, nickname: playerNickname)
+            gameManager.joinGame(nickname: playerNickname)
         }
         return true
     }
@@ -73,12 +73,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GameManagerDelegate {
         print("didFailWithError")
         print(error.localizedDescription)
         if error.localizedDescription == "Nickname already taken" {
-            if let gameUuid = gameUuid{
-                let nickname = generatePlayerNickname()
-                gameManager.joinGame(gameUuid: gameUuid, nickname: nickname)
-                self.playerNickname = nickname
-                return
-            }
+            let nickname = generatePlayerNickname()
+            gameManager.joinGame(nickname: nickname)
+            self.playerNickname = nickname
+            return
         }
         let startScene = StartScene(fileNamed: "StartScene")
         let transition = SKTransition.fade(withDuration: 1.0)

@@ -62,15 +62,13 @@ class StartScene: SKScene, GameManagerDelegate {
         }
     }
     
-    func didCreateNewGame(_ newGame: NewGame) {
-        print(newGame)
-        gameUuid = newGame.uuid
+    func didCreateNewGame() {
         if let nickname = playerNickname {
-            gameManager.joinGame(gameUuid: newGame.uuid, nickname: nickname)
+            gameManager.joinGame(nickname: nickname)
         }
         else {
             let nickname = generatePlayerNickname()
-            gameManager.joinGame(gameUuid: newGame.uuid, nickname: nickname)
+            gameManager.joinGame(nickname: nickname)
             self.playerNickname = nickname
         }
     }
@@ -84,6 +82,7 @@ class StartScene: SKScene, GameManagerDelegate {
         gameScene?.scaleMode = .aspectFit
         gameScene?.gameUuid = gameUuid
         gameScene?.player = player
+        gameScene?.gameManager = gameManager
         scene?.view?.presentScene(gameScene!, transition: transition)
     }
     
@@ -91,11 +90,9 @@ class StartScene: SKScene, GameManagerDelegate {
         print("didFailWithError")
         print(error.localizedDescription)
         if error.localizedDescription == "Nickname already taken" {
-            if let gameUuid = gameUuid {
-                let nickname = generatePlayerNickname()
-                gameManager.joinGame(gameUuid: gameUuid, nickname: nickname)
-                self.playerNickname = nickname
-            }
+            let nickname = generatePlayerNickname()
+            gameManager.joinGame(nickname: nickname)
+            self.playerNickname = nickname
         }
         displayMessage("Something went wrong. Try again.")
     }

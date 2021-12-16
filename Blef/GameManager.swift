@@ -21,7 +21,7 @@ struct RuntimeError: Error {
 }
 
 protocol GameManagerDelegate {
-    func didCreateNewGame(_ newGame: NewGame)
+    func didCreateNewGame()
     func didJoinGame(_ player: Player)
     func didStartGame()
     func didUpdateGame(_ game: Game)
@@ -31,7 +31,7 @@ protocol GameManagerDelegate {
 }
 
 extension GameManagerDelegate {
-    func didCreateNewGame(_ newGame: NewGame) {
+    func didCreateNewGame() {
         print("GameManager created a NewGame, but the result is not being used.")
         //this is a empty implementation to allow this method to be optional
     }
@@ -62,16 +62,17 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
     let watchGameWebsocketEnvironment = "production"
     var newGame: NewGame?
     var game: Game?
+    var gameUuid: UUID?
     var player: Player?
     var delegate: GameManagerDelegate?
     
     var watchGameWebsocket: URLSessionWebSocketTask?
     
-    func resetWatchGameWebsocket(gameUuid: UUID? = nil, playerUuid: UUID? = nil) {
+    func resetWatchGameWebsocket() {
         let websocketString = "wss://mx2uhu5jme.execute-api.eu-west-2.amazonaws.com/\(watchGameWebsocketEnvironment)"
         print(websocketString)
         print("gameUuid: \(gameUuid)")
-        print("playerUuid: \(playerUuid)")
+        print("playerUuid: \(player?.uuid)")
         let session = URLSession(configuration: .default,
                                  delegate: self,
                                  delegateQueue: OperationQueue()
@@ -81,7 +82,7 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
         if let gameUuid = gameUuid {
             request.addValue(gameUuid.uuidString.lowercased(), forHTTPHeaderField: "game_uuid")
         }
-        if let playerUuid = playerUuid {
+        if let playerUuid = player?.uuid {
             request.addValue(playerUuid.uuidString.lowercased(), forHTTPHeaderField: "player_uuid")
         }
         print("request (URLRequest): \(request)")
@@ -96,7 +97,7 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
                 self.resetWatchGameWebsocket()
             }
             else {
-                DispatchQueue.global().asyncAfter(deadline: .now() + 0.1) {
+                DispatchQueue.global().asyncAfter(deadline: .now() + 20) {
                     self.pingWatchGameWebsocket()
                 }
             }
@@ -119,21 +120,32 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
                     print("fullJsonObject: \(String(describing: fullJsonObject))")
                     let bodyString = fullJsonObject?["body"] as! String
                     let jsonBody = (try? JSONSerialization.jsonObject(with: bodyString.data(using: .utf8)!, options: [])) as? JSON
-                    print("jsonBody: \(String(describing: jsonBody))")
                     if let succeeded = self?.parseUpdateGameResponse(jsonBody) ?? self?.parseNewGameResponse(jsonBody) {
-                        print("succeeded: \(succeeded)")
+                        /**
+                         The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
+                         `invalid use of AppKit, UIKit, and other APIs from a background thread`
+                         */
                         if !succeeded {
                             if let errorResponse = jsonBody.flatMap(ErrorResponse.init){
                                 print("Made errorResponse object")
-                                self?.delegate?.didFailWithError(error: RuntimeError(errorResponse.error))
+                                DispatchQueue.main.async {
+                                    print("Calling didFailWithError")
+                                    self?.delegate?.didFailWithError(error: RuntimeError(errorResponse.error))
+                                }
                             }
                             if let message = jsonBody.flatMap(Message.init){
                                 print("Made Message object")
-                                self?.delegate?.didFailWithError(error: RuntimeError(message.message))
+                                DispatchQueue.main.async {
+                                    print("Calling didFailWithError")
+                                    self?.delegate?.didFailWithError(error: RuntimeError(message.message))
+                                }
                             }
                             else {
                                 print("Failed to parse json")
-                                self?.delegate?.didFailWithError(error: RuntimeError("Failed to parse json response."))
+                                DispatchQueue.main.async {
+                                    print("Calling didFailWithError")
+                                    self?.delegate?.didFailWithError(error: RuntimeError("Failed to parse json response."))
+                                }
                             }
                         }
                     }
@@ -142,6 +154,12 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
                 }
             case .failure(let error):
                 print("Received an error from the websocket \(error)")
+                DispatchQueue.main.async {
+                    print("Calling didFailWithError")
+                    self?.delegate?.didFailWithError(error: error)
+                }
+                self?.closeWatchGameWebsocket()
+                self?.resetWatchGameWebsocket()
             }
         } )
     }
@@ -165,38 +183,59 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
         }
     }
     
+    func setGameUuid(_ gameUuid: UUID) {
+        self.gameUuid = gameUuid
+    }
+    
     func createGame() {
         let urlString = "\(GameEngineServiceURL)/create"
         print(urlString)
         performRequest(with: urlString, parser: parseNewGameResponse(_:))
     }
     
-    func joinGame(gameUuid: UUID, nickname: String) {
-        let urlString = "\(GameEngineServiceURL)/\(gameUuid.uuidString.lowercased())/join?nickname=\(formatSerialisedNickname(nickname))"
-        print(urlString)
-        performRequest(with: urlString, parser: parseJoinGameResponse(_:))
+    func joinGame(nickname: String) {
+        if let gameUuidString = gameUuid?.uuidString.lowercased() {
+            let urlString = "\(GameEngineServiceURL)/\(gameUuidString)/join?nickname=\(formatSerialisedNickname(nickname))"
+            print(urlString)
+            self.player = Player(uuid: UUID(), nickname: nickname)
+            performRequest(with: urlString, parser: parseJoinGameResponse(_:))
+        } else {
+            print("Game UUID missing in joinGame!")
+        }
     }
     
-    func startGame(gameUuid: UUID, playerUuid: UUID) {
-        let urlString = "\(GameEngineServiceURL)/\(gameUuid.uuidString.lowercased())/start?admin_uuid=\(playerUuid.uuidString.lowercased())"
-        print(urlString)
-        performRequest(with: urlString, parser: parseStartGameResponse(_:))
+    func startGame() {
+        if let gameUuidString = gameUuid?.uuidString.lowercased(), let playerUuidString = player?.uuid.uuidString.lowercased() {
+            let urlString = "\(GameEngineServiceURL)/\(gameUuidString)/start?admin_uuid=\(playerUuidString)"
+            print(urlString)
+            performRequest(with: urlString, parser: parseStartGameResponse(_:))
+        } else {
+            print("Game UUID missing in startGame!")
+        }
     }
     
-    func updateGame(gameUuid: UUID, playerUuid: UUID, round: Int?) {
+    func updateGame(round: Int?) {
         var roundString = ""
         if let r = round {
             roundString = String(r)
         }
-        let urlString = "\(GameEngineServiceURL)/\(gameUuid.uuidString.lowercased())?player_uuid=\(playerUuid.uuidString.lowercased())&round=\(roundString)"
-        print(urlString)
-        performRequest(with: urlString, parser: parseUpdateGameResponse(_:))
+        if let gameUuidString = gameUuid?.uuidString.lowercased(), let playerUuidString = player?.uuid.uuidString.lowercased() {
+            let urlString = "\(GameEngineServiceURL)/\(gameUuidString)?player_uuid=\(playerUuidString)&round=\(roundString)"
+            print(urlString)
+            performRequest(with: urlString, parser: parseUpdateGameResponse(_:))
+        } else {
+            print("Game UUID missing in updateGame!")
+        }
     }
     
-    func play(gameUuid: UUID, playerUuid: UUID, action: Action) {
-        let urlString = "\(GameEngineServiceURL)/\(gameUuid.uuidString.lowercased())/play?player_uuid=\(playerUuid.uuidString.lowercased())&action_id=\(action.rawValue)"
-        print(urlString)
-        performRequest(with: urlString, parser: parsePlayResponse(_:))
+    func play(action: Action) {
+        if let gameUuidString = gameUuid?.uuidString.lowercased(), let playerUuidString = player?.uuid.uuidString.lowercased() {
+            let urlString = "\(GameEngineServiceURL)/\(gameUuidString)/play?player_uuid=\(playerUuidString)&action_id=\(action.rawValue)"
+            print(urlString)
+            performRequest(with: urlString, parser: parsePlayResponse(_:))
+        } else {
+            print("Game UUID missing in play!")
+        }
     }
     
     func performRequest(with urlString: String, parser parseResponse: @escaping (JSON?) -> Bool) {
@@ -215,17 +254,30 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
                     print(jsonObject as Any)
                     let succeeded = parseResponse(jsonObject)
                     if !succeeded {
+                        /**
+                         The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
+                         `invalid use of AppKit, UIKit, and other APIs from a background thread`
+                         */
                         if let errorResponse = jsonObject.flatMap(ErrorResponse.init){
                             print("Made errorResponse object")
-                            self.delegate?.didFailWithError(error: RuntimeError(errorResponse.error))
+                            DispatchQueue.main.async {
+                                print("Calling didFailWithError")
+                                self.delegate?.didFailWithError(error: RuntimeError(errorResponse.error))
+                            }
                         }
                         if let message = jsonObject.flatMap(Message.init){
                             print("Made Message object")
-                            self.delegate?.didFailWithError(error: RuntimeError(message.message))
+                            DispatchQueue.main.async {
+                                print("Calling didFailWithError")
+                                self.delegate?.didFailWithError(error: RuntimeError(message.message))
+                            }
                         }
                         else {
                             print("Failed to parse json")
-                            self.delegate?.didFailWithError(error: RuntimeError("Failed to parse json response."))
+                            DispatchQueue.main.async {
+                                print("Calling didFailWithError")
+                                self.delegate?.didFailWithError(error: RuntimeError("Failed to parse json response."))
+                            }
                         }
                     }
                 }
@@ -238,13 +290,14 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
         if let newGame = jsonObject.flatMap(NewGame.init){
             print("Made newGame object")
             self.newGame = newGame
+            self.setGameUuid(newGame.uuid)
             /**
              The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
              `invalid use of AppKit, UIKit, and other APIs from a background thread`
              */
             DispatchQueue.main.async {
                 print("Calling didCreateNewGame")
-                self.delegate?.didCreateNewGame(newGame)
+                self.delegate?.didCreateNewGame()
             }
             return true
         }
@@ -254,7 +307,11 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
     func parseJoinGameResponse(_ jsonObject: JSON?) -> Bool {
         if let player = jsonObject.flatMap(Player.init){
             print("Made Player object")
-            self.player = player
+            if self.player != nil {
+                self.player?.uuid = player.uuid
+            } else {
+                self.player = player
+            }
             /**
              The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
              `invalid use of AppKit, UIKit, and other APIs from a background thread`

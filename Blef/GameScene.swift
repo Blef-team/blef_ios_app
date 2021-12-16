@@ -12,7 +12,7 @@ import GameplayKit
 
 class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerViewDataSource, UITextFieldDelegate {
     
-    var gameManager = GameManager()
+    var gameManager: GameManager?
     var gameUpdateInterval = 0.05
     var gameUpdateTimer: Timer?
     var gameUpdateScheduled: Bool?
@@ -46,7 +46,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     
     override func didMove(to view: SKView) {
         
-        self.gameManager.delegate = self
+        self.gameManager!.delegate = self
         
         self.startGameLabel = childNode(withName: "//startGameLabel") as? SKLabelNode
         startGameLabel?.alpha = 0.0
@@ -152,11 +152,19 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
      Request updated game state.
      */
     @objc func updateGame() {
-        gameManager.receiveWatchGameWebsocket()
+        gameManager?.receiveWatchGameWebsocket()
     }
     
     func didFailWithError(error: Error) {
         displayMessage("Something went wrong.")
+    }
+    
+    func didJoinGame() {
+        if let label = startGameLabel {
+            fadeOutNode(label)
+            label.removeFromParent()
+        }
+        updateGame()
     }
     
     func didStartGame() {
@@ -304,17 +312,15 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func resumeGameUpdateTimer() {
-        if let gameUuid = gameUuid, let playerUuid = player?.uuid {
-            gameManager.updateGame(gameUuid: gameUuid, playerUuid: playerUuid, round: roundNumber)
-        }
-        gameManager.resetWatchGameWebsocket(gameUuid: gameUuid, playerUuid: player?.uuid)
+        gameManager?.updateGame(round: roundNumber)
+        gameManager?.resetWatchGameWebsocket()
         gameUpdateTimer = Timer.scheduledTimer(timeInterval: self.gameUpdateInterval, target: self, selector: #selector(updateGame), userInfo: nil, repeats: true)
         gameUpdateScheduled = true
     }
     
     func pauseGameUpdateTimer() {
         if let timer = gameUpdateTimer {
-            gameManager.closeWatchGameWebsocket()
+            gameManager?.closeWatchGameWebsocket()
             timer.invalidate()
             gameUpdateScheduled = false
         }
@@ -335,10 +341,10 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             pulseLabel(label)
         }
         errorMessageLabel.text = ""
-        if let gameUuid = gameUuid, let playerUuid = player?.uuid, let game = self.game, let players = game.players, let player = player {
+        if let game = self.game, let players = game.players, let player = player {
             if canStartGame(game, player, players) {
                 print("Going to attempt an API call")
-                gameManager.startGame(gameUuid: gameUuid, playerUuid: playerUuid)
+                gameManager?.startGame()
                 print("Made API call")
                 resetGameUpdateTimer()
             }
@@ -353,10 +359,10 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                     pulseLabel(label)
                 }
                 errorMessageLabel.text = ""
-                if let gameUuid = gameUuid, let action = actionSelected {
+                if let action = actionSelected {
                     if game.status == .running {
                         print("Going to attempt an API call")
-                        gameManager.play(gameUuid: gameUuid, playerUuid: player.uuid, action: action)
+                        gameManager?.play(action: action)
                         print("Made API call")
                         resetGameUpdateTimer()
                     }
