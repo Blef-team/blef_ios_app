@@ -462,7 +462,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         if isDisplayingMessage {
             return
         }
-        
+
         if let label = self.exitLabel, let game = self.game {
             if game.status == .finished {
                 if label.alpha == 0 {
@@ -470,13 +470,13 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 }
             }
         }
-        
+
         if let label = self.helpLabelSprite {
             if label.alpha == 0 {
                 fadeInNode(label)
             }
         }
-        
+
         if let label = self.shareLabel, let game = self.game {
             if game.status == .notStarted {
                 if label.alpha == 0 {
@@ -492,7 +492,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 }
             }
         }
-        
+
         if let label = self.startGameLabel, let game = self.game, let player = player, let players = game.players {
             if canStartGame(game, player, players) {
                 if label.alpha == 0 {
@@ -503,7 +503,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 fadeOutNode(label)
             }
         }
-        
+
         if let playLabel = self.playLabel, let player = self.player, let game = self.game, let actionPickerField = actionPickerField {
             if game.status == .running && playerIsCurrentPlayer(player: player, game: game) {
                 pressedPlayButton = false
@@ -523,7 +523,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 fadeOutNode(playLabel)
             }
         }
-        
+
         if let label = self.currentPlayerLabel, let game = self.game, let currentPlayer = game.currentPlayerNickname, let player = player {
             var newLabelText: String
             if playerIsCurrentPlayer(player: player, game: game) {
@@ -534,7 +534,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
             updateLabelText(label, newLabelText)
         }
-        
+
         if let label = self.playersLabel, let game = self.game, let players = game.players, let player = player {
             var playerStrings: [String] = []
             if game.status == .notStarted {
@@ -584,8 +584,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             let newLabelText = "Players: \(playerStrings.joined(separator: " | "))"
             updateLabelText(label, newLabelText)
         }
-        
+
         if let game = self.game, let player = player {
+
             if let history = game.history {
                 if history.count == 0 {
                     if let cardLabels = cardLabels {
@@ -599,9 +600,11 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                     }
                 }
             }
+
             if let playerCardSprites = playerCardSprites {
                 resetCardSprites(playerCardSprites)
             }
+
             if game.status != .notStarted {
                 if let hand = game.hands?.first(where:{$0.nickname == player.nickname })?.hand, let playerCardSprites = playerCardSprites {
                     if !playerLost && game.status != .finished {
@@ -618,6 +621,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                         }
                     }
                 }
+
                 if let lastBet = lastBet {
                     if displayedBet != lastBet {
                         if let images = BetToCards[lastBet], let betSprites = betSprites {
@@ -633,6 +637,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                     }
                 }
                 else {
+
                     if let betSprites = betSprites {
                         resetCardSprites(betSprites)
                         self.displayedBet = nil
@@ -640,7 +645,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 }
             }
         }
+
         if let game = game, let player = player {
+
             if let playerInfo = game.players?.first(where:{$0.nickname == player.nickname }) {
                 
                 if game.status == .finished {
