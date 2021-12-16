@@ -170,7 +170,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     func didUpdateGame(_ game: Game) {
         print(game)
         self.game = game
-        print("Running GameScene.didUpdateGame")
         self.lastBet = game.history?.last?.action
         if game.status == .running {
             self.roundNumber = game.roundNumber
@@ -191,9 +190,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 }
             }
         }
-        print("GameScene.didUpdateGame: going to updateLabels()")
         updateLabels()
-        print("GameScene.didUpdateGame: FINISHED")
     }
     
     func didPlay(_ game: Game) {
