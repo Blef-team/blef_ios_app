@@ -25,7 +25,7 @@ protocol GameManagerDelegate {
     func didJoinGame(_ player: Player)
     func didStartGame()
     func didUpdateGame(_ game: Game)
-    func didPlay()
+    func didPlay(_ game: Game)
     func failedIllegalPlay()
     func didFailWithError(error: Error)
 }
@@ -47,7 +47,7 @@ extension GameManagerDelegate {
         print("GameManager updated a Game, but the result is not being used.")
         //this is a empty implementation to allow this method to be optional
     }
-    func didPlay() {
+    func didPlay(_ game: Game) {
         print("GameManager did play, but the result is not being used.")
         //this is a empty implementation to allow this method to be optional
     }
@@ -213,7 +213,7 @@ class GameManager {
              */
             DispatchQueue.main.async {
                 print("Calling didPlay")
-                self.delegate?.didPlay()
+                self.delegate?.didPlay(game)
             }
             return true
         }
