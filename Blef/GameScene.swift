@@ -372,7 +372,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         displayMessage("Share the link with another player")
         
         let firstActivityItem = "Join me for a game of Blef"
-        if let uuid = gameUuid?.uuidString {
+        if let uuid = gameUuid?.uuidString.lowercased() {
             let gameUrlString = "blef:///\(uuid)"
             pasteboard.string = gameUrlString
             let secondActivityItem : NSURL = NSURL(string: gameUrlString)!
