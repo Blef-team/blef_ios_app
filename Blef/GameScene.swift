@@ -195,16 +195,14 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         updateLabels()
     }
     
-    func didPlay() {
+    func didPlay(_ game: Game) {
         if let playLabel = playLabel, let actionPickerField = actionPickerField {
             fadeOutNode(playLabel)
             actionPickerField.text = ""
             actionPickerField.isHidden = true
             actionPickerField.removeFromSuperview()
         }
-        if let game = game {
-            didUpdateGame(game)
-        }
+        didUpdateGame(game)
     }
     
     func failedIllegalPlay() {
