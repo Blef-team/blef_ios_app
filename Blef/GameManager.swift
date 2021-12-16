@@ -57,12 +57,113 @@ extension GameManagerDelegate {
     }
 }
 
-class GameManager {
+class GameManager: NSObject, URLSessionWebSocketDelegate {
     let GameEngineServiceURL = "https://n4p6oovxsg.execute-api.eu-west-2.amazonaws.com/games"
+    let watchGameWebsocketEnvironment = "production"
     var newGame: NewGame?
     var game: Game?
     var player: Player?
     var delegate: GameManagerDelegate?
+    
+    var watchGameWebsocket: URLSessionWebSocketTask?
+    
+    func resetWatchGameWebsocket(gameUuid: UUID? = nil, playerUuid: UUID? = nil) {
+        let websocketString = "wss://mx2uhu5jme.execute-api.eu-west-2.amazonaws.com/\(watchGameWebsocketEnvironment)"
+        print(websocketString)
+        print("gameUuid: \(gameUuid)")
+        print("playerUuid: \(playerUuid)")
+        let session = URLSession(configuration: .default,
+                                 delegate: self,
+                                 delegateQueue: OperationQueue()
+        )
+        let url = URL(string: websocketString)
+        var request = URLRequest(url: url!)
+        if let gameUuid = gameUuid {
+            request.addValue(gameUuid.uuidString.lowercased(), forHTTPHeaderField: "game_uuid")
+        }
+        if let playerUuid = playerUuid {
+            request.addValue(playerUuid.uuidString.lowercased(), forHTTPHeaderField: "player_uuid")
+        }
+        print("request (URLRequest): \(request)")
+        self.watchGameWebsocket = session.webSocketTask(with: request)
+        self.watchGameWebsocket?.resume()
+    }
+    
+    func pingWatchGameWebsocket() {
+        // Ping the watchGameWebsocket to keet it alive
+        watchGameWebsocket?.sendPing { error in
+            if error != nil {
+                self.resetWatchGameWebsocket()
+            }
+            else {
+                DispatchQueue.global().asyncAfter(deadline: .now() + 0.1) {
+                    self.pingWatchGameWebsocket()
+                }
+            }
+        }
+    }
+    
+    func receiveWatchGameWebsocket() {
+        // Check if there's anything in watchGameWebsocket
+        watchGameWebsocket?.receive(completionHandler: {[weak self] result in
+            print("Called receiveWatchGameWebsocket")
+            switch result {
+            case .success(let message):
+                print("SUCCESS in receiveWatchGameWebsocket")
+                switch message {
+                case .data(let data):
+                    print("Got data from the websocket \(data)")
+                case .string(let string):
+                    print("Got string from the websocket: \(string)")
+                    let fullJsonObject = (try? JSONSerialization.jsonObject(with: string.data(using: .utf8)!, options: [])) as? JSON
+                    print("fullJsonObject: \(String(describing: fullJsonObject))")
+                    let bodyString = fullJsonObject?["body"] as! String
+                    let jsonBody = (try? JSONSerialization.jsonObject(with: bodyString.data(using: .utf8)!, options: [])) as? JSON
+                    print("jsonBody: \(String(describing: jsonBody))")
+                    if let succeeded = self?.parseUpdateGameResponse(jsonBody) ?? self?.parseNewGameResponse(jsonBody) {
+                        print("succeeded: \(succeeded)")
+                        if !succeeded {
+                            if let errorResponse = jsonBody.flatMap(ErrorResponse.init){
+                                print("Made errorResponse object")
+                                self?.delegate?.didFailWithError(error: RuntimeError(errorResponse.error))
+                            }
+                            if let message = jsonBody.flatMap(Message.init){
+                                print("Made Message object")
+                                self?.delegate?.didFailWithError(error: RuntimeError(message.message))
+                            }
+                            else {
+                                print("Failed to parse json")
+                                self?.delegate?.didFailWithError(error: RuntimeError("Failed to parse json response."))
+                            }
+                        }
+                    }
+                @unknown default:
+                    break
+                }
+            case .failure(let error):
+                print("Received an error from the websocket \(error)")
+            }
+        } )
+    }
+    
+    func closeWatchGameWebsocket() {
+        watchGameWebsocket?.cancel(with: .goingAway, reason: "Stopped watching the game".data(using: .utf8))
+    }
+    
+    func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?) {
+        // On watchGameWebsocket connect
+        print("Web Socket did connect")
+        pingWatchGameWebsocket()
+        receiveWatchGameWebsocket()
+    }
+    
+    func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
+        // On watchGameWebsocket disconnect
+        print("Web Socket did disconnect")
+        if closeCode == URLSessionWebSocketTask.CloseCode(rawValue: 1002) || closeCode == URLSessionWebSocketTask.CloseCode(rawValue: 1003) {
+            resetWatchGameWebsocket()
+        }
+    }
     
     func createGame() {
         let urlString = "\(GameEngineServiceURL)/create"
@@ -149,7 +250,7 @@ class GameManager {
         }
         return false
     }
-    
+
     func parseJoinGameResponse(_ jsonObject: JSON?) -> Bool {
         if let player = jsonObject.flatMap(Player.init){
             print("Made Player object")

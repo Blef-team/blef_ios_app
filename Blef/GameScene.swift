@@ -13,7 +13,7 @@ import GameplayKit
 class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerViewDataSource, UITextFieldDelegate {
     
     var gameManager = GameManager()
-    var gameUpdateInterval = 1.0
+    var gameUpdateInterval = 0.05
     var gameUpdateTimer: Timer?
     var gameUpdateScheduled: Bool?
     var gameUuid: UUID?
@@ -152,9 +152,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
      Request updated game state.
      */
     @objc func updateGame() {
-        if let gameUuid = self.gameUuid, let playerUuid = player?.uuid {
-            gameManager.updateGame(gameUuid: gameUuid, playerUuid: playerUuid, round: roundNumber)
-        }
+        gameManager.receiveWatchGameWebsocket()
     }
     
     func didFailWithError(error: Error) {
@@ -172,6 +170,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     func didUpdateGame(_ game: Game) {
         print(game)
         self.game = game
+        print("Running GameScene.didUpdateGame")
         self.lastBet = game.history?.last?.action
         if game.status == .running {
             self.roundNumber = game.roundNumber
@@ -192,7 +191,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 }
             }
         }
+        print("GameScene.didUpdateGame: going to updateLabels()")
         updateLabels()
+        print("GameScene.didUpdateGame: FINISHED")
     }
     
     func didPlay(_ game: Game) {
@@ -306,12 +307,17 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func resumeGameUpdateTimer() {
+        if let gameUuid = gameUuid, let playerUuid = player?.uuid {
+            gameManager.updateGame(gameUuid: gameUuid, playerUuid: playerUuid, round: roundNumber)
+        }
+        gameManager.resetWatchGameWebsocket(gameUuid: gameUuid, playerUuid: player?.uuid)
         gameUpdateTimer = Timer.scheduledTimer(timeInterval: self.gameUpdateInterval, target: self, selector: #selector(updateGame), userInfo: nil, repeats: true)
         gameUpdateScheduled = true
     }
     
     func pauseGameUpdateTimer() {
         if let timer = gameUpdateTimer {
+            gameManager.closeWatchGameWebsocket()
             timer.invalidate()
             gameUpdateScheduled = false
         }
