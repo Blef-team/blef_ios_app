@@ -24,6 +24,7 @@ protocol GameManagerDelegate {
     func didCreateNewGame()
     func didJoinGame(_ player: Player)
     func didStartGame()
+    func didInviteAI()
     func didUpdateGame(_ game: Game)
     func didPlay(_ game: Game)
     func failedIllegalPlay()
@@ -41,6 +42,10 @@ extension GameManagerDelegate {
     }
     func didStartGame() {
         print("GameManager started a game, but the result is not being used.")
+        //this is a empty implementation to allow this method to be optional
+    }
+    func didInviteAI() {
+        print("GameManager invited an AI agent, but the result is not being used.")
         //this is a empty implementation to allow this method to be optional
     }
     func didUpdateGame(_ game: Game) {
@@ -214,6 +219,16 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
         }
     }
     
+    func inviteAI(_ agentName: String = "Dazhbog") {
+        if let gameUuidString = gameUuid?.uuidString.lowercased(), let playerUuidString = player?.uuid.uuidString.lowercased() {
+            let urlString = "\(GameEngineServiceURL)/\(gameUuidString)/invite-aiagent?admin_uuid=\(playerUuidString)&agent_name=\(agentName)"
+            print(urlString)
+            performRequest(with: urlString, parser: parseInviteAIResponse(_:))
+        } else {
+            print("Game UUID missing in updateGame!")
+        }
+    }
+    
     func updateGame(round: Int?) {
         var roundString = ""
         if let r = round {
@@ -338,6 +353,25 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
             DispatchQueue.main.async {
                 print("Calling didStartGame")
                 self.delegate?.didStartGame()
+            }
+            return true
+        }
+        return false
+    }
+    
+    func parseInviteAIResponse(_ jsonObject: JSON?) -> Bool {
+        if let messageObject = jsonObject.flatMap(Message.init){
+            if !messageObject.message.contains("(AI) joined the game") {
+                return false
+            }
+            print(messageObject)
+            /**
+             The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
+             `invalid use of AppKit, UIKit, and other APIs from a background thread`
+             */
+            DispatchQueue.main.async {
+                print("Calling didInviteAI")
+                self.delegate?.didInviteAI()
             }
             return true
         }
