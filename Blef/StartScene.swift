@@ -15,11 +15,15 @@ class StartScene: SKScene, GameManagerDelegate {
     
     var gameManager = GameManager()
     var customGameLabel: SKNode?
+    var quickGameLabel: SKNode?
     var errorMessageLabel: SKLabelNode!
     var gameUuid: UUID?
+    var player: Player?
     var playerNickname: String?
     var isDisplayingMessage = false
-    var customGameButtonPressed = false
+    var preparingQuickGame = false
+    var numberOfQuickGameAIAgents = 2
+    var invitedAIs = 0
     
     override func didMove(to view: SKView) {
         
@@ -32,6 +36,7 @@ class StartScene: SKScene, GameManagerDelegate {
         self.addChild(errorMessageLabel)
         
         self.customGameLabel = childNode(withName: "//customGameLabel")
+        self.quickGameLabel = childNode(withName: "//quickGameLabel")
         
     }
     
@@ -47,19 +52,35 @@ class StartScene: SKScene, GameManagerDelegate {
             let nodesarray = nodes(at: location)
             
             for node in nodesarray {
-                // If the New game button was tapped
-                if node.name == "customGameButton", let label = self.customGameLabel {
-                    if !customGameButtonPressed {
-                        customGameButtonPressed = true
-                        pulseLabel(label)
-                        print("Going to attempt an API call")
-                        gameManager.createGame()
-                        print("Made API call")
-                    }
+                // If the Custom game button was tapped
+                if node.name == "customGameButton" {
+                    customGameButtonPressed()
                 }
-                
+                // If the Quick game button was tapped
+                if node.name == "quickGameButton" {
+                    quickGameButtonPressed()
+                }
             }
         }
+    }
+    
+    func quickGameButtonPressed() {
+        if let label = quickGameLabel {
+            pulseLabel(label)
+        }
+        preparingQuickGame = true
+        print("Going to attempt an API call")
+        gameManager.createGame()
+        print("Made API call")
+    }
+    
+    func customGameButtonPressed() {
+        if let label = customGameLabel {
+            pulseLabel(label)
+        }
+        print("Going to attempt an API call")
+        gameManager.createGame()
+        print("Made API call")
     }
     
     func didCreateNewGame() {
@@ -77,6 +98,30 @@ class StartScene: SKScene, GameManagerDelegate {
         print(player)
         var player = player
         player.nickname = formatSerialisedNickname(playerNickname ?? "no name")
+        self.player = player
+        if preparingQuickGame {
+            numberOfQuickGameAIAgents.times {
+                gameManager.inviteAI()
+            }
+        } else {
+            moveToGameScene(player)
+        }
+    }
+    
+    func didInviteAI() {
+        invitedAIs += 1
+        if invitedAIs == numberOfQuickGameAIAgents {
+            gameManager.startGame()
+        }
+    }
+    
+    func didStartGame() {
+        if let player = player {
+            moveToGameScene(player)
+        }
+    }
+    
+    func moveToGameScene(_ player: Player) {
         let gameScene = GameScene(fileNamed: "GameScene")
         let transition = SKTransition.fade(withDuration: 1.0)
         gameScene?.scaleMode = .aspectFit
