@@ -509,8 +509,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
         }
 
-        if let label = self.shareLabel, let game = self.game {
-            if game.status == .notStarted {
+        if let label = self.shareLabel, let game = self.game, let players = game.players {
+            if game.status == .notStarted && canShare(game, players) {
                 if label.alpha == 0 {
                     fadeInNode(label)
                 }
