@@ -40,7 +40,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GameManagerDelegate {
         
         // Check if the new game uuid is not the same (avoid joining your own game)
         if let currentScene = (self.window?.rootViewController!.view as! SKView).scene as? GameScene {
-            if let currentUuid = currentScene.gameUuid {
+            if let currentUuid = currentScene.gameManager?.gameUuid {
                 if currentUuid == gameUuid {
                     return false
                 }
