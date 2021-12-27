@@ -366,7 +366,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 print("Going to attempt an API call")
                 gameManager?.startGame()
                 print("Made API call")
-                resetGameUpdateTimer()
             }
         }
     }
@@ -384,7 +383,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                         print("Going to attempt an API call")
                         gameManager?.play(action: action)
                         print("Made API call")
-                        resetGameUpdateTimer()
                     }
                 }
             }
@@ -446,7 +444,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 print("Going to attempt an API call")
                 gameManager?.inviteAI()
                 print("Made API call")
-                resetGameUpdateTimer()
             }
         }
     }
@@ -494,7 +491,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 if namedHand.hand.count == 0 {
                     continue
                 }
-                updateLabelText(revealNicknameLabels[playerIndex], nickname)
+                updateAndDisplayLabel(revealNicknameLabels[playerIndex], nickname)
                 for (cardIndex, card) in namedHand.hand.enumerated() {
                     if let image = getCardImage(card) {
                         revealCardSprites[playerIndex][cardIndex].texture = image
@@ -506,11 +503,195 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
     }
     
+    func clearDisplayedHands() {
+        if let revealNicknameLabels = revealNicknameLabels {
+            for label in revealNicknameLabels {
+                fadeOutNode(label)
+                label.text = ""
+            }
+        }
+        if let revealCardSprites = revealCardSprites {
+            for sprites in revealCardSprites {
+                for sprite in sprites {
+                    fadeOutNode(sprite)
+                }
+            }
+        }
+    }
+    
+    func updateCurrentPlayerLabel() {
+        // Update currentPlayerLabel
+        if let label = self.currentPlayerLabel, let game = self.game, let currentPlayer = game.currentPlayerNickname, let player = player {
+            var newLabelText: String
+            if playerIsCurrentPlayer(player: player, game: game) {
+                newLabelText = "Current player: You"
+            }
+            else {
+                newLabelText = "Current player: \(formatDisplayNickname(currentPlayer))"
+            }
+            updateLabelText(label, newLabelText)
+        }
+    }
+    
+    func computePlayersStrings(_ game: Game, _ players: [PlayerInfo], _ player: Player) -> [String] {
+        // Construct strings describing each player
+        var playersStrings: [String] = []
+        if game.status == .notStarted {
+            for playerObject in players {
+                if player.nickname == playerObject.nickname {
+                    playersStrings.append("You")
+                }
+                else {
+                    playersStrings.append("\(formatDisplayNickname(playerObject.nickname))")
+                }
+            }
+        }
+        else if game.status == .finished {
+            for playerObject in players {
+                var statusString = ""
+                if playerObject.nCards == 0 {
+                    statusString = "lost"
+                }
+                else {
+                    statusString = "won"
+                }
+                if player.nickname == playerObject.nickname {
+                    playersStrings.append("You: \(statusString)")
+                }
+                else {
+                    playersStrings.append("\(formatDisplayNickname(playerObject.nickname)): \(statusString)")
+                }
+            }
+        }
+        else {
+            for playerObject in players {
+                var nCardsString = ""
+                if playerObject.nCards == 0 {
+                    nCardsString = "lost"
+                }
+                else {
+                    nCardsString = String(playerObject.nCards)
+                }
+                if player.nickname == playerObject.nickname {
+                    playersStrings.append("You: \(nCardsString)")
+                }
+                else {
+                    playersStrings.append("\(formatDisplayNickname(playerObject.nickname)): \(nCardsString)")
+                }
+            }
+        }
+        return playersStrings
+    }
+    
+    func updatePlayersLabel() {
+        // Update playersLabel
+        if let label = self.playersLabel, let game = self.game, let players = game.players, let player = player {
+            let playersStrings = computePlayersStrings(game, players, player)
+            let newLabelText = "Players: \(playersStrings.joined(separator: " | "))"
+            updateLabelText(label, newLabelText)
+        }
+
+    }
+    
+    func updateLastBet() {
+        // Update betSprites (and in emergency, betLabel text)
+        if let lastBet = lastBet {
+            if displayedBet != lastBet {
+                if let images = BetToCards[lastBet], let betSprites = betSprites {
+                    resetCardSprites(betSprites)
+                    for (cardIndex, image) in images.enumerated() {
+                        betSprites[cardIndex].texture = SKTexture(image: image)
+                    }
+                }
+                else if let betLabel = betLabel {
+                    updateLabelText(betLabel, String(describing: lastBet))
+                }
+                self.displayedBet = lastBet
+            }
+        }
+        else {
+            if let betSprites = betSprites {
+                resetCardSprites(betSprites)
+                self.displayedBet = nil
+            }
+        }
+    }
+    
+    func clearCardAndBetLabelsAtRoundStart() {
+        /*
+         Clear cardLabels amd betLabel at round start
+         NOTE: these two are never displayed,
+               unless card images are missing
+         */
+        if let game = self.game, let history = game.history {
+            if history.count == 0 {
+                if let cardLabels = cardLabels {
+                    for label in cardLabels {
+                        label.removeFromParent()
+                    }
+                }
+                self.cardLabels = []
+                if let betLabel = betLabel {
+                    betLabel.text = ""
+                }
+            }
+        }
+    }
+    
+    func updateCards() {
+        // Update playerCardSprites (and in emergency, cardLabels)
+        if let game = self.game, let player = player {
+
+            clearCardAndBetLabelsAtRoundStart()
+
+            if game.status != .notStarted {
+                // If game was started
+                if let hand = game.hands?.first(where:{$0.nickname == player.nickname })?.hand, let playerCardSprites = playerCardSprites {
+                    if !playerLost && game.status != .finished {
+                        for (cardIndex, card) in hand.enumerated() {
+                            if let image = getCardImage(card) {
+                                playerCardSprites[cardIndex].texture = image
+                            }
+                            else {
+                                let cardLabel = getCardLabel(card)
+                                cardLabel.position = getPlayerCardPosition(cardIndex)
+                                addChild(cardLabel)
+                                cardLabels?.append(cardLabel)
+                            }
+                        }
+                    }
+                }
+            } else {
+                // Clear playerCardSprites
+                if let playerCardSprites = playerCardSprites {
+                    resetCardSprites(playerCardSprites)
+                }
+            }
+        }
+    }
+    
+    func updateLabelValues() {
+        updateCurrentPlayerLabel()
+        updatePlayersLabel()
+        updateLastBet()
+        updateCards()
+    }
+    
     func updateLabels() {
+        updateLabelValues()
         if isDisplayingMessage {
             return
         }
-
+        displayLabels()
+    }
+    
+    func displayPlayersLabel() {
+        if let label = self.playersLabel {
+            fadeInNode(label)
+        }
+    }
+    
+    func displayExitLabel() {
         if let label = self.exitLabel, let game = self.game {
             if game.status == .finished {
                 if label.alpha == 0 {
@@ -518,13 +699,17 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 }
             }
         }
-
+    }
+    
+    func displayHelpLabelSprite() {
         if let label = self.helpLabelSprite {
             if label.alpha == 0 {
                 fadeInNode(label)
             }
         }
-
+    }
+    
+    func displayShareLabel() {
         if let label = self.shareLabel, let game = self.game, let players = game.players {
             if game.status == .notStarted && canShare(game, players) {
                 if label.alpha == 0 {
@@ -540,7 +725,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 }
             }
         }
-        
+    }
+    
+    func displayInviteAILabel() {
         if let label = self.inviteAILabel, let game = self.game, let player = self.player, let players = game.players {
             if game.status == .notStarted && canInviteAI(game, player, players) {
                 if label.alpha == 0 {
@@ -556,7 +743,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 }
             }
         }
-
+    }
+    
+    func displayStartGameLabel() {
         if let label = self.startGameLabel, let game = self.game, let player = player, let players = game.players {
             if canStartGame(game, player, players) {
                 if label.alpha == 0 {
@@ -567,7 +756,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 fadeOutNode(label)
             }
         }
-
+    }
+    
+    func displayPlayLabel() {
         if let playLabel = self.playLabel, let player = self.player, let game = self.game, let actionPickerField = actionPickerField {
             if game.status == .running && playerIsCurrentPlayer(player: player, game: game) {
                 pressedPlayButton = false
@@ -587,129 +778,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 fadeOutNode(playLabel)
             }
         }
-
-        if let label = self.currentPlayerLabel, let game = self.game, let currentPlayer = game.currentPlayerNickname, let player = player {
-            var newLabelText: String
-            if playerIsCurrentPlayer(player: player, game: game) {
-                newLabelText = "Current player: You"
-            }
-            else {
-                newLabelText = "Current player: \(formatDisplayNickname(currentPlayer))"
-            }
-            updateLabelText(label, newLabelText)
-        }
-
-        if let label = self.playersLabel, let game = self.game, let players = game.players, let player = player {
-            var playerStrings: [String] = []
-            if game.status == .notStarted {
-                for playerObject in players {
-                    if player.nickname == playerObject.nickname {
-                        playerStrings.append("You")
-                    }
-                    else {
-                        playerStrings.append("\(formatDisplayNickname(playerObject.nickname))")
-                    }
-                }
-            }
-            else if game.status == .finished {
-                for playerObject in players {
-                    var statusString = ""
-                    if playerObject.nCards == 0 {
-                        statusString = "lost"
-                    }
-                    else {
-                        statusString = "won"
-                    }
-                    if player.nickname == playerObject.nickname {
-                        playerStrings.append("You: \(statusString)")
-                    }
-                    else {
-                        playerStrings.append("\(formatDisplayNickname(playerObject.nickname)): \(statusString)")
-                    }
-                }
-            }
-            else {
-                for playerObject in players {
-                    var nCardsString = ""
-                    if playerObject.nCards == 0 {
-                        nCardsString = "lost"
-                    }
-                    else {
-                        nCardsString = String(playerObject.nCards)
-                    }
-                    if player.nickname == playerObject.nickname {
-                        playerStrings.append("You: \(nCardsString)")
-                    }
-                    else {
-                        playerStrings.append("\(formatDisplayNickname(playerObject.nickname)): \(nCardsString)")
-                    }
-                }
-            }
-            let newLabelText = "Players: \(playerStrings.joined(separator: " | "))"
-            updateLabelText(label, newLabelText)
-        }
-
-        if let game = self.game, let player = player {
-
-            if let history = game.history {
-                if history.count == 0 {
-                    if let cardLabels = cardLabels {
-                        for label in cardLabels {
-                            label.removeFromParent()
-                        }
-                    }
-                    self.cardLabels = []
-                    if let betLabel = betLabel {
-                        betLabel.text = ""
-                    }
-                }
-            }
-
-            if let playerCardSprites = playerCardSprites {
-                resetCardSprites(playerCardSprites)
-            }
-
-            if game.status != .notStarted {
-                if let hand = game.hands?.first(where:{$0.nickname == player.nickname })?.hand, let playerCardSprites = playerCardSprites {
-                    if !playerLost && game.status != .finished {
-                        for (cardIndex, card) in hand.enumerated() {
-                            if let image = getCardImage(card) {
-                                playerCardSprites[cardIndex].texture = image
-                            }
-                            else {
-                                let cardLabel = getCardLabel(card)
-                                cardLabel.position = getPlayerCardPosition(cardIndex)
-                                addChild(cardLabel)
-                                cardLabels?.append(cardLabel)
-                            }
-                        }
-                    }
-                }
-
-                if let lastBet = lastBet {
-                    if displayedBet != lastBet {
-                        if let images = BetToCards[lastBet], let betSprites = betSprites {
-                            resetCardSprites(betSprites)
-                            for (cardIndex, image) in images.enumerated() {
-                                betSprites[cardIndex].texture = SKTexture(image: image)
-                            }
-                        }
-                        else if let betLabel = betLabel {
-                            updateLabelText(betLabel, String(describing: lastBet))
-                        }
-                        self.displayedBet = lastBet
-                    }
-                }
-                else {
-
-                    if let betSprites = betSprites {
-                        resetCardSprites(betSprites)
-                        self.displayedBet = nil
-                    }
-                }
-            }
-        }
-
+    }
+    
+    func displayVictoryStatusMessage() {
         if let game = game, let player = player {
 
             if let playerInfo = game.players?.first(where:{$0.nickname == player.nickname }) {
@@ -732,6 +803,31 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
     }
     
+    func displayCards() {
+        for sprite in playerCardSprites ?? [] {
+            fadeInNode(sprite)
+        }
+    }
+    
+    func displayBet() {
+        for sprite in betSprites ?? [] {
+            fadeInNode(sprite)
+        }
+    }
+    
+    func displayLabels() {
+        displayCards()
+        displayBet()
+        displayPlayersLabel()
+        displayExitLabel()
+        displayHelpLabelSprite()
+        displayShareLabel()
+        displayInviteAILabel()
+        displayStartGameLabel()
+        displayPlayLabel()
+        displayVictoryStatusMessage()
+    }
+    
     func getPlayerCardPosition(_ cardIndex: Int) -> CGPoint {
         return CGPoint(x: size.width * -0.45 + CGFloat(60*cardIndex), y: size.height * -0.4)
     }
@@ -750,15 +846,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         return CGPoint(x: size.width * -0.35 + CGFloat(60*cardIndex), y: size.height * 0)
     }
     
-    func displayMessage(_ message: String) {
-        isDisplayingMessage = true
-        
-        pauseGameUpdateTimer()
+    func clearGameLabels() {
         errorMessageLabel.removeFromParent()
-        errorMessageLabel.text = message
         errorMessageLabel.alpha = 0.0
-        self.addChild(errorMessageLabel)
-        
         fadeOutNode(shareLabel)
         fadeOutNode(inviteAILabel)
         fadeOutNode(exitLabel)
@@ -777,78 +867,21 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         for sprite in betSprites ?? [] {
             fadeOutNode(sprite)
         }
-        
+    }
+    
+    func displayMessage(_ message: String) {
+        isDisplayingMessage = true
+        clearGameLabels()
+        errorMessageLabel.text = message
+        self.addChild(errorMessageLabel)
         fadeInNode(errorMessageLabel)
     }
     
     func clearMessage() {
         isDisplayingMessage = false
         fadeOutNode(errorMessageLabel)
-        
-        if let game = game, let players = game.players {
-            if game.status == .notStarted && canShare(game, players) {
-                fadeInNode(shareLabel)
-            }
-            if game.status == .finished {
-                fadeInNode(exitLabel)
-            }
-            if let player = self.player {
-                if game.status == .notStarted && canInviteAI(game, player, players) {
-                    fadeInNode(inviteAILabel)
-                }
-            }
-        }
-        
-        if let label = self.helpLabelSprite {
-            if label.alpha == 0 {
-                fadeInNode(label)
-            }
-        }
-        
-        fadeInNode(playersLabel)
-        
-        if let game = game, let players = game.players, let player = player, let startGameLabel = startGameLabel, let playLabel = playLabel, let actionPickerField = actionPickerField {
-            if canStartGame(game, player, players) && startGameLabel.alpha == 0 {
-                fadeInNode(startGameLabel)
-            }
-            if playerIsCurrentPlayer(player: player, game: game) {
-                if playLabel.alpha == 0 {
-                    fadeInNode(playLabel)
-                }
-                actionPickerField.isHidden = false
-            }
-            else {
-                actionPickerField.isHidden = true
-            }
-            if game.status == .running && currentPlayerLabel?.alpha == 0 {
-                fadeInNode(currentPlayerLabel)
-            }
-        }
-        
-        
-        if let revealNicknameLabels = revealNicknameLabels {
-            for label in revealNicknameLabels {
-                fadeOutNode(label)
-                label.text = ""
-            }
-        }
-        if let revealCardSprites = revealCardSprites {
-            for sprites in revealCardSprites {
-                for sprite in sprites {
-                    fadeOutNode(sprite)
-                }
-            }
-        }
-        
-        for sprite in playerCardSprites ?? [] {
-            fadeInNode(sprite)
-        }
-        for sprite in betSprites ?? [] {
-            fadeInNode(sprite)
-        }
-        
-        resumeGameUpdateTimer()
-        
+        clearDisplayedHands()
+        displayLabels()
     }
     
 }
