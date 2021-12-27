@@ -752,8 +752,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         isDisplayingMessage = false
         fadeOutNode(errorMessageLabel)
         
-        if let game = game {
-            if game.status == .notStarted {
+        if let game = game, let players = game.players {
+            if game.status == .notStarted && canShare(game, players) {
                 fadeInNode(shareLabel)
             }
             if game.status == .finished {
