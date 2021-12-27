@@ -55,6 +55,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         playLabel?.alpha = 0.0
         self.shareLabel = self.childNode(withName: "//shareLabel") as? SKLabelNode
         shareLabel?.alpha = 0.0
+        self.inviteAILabel = self.childNode(withName: "//inviteAILabel") as? SKLabelNode
+        inviteAILabel?.alpha = 0.0
         self.exitLabel = self.childNode(withName: "//exitLabel") as? SKLabelNode
         exitLabel?.alpha = 0.0
         self.currentPlayerLabel = self.childNode(withName: "//currentPlayerLabel") as? SKLabelNode
@@ -524,6 +526,22 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 }
             }
         }
+        
+        if let label = self.inviteAILabel, let game = self.game, let player = self.player, let players = game.players {
+            if game.status == .notStarted && canInviteAI(game, player, players) {
+                if label.alpha == 0 {
+                    fadeInNode(label)
+                }
+                else {
+                    slowPulseLabel(label)
+                }
+            }
+            else {
+                if label.alpha > 0 {
+                    fadeOutNode(label)
+                }
+            }
+        }
 
         if let label = self.startGameLabel, let game = self.game, let player = player, let players = game.players {
             if canStartGame(game, player, players) {
@@ -728,6 +746,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         self.addChild(errorMessageLabel)
         
         fadeOutNode(shareLabel)
+        fadeOutNode(inviteAILabel)
         fadeOutNode(exitLabel)
         fadeOutNode(helpLabelSprite)
         fadeOutNode(playersLabel)
@@ -758,6 +777,11 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
             if game.status == .finished {
                 fadeInNode(exitLabel)
+            }
+            if let player = self.player {
+                if game.status == .notStarted && canInviteAI(game, player, players) {
+                    fadeInNode(inviteAILabel)
+                }
             }
         }
         
