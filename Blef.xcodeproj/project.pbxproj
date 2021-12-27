@@ -81,6 +81,7 @@
 		479E2A32244744EF004BF702 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		47A21E80245E4DC500286A71 /* BetToCards.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BetToCards.swift; sourceTree = "<group>"; };
 		47F035F6244B0BFE000136C1 /* Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game.swift; sourceTree = "<group>"; };
+		47F2114627407106006EFBA6 /* Blef.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Blef.entitlements; sourceTree = "<group>"; };
 		47F2E91B2448BF37006DCB5C /* StartScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = StartScene.sks; sourceTree = "<group>"; };
 		47F2E91D2448C268006DCB5C /* StartScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartScene.swift; sourceTree = "<group>"; };
 		9510D762248A1B92CE32ACC6 /* Pods-BlefTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlefTests.release.xcconfig"; path = "Target Support Files/Pods-BlefTests/Pods-BlefTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -170,6 +171,7 @@
 		479E2A09244744EC004BF702 /* Blef */ = {
 			isa = PBXGroup;
 			children = (
+				47F2114627407106006EFBA6 /* Blef.entitlements */,
 				479E2A0A244744EC004BF702 /* AppDelegate.swift */,
 				479E2A0E244744EC004BF702 /* Actions.sks */,
 				479E2A0C244744EC004BF702 /* GameScene.sks */,
@@ -609,6 +611,8 @@
 			baseConfigurationReference = B1DAB7CE90C576564A3D0AF8 /* Pods-Blef.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Blef/Blef.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1.1.1;
 				DEVELOPMENT_TEAM = VM3JW47SKD;
@@ -621,6 +625,7 @@
 				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.blefteam.Blef;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -631,6 +636,8 @@
 			baseConfigurationReference = 9D59782A9F7B87FB445FA494 /* Pods-Blef.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Blef/Blef.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1.1.1;
 				DEVELOPMENT_TEAM = VM3JW47SKD;
@@ -643,6 +650,7 @@
 				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.blefteam.Blef;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
