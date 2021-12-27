@@ -14,12 +14,12 @@ var errorMessageLabel: SKLabelNode?
 class StartScene: SKScene, GameManagerDelegate {
     
     var gameManager = GameManager()
-    var newGameLabel: SKNode?
+    var customGameLabel: SKNode?
     var errorMessageLabel: SKLabelNode!
     var gameUuid: UUID?
     var playerNickname: String?
     var isDisplayingMessage = false
-    var newGameButtonPressed = false
+    var customGameButtonPressed = false
     
     override func didMove(to view: SKView) {
         
@@ -31,7 +31,7 @@ class StartScene: SKScene, GameManagerDelegate {
         errorMessageLabel.position = CGPoint(x:self.frame.midX, y:self.frame.midY)
         self.addChild(errorMessageLabel)
         
-        self.newGameLabel = childNode(withName: "//newGameLabel")
+        self.customGameLabel = childNode(withName: "//customGameLabel")
         
     }
     
@@ -48,9 +48,9 @@ class StartScene: SKScene, GameManagerDelegate {
             
             for node in nodesarray {
                 // If the New game button was tapped
-                if node.name == "newGameButton", let label = self.newGameLabel {
-                    if !newGameButtonPressed {
-                        newGameButtonPressed = true
+                if node.name == "customGameButton", let label = self.customGameLabel {
+                    if !customGameButtonPressed {
+                        customGameButtonPressed = true
                         pulseLabel(label)
                         print("Going to attempt an API call")
                         gameManager.createGame()
@@ -96,27 +96,25 @@ class StartScene: SKScene, GameManagerDelegate {
         }
         displayMessage("Something went wrong. Try again.")
     }
+    
+    func clearStartUI() {
+        errorMessageLabel.removeFromParent()
+        errorMessageLabel.alpha = 0.0
+        fadeOutNode(customGameLabel)
+    }
  
     func displayMessage(_ message: String) {
         isDisplayingMessage = true
-        
-        errorMessageLabel.removeFromParent()
+        clearStartUI()
         errorMessageLabel.text = message
-        errorMessageLabel.alpha = 0.0
         self.addChild(errorMessageLabel)
-        
-        fadeOutNode(newGameLabel)
-        
         fadeInNode(errorMessageLabel)
     }
     
     func clearMessage() {
         isDisplayingMessage = false
         fadeOutNode(errorMessageLabel)
-        
-        fadeInNode(newGameLabel)
-
-        
+        fadeInNode(customGameLabel)
     }
     
 }
