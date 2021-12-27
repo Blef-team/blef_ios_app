@@ -32,6 +32,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     private var actionPickerView : UIPickerView?
     private var helloLabel : SKLabelNode?
     private var shareLabel : SKLabelNode?
+    private var inviteAILabel : SKLabelNode?
     private var exitLabel : SKLabelNode?
     private var currentPlayerLabel : SKLabelNode?
     private var playersLabel : SKLabelNode?
@@ -248,6 +249,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 if node.name == "helpLabelSprite" {
                     helpLabelSpritePressed()
                 }
+                if node.name == "inviteAIButton" {
+                    inviteAIButtonPressed()
+                }
             }
         }
     }
@@ -377,11 +381,16 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 return
             }
         }
+        if let game = self.game, let players = game.players {
+            if !canShare(game, players) {
+                return
+            }
+        }
         let pasteboard = UIPasteboard.general
         displayMessage("Share the link with another player")
         
         let firstActivityItem = "Join me for a game of Blef"
-        if let uuid = gameUuid?.uuidString.lowercased() {
+        if let uuid = gameManager?.gameUuid?.uuidString.lowercased() {
             let gameUrlString = "blef:///\(uuid)"
             pasteboard.string = gameUrlString
             let secondActivityItem : NSURL = NSURL(string: gameUrlString)!
@@ -403,6 +412,26 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             ]
             
             self.view?.window?.rootViewController?.present(activityViewController, animated: true, completion: nil)
+        }
+    }
+    
+    func inviteAIButtonPressed() {
+        if let game = game {
+            if game.status != .notStarted {
+                return
+            }
+        }
+        if let label = inviteAILabel {
+            pulseLabel(label)
+        }
+        errorMessageLabel.text = ""
+        if let game = self.game, let players = game.players, let player = player {
+            if canInviteAI(game, player, players) {
+                print("Going to attempt an API call")
+                gameManager?.inviteAI()
+                print("Made API call")
+                resetGameUpdateTimer()
+            }
         }
     }
     

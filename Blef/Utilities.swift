@@ -85,6 +85,14 @@ func canStartGame(_ game: Game, _ player: Player, _ players: [PlayerInfo]?) -> B
     return game.status == .notStarted && game.adminNickname == player.nickname && (players?.count ?? 0) >= 2 
 }
 
+func canShare(_ game: Game, _ players: [PlayerInfo]?) -> Bool {
+    return game.status == .notStarted && (players?.count ?? 0) < 8
+}
+
+func canInviteAI(_ game: Game, _ player: Player, _ players: [PlayerInfo]?) -> Bool {
+    return game.status == .notStarted && game.adminNickname == player.nickname && (players?.count ?? 0) < 8
+}
+
 func generatePlayerNickname() -> String {
     guard let randomNames = Nicknames.randomElement(), let animal = randomNames.animals.randomElement(), let adjective = randomNames.adjectives.randomElement() else {
         let number = Int.random(in: 999 ... 9999)
