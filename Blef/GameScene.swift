@@ -212,7 +212,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 }
             }
         }
-        updateLabels()
+        updateGameUI()
     }
     
     func didResetWatchGameWebsocket() {
@@ -677,7 +677,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         updateCards()
     }
     
-    func updateLabels() {
+    func updateGameUI() {
         updateLabelValues()
         if isDisplayingMessage {
             return
