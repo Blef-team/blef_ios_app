@@ -21,7 +21,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     var game: Game?
     var lastBet: Action?
     var displayedBet: Action?
-    var errorMessageLabel: SKLabelNode!
+    var messageLabel: SKLabelNode!
     var isDisplayingMessage = false
     var actionSelected: Action?
     var pressedPlayButton = false
@@ -80,15 +80,15 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             myField.delegate = self
         }
         
-        errorMessageLabel = SKLabelNode(fontNamed:"HelveticaNeue-Light")
-        errorMessageLabel.text = ""
-        errorMessageLabel.fontSize = 15
-        errorMessageLabel.position = CGPoint(x:self.frame.midX, y:self.frame.midY)
-        errorMessageLabel.lineBreakMode = NSLineBreakMode.byWordWrapping
-        errorMessageLabel.numberOfLines = 0
-        errorMessageLabel.preferredMaxLayoutWidth = size.width * 0.8
-        errorMessageLabel.verticalAlignmentMode = .center
-        self.addChild(errorMessageLabel)
+        messageLabel = SKLabelNode(fontNamed:"HelveticaNeue-Light")
+        messageLabel.text = ""
+        messageLabel.fontSize = 15
+        messageLabel.position = CGPoint(x:self.frame.midX, y:self.frame.midY)
+        messageLabel.lineBreakMode = NSLineBreakMode.byWordWrapping
+        messageLabel.numberOfLines = 0
+        messageLabel.preferredMaxLayoutWidth = size.width * 0.8
+        messageLabel.verticalAlignmentMode = .center
+        self.addChild(messageLabel)
         
         self.helloLabel = self.childNode(withName: "//helloLabel") as? SKLabelNode
         if let label = self.helloLabel {
@@ -360,7 +360,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         if let label = startGameLabel {
             pulseLabel(label)
         }
-        errorMessageLabel.text = ""
+        messageLabel.text = ""
         if let game = self.game, let players = game.players, let player = player {
             if canStartGame(game, player, players) {
                 print("Going to attempt an API call")
@@ -377,7 +377,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 if let label = playLabel {
                     pulseLabel(label)
                 }
-                errorMessageLabel.text = ""
+                messageLabel.text = ""
                 if let action = actionSelected {
                     if game.status == .running {
                         print("Going to attempt an API call")
@@ -438,7 +438,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         if let label = inviteAILabel {
             pulseLabel(label)
         }
-        errorMessageLabel.text = ""
+        messageLabel.text = ""
         if let game = self.game, let players = game.players, let player = player {
             if canInviteAI(game, player, players) {
                 print("Going to attempt an API call")
@@ -847,8 +847,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func clearGameLabels() {
-        errorMessageLabel.removeFromParent()
-        errorMessageLabel.alpha = 0.0
+        messageLabel.removeFromParent()
+        messageLabel.alpha = 0.0
         fadeOutNode(shareLabel)
         fadeOutNode(inviteAILabel)
         fadeOutNode(exitLabel)
@@ -872,14 +872,14 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     func displayMessage(_ message: String) {
         isDisplayingMessage = true
         clearGameLabels()
-        errorMessageLabel.text = message
-        self.addChild(errorMessageLabel)
-        fadeInNode(errorMessageLabel)
+        messageLabel.text = message
+        self.addChild(messageLabel)
+        fadeInNode(messageLabel)
     }
     
     func clearMessage() {
         isDisplayingMessage = false
-        fadeOutNode(errorMessageLabel)
+        fadeOutNode(messageLabel)
         clearDisplayedHands()
         displayLabels()
     }
