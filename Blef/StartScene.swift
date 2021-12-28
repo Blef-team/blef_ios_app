@@ -102,6 +102,7 @@ class StartScene: SKScene, GameManagerDelegate {
         if preparingQuickGame {
             numberOfQuickGameAIAgents.times {
                 gameManager.inviteAI()
+                usleep(50000)
             }
         } else {
             moveToGameScene(player)
