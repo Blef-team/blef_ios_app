@@ -694,7 +694,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     func displayExitLabel() {
         if let label = self.exitLabel, let game = self.game {
             if game.status == .finished {
-                if label.alpha == 0 {
+                if label.alpha < 1 {
                     fadeInNode(label)
                 }
             }
@@ -703,7 +703,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     
     func displayHelpLabelSprite() {
         if let label = self.helpLabelSprite {
-            if label.alpha == 0 {
+            if label.alpha < 1 {
                 fadeInNode(label)
             }
         }
@@ -712,7 +712,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     func displayShareLabel() {
         if let label = self.shareLabel, let game = self.game, let players = game.players {
             if game.status == .notStarted && canShare(game, players) {
-                if label.alpha == 0 {
+                if label.alpha < 1 {
                     fadeInNode(label)
                 }
                 else {
@@ -730,7 +730,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     func displayInviteAILabel() {
         if let label = self.inviteAILabel, let game = self.game, let player = self.player, let players = game.players {
             if game.status == .notStarted && canInviteAI(game, player, players) {
-                if label.alpha == 0 {
+                if label.alpha < 1 {
                     fadeInNode(label)
                 }
                 else {
@@ -748,7 +748,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     func displayStartGameLabel() {
         if let label = self.startGameLabel, let game = self.game, let player = player, let players = game.players {
             if canStartGame(game, player, players) {
-                if label.alpha == 0 {
+                if label.alpha < 1 {
                     fadeInNode(label)
                 }
             }
@@ -762,7 +762,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         if let playLabel = self.playLabel, let player = self.player, let game = self.game, let actionPickerField = actionPickerField {
             if game.status == .running && playerIsCurrentPlayer(player: player, game: game) {
                 pressedPlayButton = false
-                if playLabel.alpha == 0 {
+                if playLabel.alpha < 1 {
                     fadeInNode(playLabel)
                 }
                 if self.view != nil && !actionPickerField.isDescendant(of: self.view!) {
