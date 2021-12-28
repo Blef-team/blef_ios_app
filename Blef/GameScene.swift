@@ -177,6 +177,10 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     
     func didUpdateGame(_ game: Game) {
         print(game)
+        if game.lastModified < self.game?.lastModified ?? 0 {
+            print("Received an old game state update, ignoring")
+            return
+        }
         self.game = game
         self.lastBet = game.history?.last?.action
         if game.status == .running {
