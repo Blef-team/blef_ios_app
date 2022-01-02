@@ -98,7 +98,6 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
         print("request (URLRequest): \(request)")
         self.watchGameWebsocket = session.webSocketTask(with: request)
         self.watchGameWebsocket?.resume()
-        self.delegate?.didResetWatchGameWebsocket()
     }
     
     func pingWatchGameWebsocket() {
@@ -183,6 +182,7 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
         // On watchGameWebsocket connect
         print("Web Socket did connect")
         pingWatchGameWebsocket()
+        self.delegate?.didResetWatchGameWebsocket()
         receiveWatchGameWebsocket()
     }
     
