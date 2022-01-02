@@ -12,8 +12,8 @@ import GameplayKit
 
 class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerViewDataSource, UITextFieldDelegate {
     
-    var gameManager = GameManager()
-    var gameUpdateInterval = 1.0
+    var gameManager: GameManager?
+    var gameUpdateInterval = 0.05
     var gameUpdateTimer: Timer?
     var gameUpdateScheduled: Bool?
     var gameUuid: UUID?
@@ -46,7 +46,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     
     override func didMove(to view: SKView) {
         
-        self.gameManager.delegate = self
+        self.gameManager!.delegate = self
         
         self.startGameLabel = childNode(withName: "//startGameLabel") as? SKLabelNode
         startGameLabel?.alpha = 0.0
@@ -152,13 +152,19 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
      Request updated game state.
      */
     @objc func updateGame() {
-        if let gameUuid = self.gameUuid, let playerUuid = player?.uuid {
-            gameManager.updateGame(gameUuid: gameUuid, playerUuid: playerUuid, round: roundNumber)
-        }
+        gameManager?.receiveWatchGameWebsocket()
     }
     
     func didFailWithError(error: Error) {
         displayMessage("Something went wrong.")
+    }
+    
+    func didJoinGame() {
+        if let label = startGameLabel {
+            fadeOutNode(label)
+            label.removeFromParent()
+        }
+        updateGame()
     }
     
     func didStartGame() {
@@ -171,6 +177,17 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     
     func didUpdateGame(_ game: Game) {
         print(game)
+        if game.lastModified < self.game?.lastModified ?? 0 {
+            if let receivedHands = game.hands {
+                if game.roundNumber < self.game?.roundNumber ?? 0 && game.hands?.count ?? 0 > 1 {
+                    print("Received an old game state update, but will display hands")
+                    displayHands(receivedHands)
+                }
+            } else {
+                print("Received an old game state update, ignoring")
+            }
+            return
+        }
         self.game = game
         self.lastBet = game.history?.last?.action
         if game.status == .running {
@@ -306,12 +323,15 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func resumeGameUpdateTimer() {
+        gameManager?.updateGame(round: roundNumber)
+        gameManager?.resetWatchGameWebsocket()
         gameUpdateTimer = Timer.scheduledTimer(timeInterval: self.gameUpdateInterval, target: self, selector: #selector(updateGame), userInfo: nil, repeats: true)
         gameUpdateScheduled = true
     }
     
     func pauseGameUpdateTimer() {
         if let timer = gameUpdateTimer {
+            gameManager?.closeWatchGameWebsocket()
             timer.invalidate()
             gameUpdateScheduled = false
         }
@@ -332,10 +352,10 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             pulseLabel(label)
         }
         errorMessageLabel.text = ""
-        if let gameUuid = gameUuid, let playerUuid = player?.uuid, let game = self.game, let players = game.players, let player = player {
+        if let game = self.game, let players = game.players, let player = player {
             if canStartGame(game, player, players) {
                 print("Going to attempt an API call")
-                gameManager.startGame(gameUuid: gameUuid, playerUuid: playerUuid)
+                gameManager?.startGame()
                 print("Made API call")
                 resetGameUpdateTimer()
             }
@@ -350,10 +370,10 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                     pulseLabel(label)
                 }
                 errorMessageLabel.text = ""
-                if let gameUuid = gameUuid, let action = actionSelected {
+                if let action = actionSelected {
                     if game.status == .running {
                         print("Going to attempt an API call")
-                        gameManager.play(gameUuid: gameUuid, playerUuid: player.uuid, action: action)
+                        gameManager?.play(action: action)
                         print("Made API call")
                         resetGameUpdateTimer()
                     }
@@ -372,7 +392,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         displayMessage("Share the link with another player")
         
         let firstActivityItem = "Join me for a game of Blef"
-        if let uuid = gameUuid?.uuidString {
+        if let uuid = gameUuid?.uuidString.lowercased() {
             let gameUrlString = "blef:///\(uuid)"
             pasteboard.string = gameUrlString
             let secondActivityItem : NSURL = NSURL(string: gameUrlString)!
@@ -456,7 +476,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         if isDisplayingMessage {
             return
         }
-        
+
         if let label = self.exitLabel, let game = self.game {
             if game.status == .finished {
                 if label.alpha == 0 {
@@ -464,13 +484,13 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 }
             }
         }
-        
+
         if let label = self.helpLabelSprite {
             if label.alpha == 0 {
                 fadeInNode(label)
             }
         }
-        
+
         if let label = self.shareLabel, let game = self.game {
             if game.status == .notStarted {
                 if label.alpha == 0 {
@@ -486,7 +506,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 }
             }
         }
-        
+
         if let label = self.startGameLabel, let game = self.game, let player = player, let players = game.players {
             if canStartGame(game, player, players) {
                 if label.alpha == 0 {
@@ -497,7 +517,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 fadeOutNode(label)
             }
         }
-        
+
         if let playLabel = self.playLabel, let player = self.player, let game = self.game, let actionPickerField = actionPickerField {
             if game.status == .running && playerIsCurrentPlayer(player: player, game: game) {
                 pressedPlayButton = false
@@ -517,7 +537,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 fadeOutNode(playLabel)
             }
         }
-        
+
         if let label = self.currentPlayerLabel, let game = self.game, let currentPlayer = game.currentPlayerNickname, let player = player {
             var newLabelText: String
             if playerIsCurrentPlayer(player: player, game: game) {
@@ -528,7 +548,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
             updateLabelText(label, newLabelText)
         }
-        
+
         if let label = self.playersLabel, let game = self.game, let players = game.players, let player = player {
             var playerStrings: [String] = []
             if game.status == .notStarted {
@@ -578,8 +598,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             let newLabelText = "Players: \(playerStrings.joined(separator: " | "))"
             updateLabelText(label, newLabelText)
         }
-        
+
         if let game = self.game, let player = player {
+
             if let history = game.history {
                 if history.count == 0 {
                     if let cardLabels = cardLabels {
@@ -593,9 +614,11 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                     }
                 }
             }
+
             if let playerCardSprites = playerCardSprites {
                 resetCardSprites(playerCardSprites)
             }
+
             if game.status != .notStarted {
                 if let hand = game.hands?.first(where:{$0.nickname == player.nickname })?.hand, let playerCardSprites = playerCardSprites {
                     if !playerLost && game.status != .finished {
@@ -612,6 +635,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                         }
                     }
                 }
+
                 if let lastBet = lastBet {
                     if displayedBet != lastBet {
                         if let images = BetToCards[lastBet], let betSprites = betSprites {
@@ -627,6 +651,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                     }
                 }
                 else {
+
                     if let betSprites = betSprites {
                         resetCardSprites(betSprites)
                         self.displayedBet = nil
@@ -634,7 +659,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 }
             }
         }
+
         if let game = game, let player = player {
+
             if let playerInfo = game.players?.first(where:{$0.nickname == player.nickname }) {
                 
                 if game.status == .finished {

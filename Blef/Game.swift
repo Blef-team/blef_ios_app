@@ -18,6 +18,7 @@ struct Game {
     var hands: [NamedHand]?
     var currentPlayerNickname: String?
     var history: [HistoryItem]?
+    var lastModified: Int
 }
 
 extension Game {
@@ -67,6 +68,11 @@ extension Game {
                 self.history = history
             }
         }
+        
+        guard let lastModified = json["last_modified"] as? Int else {
+            return nil
+        }
+        self.lastModified = lastModified
     }
 }
 
