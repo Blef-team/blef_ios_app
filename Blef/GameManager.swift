@@ -26,6 +26,7 @@ protocol GameManagerDelegate {
     func didStartGame()
     func didInviteAI()
     func didUpdateGame(_ game: Game)
+    func didResetWatchGameWebsocket()
     func didPlay(_ game: Game)
     func failedIllegalPlay()
     func didFailWithError(error: Error)
@@ -50,6 +51,10 @@ extension GameManagerDelegate {
     }
     func didUpdateGame(_ game: Game) {
         print("GameManager updated a Game, but the result is not being used.")
+        //this is a empty implementation to allow this method to be optional
+    }
+    func didResetWatchGameWebsocket() {
+        print("GameManager reset the watch game websocket, but the result is not being used.")
         //this is a empty implementation to allow this method to be optional
     }
     func didPlay(_ game: Game) {
@@ -93,6 +98,7 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
         print("request (URLRequest): \(request)")
         self.watchGameWebsocket = session.webSocketTask(with: request)
         self.watchGameWebsocket?.resume()
+        self.delegate?.didResetWatchGameWebsocket()
     }
     
     func pingWatchGameWebsocket() {

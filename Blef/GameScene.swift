@@ -204,6 +204,10 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         updateLabels()
     }
     
+    func didResetWatchGameWebsocket() {
+        self.gameManager?.updateGame(round: self.roundNumber)
+    }
+    
     func didPlay(_ game: Game) {
         if let playLabel = playLabel, let actionPickerField = actionPickerField {
             fadeOutNode(playLabel)
@@ -318,7 +322,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func resumeGameUpdateTimer() {
-        gameManager?.updateGame(round: roundNumber)
         gameManager?.resetWatchGameWebsocket()
         gameUpdateTimer = Timer.scheduledTimer(timeInterval: self.gameUpdateInterval, target: self, selector: #selector(updateGame), userInfo: nil, repeats: true)
         gameUpdateScheduled = true
