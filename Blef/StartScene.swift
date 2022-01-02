@@ -64,6 +64,10 @@ class StartScene: SKScene, GameManagerDelegate {
                 if node.name == "quickGameButton" {
                     quickGameButtonPressed()
                 }
+                // If the Join button was tapped
+                if node.name == "joinButton" {
+                    joinButtonPressed()
+                }
             }
         }
     }
@@ -91,6 +95,7 @@ class StartScene: SKScene, GameManagerDelegate {
         if let label = joinLabel {
             pulseLabel(label)
         }
+        moveToJoinScene()
     }
     
     func didCreateNewGame() {
@@ -140,6 +145,14 @@ class StartScene: SKScene, GameManagerDelegate {
         gameScene?.player = player
         gameScene?.gameManager = gameManager
         scene?.view?.presentScene(gameScene!, transition: transition)
+    }
+    
+    func moveToJoinScene() {
+        if let joinScene = JoinScene(fileNamed: "JoinScene") {
+            let transition = SKTransition.fade(withDuration: 1.0)
+            joinScene.scaleMode = .aspectFit
+            scene?.view?.presentScene(joinScene, transition: transition)
+        }
     }
     
     func didFailWithError(error: Error) {
