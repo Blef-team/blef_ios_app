@@ -16,6 +16,7 @@ class StartScene: SKScene, GameManagerDelegate {
     var gameManager = GameManager()
     var customGameLabel: SKNode?
     var quickGameLabel: SKNode?
+    var joinLabel: SKNode?
     var errorMessageLabel: SKLabelNode!
     var gameUuid: UUID?
     var player: Player?
@@ -37,7 +38,10 @@ class StartScene: SKScene, GameManagerDelegate {
         
         self.customGameLabel = childNode(withName: "//customGameLabel")
         self.quickGameLabel = childNode(withName: "//quickGameLabel")
-        
+        self.joinLabel = childNode(withName: "//joinLabel")
+        if let joinLabel = joinLabel {
+            slowPulseLabel(joinLabel)
+        }
     }
     
     /**
@@ -81,6 +85,12 @@ class StartScene: SKScene, GameManagerDelegate {
         print("Going to attempt an API call")
         gameManager.createGame()
         print("Made API call")
+    }
+    
+    func joinButtonPressed() {
+        if let label = joinLabel {
+            pulseLabel(label)
+        }
     }
     
     func didCreateNewGame() {
@@ -146,6 +156,7 @@ class StartScene: SKScene, GameManagerDelegate {
     func clearStartUI() {
         errorMessageLabel.removeFromParent()
         errorMessageLabel.alpha = 0.0
+        joinLabel?.removeAllActions()
         fadeOutNode(customGameLabel)
     }
  
