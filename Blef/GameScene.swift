@@ -179,8 +179,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         print(game)
         if game.lastModified < self.game?.lastModified ?? 0 {
             if let receivedHands = game.hands {
-                print("Received an old game state update, but will display hands")
                 if game.roundNumber < self.game?.roundNumber ?? 0 && game.hands?.count ?? 0 > 1 {
+                    print("Received an old game state update, but will display hands")
                     displayHands(receivedHands)
                 }
             } else {
