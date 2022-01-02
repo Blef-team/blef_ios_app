@@ -715,8 +715,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             if game.status == .notStarted && canShare(game, players) {
                 if label.alpha < 1 {
                     fadeInNode(label)
-                }
-                else {
                     slowPulseLabel(label)
                 }
             }
@@ -733,8 +731,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             if game.status == .notStarted && canInviteAI(game, player, players) {
                 if label.alpha < 1 {
                     fadeInNode(label)
-                }
-                else {
                     slowPulseLabel(label)
                 }
             }
@@ -850,6 +846,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     func clearGameLabels() {
         messageLabel.removeFromParent()
         messageLabel.alpha = 0.0
+        shareLabel?.removeAllActions()
+        inviteAILabel?.removeAllActions()
         fadeOutNode(shareLabel)
         fadeOutNode(inviteAILabel)
         fadeOutNode(exitLabel)

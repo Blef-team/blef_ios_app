@@ -35,11 +35,11 @@ func pulseLabel (_ label: SKNode) {
 }
 
 func slowPulseLabel (_ label: SKNode) {
-    let pulseSequence = SKAction.sequence([
+    let pulseSequence = SKAction.repeatForever(SKAction.sequence([
         SKAction.fadeAlpha(by: -0.7, duration: 0.5),
         SKAction.fadeAlpha(by: 0.7, duration: 0.5)
-    ])
-    label.run(pulseSequence)
+    ]))
+    label.run(pulseSequence, withKey: "slowPulse")
 }
 
 func updateAndDisplayLabel (_ label: SKLabelNode, _ newLabelText: String) {
