@@ -32,6 +32,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     private var actionPickerView : UIPickerView?
     private var helloLabel : SKLabelNode?
     private var shareLabel : SKLabelNode?
+    private var inviteAILabel : SKLabelNode?
     private var exitLabel : SKLabelNode?
     private var currentPlayerLabel : SKLabelNode?
     private var playersLabel : SKLabelNode?
@@ -54,6 +55,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         playLabel?.alpha = 0.0
         self.shareLabel = self.childNode(withName: "//shareLabel") as? SKLabelNode
         shareLabel?.alpha = 0.0
+        self.inviteAILabel = self.childNode(withName: "//inviteAILabel") as? SKLabelNode
+        inviteAILabel?.alpha = 0.0
         self.exitLabel = self.childNode(withName: "//exitLabel") as? SKLabelNode
         exitLabel?.alpha = 0.0
         self.currentPlayerLabel = self.childNode(withName: "//currentPlayerLabel") as? SKLabelNode
@@ -212,6 +215,10 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         updateLabels()
     }
     
+    func didResetWatchGameWebsocket() {
+        self.gameManager?.updateGame(round: self.roundNumber)
+    }
+    
     func didPlay(_ game: Game) {
         if let playLabel = playLabel, let actionPickerField = actionPickerField {
             fadeOutNode(playLabel)
@@ -258,6 +265,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 }
                 if node.name == "helpLabelSprite" {
                     helpLabelSpritePressed()
+                }
+                if node.name == "inviteAIButton" {
+                    inviteAIButtonPressed()
                 }
             }
         }
@@ -323,7 +333,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func resumeGameUpdateTimer() {
-        gameManager?.updateGame(round: roundNumber)
         gameManager?.resetWatchGameWebsocket()
         gameUpdateTimer = Timer.scheduledTimer(timeInterval: self.gameUpdateInterval, target: self, selector: #selector(updateGame), userInfo: nil, repeats: true)
         gameUpdateScheduled = true
@@ -388,11 +397,16 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 return
             }
         }
+        if let game = self.game, let players = game.players {
+            if !canShare(game, players) {
+                return
+            }
+        }
         let pasteboard = UIPasteboard.general
         displayMessage("Share the link with another player")
         
         let firstActivityItem = "Join me for a game of Blef"
-        if let uuid = gameUuid?.uuidString.lowercased() {
+        if let uuid = gameManager?.gameUuid?.uuidString.lowercased() {
             let gameUrlString = "blef:///\(uuid)"
             pasteboard.string = gameUrlString
             let secondActivityItem : NSURL = NSURL(string: gameUrlString)!
@@ -414,6 +428,26 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             ]
             
             self.view?.window?.rootViewController?.present(activityViewController, animated: true, completion: nil)
+        }
+    }
+    
+    func inviteAIButtonPressed() {
+        if let game = game {
+            if game.status != .notStarted {
+                return
+            }
+        }
+        if let label = inviteAILabel {
+            pulseLabel(label)
+        }
+        errorMessageLabel.text = ""
+        if let game = self.game, let players = game.players, let player = player {
+            if canInviteAI(game, player, players) {
+                print("Going to attempt an API call")
+                gameManager?.inviteAI()
+                print("Made API call")
+                resetGameUpdateTimer()
+            }
         }
     }
     
@@ -491,8 +525,24 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
         }
 
-        if let label = self.shareLabel, let game = self.game {
-            if game.status == .notStarted {
+        if let label = self.shareLabel, let game = self.game, let players = game.players {
+            if game.status == .notStarted && canShare(game, players) {
+                if label.alpha == 0 {
+                    fadeInNode(label)
+                }
+                else {
+                    slowPulseLabel(label)
+                }
+            }
+            else {
+                if label.alpha > 0 {
+                    fadeOutNode(label)
+                }
+            }
+        }
+        
+        if let label = self.inviteAILabel, let game = self.game, let player = self.player, let players = game.players {
+            if game.status == .notStarted && canInviteAI(game, player, players) {
                 if label.alpha == 0 {
                     fadeInNode(label)
                 }
@@ -710,6 +760,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         self.addChild(errorMessageLabel)
         
         fadeOutNode(shareLabel)
+        fadeOutNode(inviteAILabel)
         fadeOutNode(exitLabel)
         fadeOutNode(helpLabelSprite)
         fadeOutNode(playersLabel)
@@ -734,12 +785,17 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         isDisplayingMessage = false
         fadeOutNode(errorMessageLabel)
         
-        if let game = game {
-            if game.status == .notStarted {
+        if let game = game, let players = game.players {
+            if game.status == .notStarted && canShare(game, players) {
                 fadeInNode(shareLabel)
             }
             if game.status == .finished {
                 fadeInNode(exitLabel)
+            }
+            if let player = self.player {
+                if game.status == .notStarted && canInviteAI(game, player, players) {
+                    fadeInNode(inviteAILabel)
+                }
             }
         }
         
