@@ -387,6 +387,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 }
             }
         }
+        pressedPlayButton = false
     }
     
     func shareButtonPressed() {
