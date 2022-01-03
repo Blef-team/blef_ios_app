@@ -14,12 +14,16 @@ var errorMessageLabel: SKLabelNode?
 class StartScene: SKScene, GameManagerDelegate {
     
     var gameManager = GameManager()
-    var newGameLabel: SKNode?
+    var customGameLabel: SKNode?
+    var quickGameLabel: SKNode?
     var errorMessageLabel: SKLabelNode!
     var gameUuid: UUID?
+    var player: Player?
     var playerNickname: String?
     var isDisplayingMessage = false
-    var newGameButtonPressed = false
+    var preparingQuickGame = false
+    var numberOfQuickGameAIAgents = 2
+    var invitedAIs = 0
     
     override func didMove(to view: SKView) {
         
@@ -31,7 +35,8 @@ class StartScene: SKScene, GameManagerDelegate {
         errorMessageLabel.position = CGPoint(x:self.frame.midX, y:self.frame.midY)
         self.addChild(errorMessageLabel)
         
-        self.newGameLabel = childNode(withName: "//newGameLabel")
+        self.customGameLabel = childNode(withName: "//customGameLabel")
+        self.quickGameLabel = childNode(withName: "//quickGameLabel")
         
     }
     
@@ -47,19 +52,35 @@ class StartScene: SKScene, GameManagerDelegate {
             let nodesarray = nodes(at: location)
             
             for node in nodesarray {
-                // If the New game button was tapped
-                if node.name == "newGameButton", let label = self.newGameLabel {
-                    if !newGameButtonPressed {
-                        newGameButtonPressed = true
-                        pulseLabel(label)
-                        print("Going to attempt an API call")
-                        gameManager.createGame()
-                        print("Made API call")
-                    }
+                // If the Custom game button was tapped
+                if node.name == "customGameButton" {
+                    customGameButtonPressed()
                 }
-                
+                // If the Quick game button was tapped
+                if node.name == "quickGameButton" {
+                    quickGameButtonPressed()
+                }
             }
         }
+    }
+    
+    func quickGameButtonPressed() {
+        if let label = quickGameLabel {
+            pulseLabel(label)
+        }
+        preparingQuickGame = true
+        print("Going to attempt an API call")
+        gameManager.createGame()
+        print("Made API call")
+    }
+    
+    func customGameButtonPressed() {
+        if let label = customGameLabel {
+            pulseLabel(label)
+        }
+        print("Going to attempt an API call")
+        gameManager.createGame()
+        print("Made API call")
     }
     
     func didCreateNewGame() {
@@ -77,6 +98,31 @@ class StartScene: SKScene, GameManagerDelegate {
         print(player)
         var player = player
         player.nickname = formatSerialisedNickname(playerNickname ?? "no name")
+        self.player = player
+        if preparingQuickGame {
+            numberOfQuickGameAIAgents.times {
+                gameManager.inviteAI()
+                usleep(50000)
+            }
+        } else {
+            moveToGameScene(player)
+        }
+    }
+    
+    func didInviteAI() {
+        invitedAIs += 1
+        if invitedAIs == numberOfQuickGameAIAgents {
+            gameManager.startGame()
+        }
+    }
+    
+    func didStartGame() {
+        if let player = player {
+            moveToGameScene(player)
+        }
+    }
+    
+    func moveToGameScene(_ player: Player) {
         let gameScene = GameScene(fileNamed: "GameScene")
         let transition = SKTransition.fade(withDuration: 1.0)
         gameScene?.scaleMode = .aspectFit
@@ -96,27 +142,25 @@ class StartScene: SKScene, GameManagerDelegate {
         }
         displayMessage("Something went wrong. Try again.")
     }
+    
+    func clearStartUI() {
+        errorMessageLabel.removeFromParent()
+        errorMessageLabel.alpha = 0.0
+        fadeOutNode(customGameLabel)
+    }
  
     func displayMessage(_ message: String) {
         isDisplayingMessage = true
-        
-        errorMessageLabel.removeFromParent()
+        clearStartUI()
         errorMessageLabel.text = message
-        errorMessageLabel.alpha = 0.0
         self.addChild(errorMessageLabel)
-        
-        fadeOutNode(newGameLabel)
-        
         fadeInNode(errorMessageLabel)
     }
     
     func clearMessage() {
         isDisplayingMessage = false
         fadeOutNode(errorMessageLabel)
-        
-        fadeInNode(newGameLabel)
-
-        
+        fadeInNode(customGameLabel)
     }
     
 }
