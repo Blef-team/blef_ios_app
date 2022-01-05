@@ -21,6 +21,7 @@ class StartScene: SKScene, GameManagerDelegate {
     var gameUuid: UUID?
     var player: Player?
     var playerNickname: String?
+    var publicGames: [Game] = []
     var isDisplayingMessage = false
     var preparingQuickGame = false
     var numberOfQuickGameAIAgents = 2
@@ -40,7 +41,7 @@ class StartScene: SKScene, GameManagerDelegate {
         self.quickGameLabel = childNode(withName: "//quickGameLabel")
         self.joinLabel = childNode(withName: "//joinLabel")
         if let joinLabel = joinLabel {
-            slowPulseLabel(joinLabel)
+            joinLabel.alpha = 0
         }
     }
     
@@ -92,6 +93,9 @@ class StartScene: SKScene, GameManagerDelegate {
     }
     
     func joinButtonPressed() {
+        if publicGames.count == 0 {
+            return
+        }
         if let label = joinLabel {
             pulseLabel(label)
         }
@@ -149,7 +153,7 @@ class StartScene: SKScene, GameManagerDelegate {
     
     func moveToJoinScene() {
         if let joinScene = JoinScene(fileNamed: "JoinScene") {
-            let transition = SKTransition.fade(withDuration: 1.0)
+            let transition = SKTransition.fade(withDuration: 0.5)
             joinScene.scaleMode = .aspectFit
             scene?.view?.presentScene(joinScene, transition: transition)
         }
