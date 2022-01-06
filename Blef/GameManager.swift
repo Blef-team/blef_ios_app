@@ -279,7 +279,7 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
         }
     }
     
-    func updatePublicGames(_ game: PublicGame) {
+    func updatePublicGame(_  game: PublicGame) {
         guard let existingGame = self.publicGames[game.uuid] else {
             self.publicGames[game.uuid] = game
             return
@@ -290,6 +290,21 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
         if let isPublic = game.isPublic {
             if !isPublic {
                 self.publicGames.removeValue(forKey: game.uuid)
+            }
+        }
+    }
+    
+    func updatePublicGames(_ games: [PublicGame]) {
+        // Update received public games
+        for game in games {
+            updatePublicGame(game)
+        }
+        // Given that the received array is complete,
+        // we can remove any games not public anymore
+        let publicGameUuids = games.map { $0.uuid }
+        for (uuid, game) in self.publicGames {
+            if !publicGameUuids.contains(uuid) {
+                self.publicGames.removeValue(forKey: uuid)
             }
         }
     }
@@ -354,18 +369,14 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
                 print(jsonObject)
             }
             let games = array.compactMap(PublicGame.init)
-            for game in games {
-                updatePublicGames(game)
-            }
-            if self.publicGames.count > 0 {
-                /**
-                 The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
-                 `invalid use of AppKit, UIKit, and other APIs from a background thread`
-                 */
-                DispatchQueue.main.async {
-                    print("Calling didGetPublicGames")
-                    self.delegate?.didGetPublicGames()
-                }
+            updatePublicGames(games)
+            /**
+             The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
+             `invalid use of AppKit, UIKit, and other APIs from a background thread`
+             */
+            DispatchQueue.main.async {
+                print("Calling didGetPublicGames")
+                self.delegate?.didGetPublicGames()
             }
             return true
         }
