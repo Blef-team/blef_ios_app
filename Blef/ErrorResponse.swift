@@ -8,8 +8,6 @@
 
 import Foundation
 
-typealias JSON = [String: Any]
-
 struct ErrorResponse {
     var error: String
 }
