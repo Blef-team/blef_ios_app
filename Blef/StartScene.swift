@@ -103,10 +103,13 @@ class StartScene: SKScene, GameManagerDelegate {
     }
     
     func didGetPublicGames() {
-        if self.gameManager.publicGames.count > 0 {
-            if let label = joinLabel {
+        if let label = joinLabel {
+            if self.gameManager.publicGames.count > 0 {
                 fadeInNode(label)
                 slowPulseLabel(label)
+            } else {
+                label.removeAllActions()
+                fadeOutNode(label)
             }
         }
     }
