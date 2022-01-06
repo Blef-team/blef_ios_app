@@ -12,6 +12,7 @@ struct PublicGame {
     var uuid: UUID
     var room: Int
     var players: [PlayerInfo]?
+    var isPublic: Bool?
     var lastModified: Int
 }
 
@@ -31,6 +32,10 @@ extension PublicGame {
             if let players = playersJson.map({ PlayerInfo(json: $0)}) as? [PlayerInfo] {
                 self.players = players
             }
+        }
+        
+        if let isPublicString = json["public"] as? String {
+            self.isPublic = isPublicString == "true"
         }
         
         guard let lastModified = json["last_modified"] as? Int else {

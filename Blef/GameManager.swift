@@ -83,7 +83,7 @@ func defaultArrayParser(_: JSONArray?) -> Bool {
 class GameManager: NSObject, URLSessionWebSocketDelegate {
     let GameEngineServiceURL = "https://n4p6oovxsg.execute-api.eu-west-2.amazonaws.com/games"
     let watchGameWebsocketEnvironment = "production"
-    var publicGames: [PublicGame] = []
+    var publicGames: [UUID: PublicGame] = [:]
     var newGame: NewGame?
     var game: Game?
     var gameUuid: UUID?
@@ -280,7 +280,18 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
     }
     
     func updatePublicGames(_ game: PublicGame) {
-        self.publicGames.append(game)
+        guard let existingGame = self.publicGames[game.uuid] else {
+            self.publicGames[game.uuid] = game
+            return
+        }
+        if game.lastModified <= existingGame.lastModified {
+            self.publicGames[game.uuid] = game
+        }
+        if let isPublic = game.isPublic {
+            if !isPublic {
+                self.publicGames.removeValue(forKey: game.uuid)
+            }
+        }
     }
     
     func performRequest(with urlString: String, parser parseResponse: @escaping (JSON?) -> Bool = defaultParser, arrayParser parseArrayResponse: @escaping (JSONArray?) -> Bool = defaultArrayParser) {
