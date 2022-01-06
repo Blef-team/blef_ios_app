@@ -304,8 +304,6 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
                         jsonArray = (try? JSONSerialization.jsonObject(with: safeData, options: [])) as? JSONArray
                         succeeded = parseArrayResponse(jsonArray)
                     }
-                    print(jsonObject as Any)
-                    print(jsonArray as Any)
                     if !succeeded {
                         /**
                          The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
@@ -344,10 +342,10 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
             for jsonObject in array {
                 print(jsonObject)
             }
-            let games = array.flatMap(PublicGame.init)
-                for game in games {
-                    updatePublicGames(game)
-                }
+            let games = array.compactMap(PublicGame.init)
+            for game in games {
+                updatePublicGames(game)
+            }
             if self.publicGames.count > 0 {
                 /**
                  The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
