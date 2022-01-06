@@ -30,6 +30,7 @@ protocol GameManagerDelegate {
     func didPlay(_ game: Game)
     func failedIllegalPlay()
     func didFailWithError(error: Error)
+    func didGetPublicGames()
 }
 
 extension GameManagerDelegate {
@@ -65,11 +66,24 @@ extension GameManagerDelegate {
         print("GameManager did play an illegal move, but the result is not being used.")
         //this is a empty implementation to allow this method to be optional
     }
+    func didGetPublicGames() {
+        print("GameManager did get public games, but the result is not being used.")
+        //this is a empty implementation to allow this method to be optional
+    }
+}
+
+func defaultParser(_: JSON?) -> Bool {
+    return false
+}
+
+func defaultArrayParser(_: JSONArray?) -> Bool {
+    return false
 }
 
 class GameManager: NSObject, URLSessionWebSocketDelegate {
     let GameEngineServiceURL = "https://n4p6oovxsg.execute-api.eu-west-2.amazonaws.com/games"
     let watchGameWebsocketEnvironment = "production"
+    var publicGames: [PublicGame] = []
     var newGame: NewGame?
     var game: Game?
     var gameUuid: UUID?
@@ -194,6 +208,12 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
         }
     }
     
+    func getPublicGames() {
+        let urlString = "\(GameEngineServiceURL)"
+        print(urlString)
+        performRequest(with: urlString, arrayParser: parseGetPublicGamesResponse(_:))
+    }
+    
     func setGameUuid(_ gameUuid: UUID) {
         self.gameUuid = gameUuid
     }
@@ -259,7 +279,11 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
         }
     }
     
-    func performRequest(with urlString: String, parser parseResponse: @escaping (JSON?) -> Bool) {
+    func updatePublicGames(_ game: PublicGame) {
+        self.publicGames.append(game)
+    }
+    
+    func performRequest(with urlString: String, parser parseResponse: @escaping (JSON?) -> Bool = defaultParser, arrayParser parseArrayResponse: @escaping (JSONArray?) -> Bool = defaultArrayParser) {
         if let url = URL(string: urlString) {
             let session = URLSession(configuration: .default)
             let task = session.dataTask(with: url) {(data, response, error) in
@@ -271,9 +295,17 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
                 if let safeData = data {
                     print("Got nonempty data:")
                     print(data?.base64EncodedString())
-                    let jsonObject = (try? JSONSerialization.jsonObject(with: safeData, options: [])) as? JSON
+                    var succeeded = false
+                    var jsonObject: JSON? = nil
+                    var jsonArray: JSONArray? = nil
+                    jsonObject = (try? JSONSerialization.jsonObject(with: safeData, options: [])) as? JSON
+                    succeeded = parseResponse(jsonObject)
+                    if !succeeded {
+                        jsonArray = (try? JSONSerialization.jsonObject(with: safeData, options: [])) as? JSONArray
+                        succeeded = parseArrayResponse(jsonArray)
+                    }
                     print(jsonObject as Any)
-                    let succeeded = parseResponse(jsonObject)
+                    print(jsonArray as Any)
                     if !succeeded {
                         /**
                          The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
@@ -305,6 +337,30 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
             }
             task.resume()
         }
+    }
+    
+    func parseGetPublicGamesResponse(_ jsonArray: JSONArray?) -> Bool {
+        if let array = jsonArray {
+            for jsonObject in array {
+                print(jsonObject)
+            }
+            let games = array.flatMap(PublicGame.init)
+                for game in games {
+                    updatePublicGames(game)
+                }
+            if self.publicGames.count > 0 {
+                /**
+                 The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
+                 `invalid use of AppKit, UIKit, and other APIs from a background thread`
+                 */
+                DispatchQueue.main.async {
+                    print("Calling didGetPublicGames")
+                    self.delegate?.didGetPublicGames()
+                }
+            }
+            return true
+        }
+        return false
     }
     
     func parseNewGameResponse(_ jsonObject: JSON?) -> Bool {
