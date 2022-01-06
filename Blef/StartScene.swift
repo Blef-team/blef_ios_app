@@ -21,7 +21,6 @@ class StartScene: SKScene, GameManagerDelegate {
     var gameUuid: UUID?
     var player: Player?
     var playerNickname: String?
-    var publicGames: [Game] = []
     var isDisplayingMessage = false
     var preparingQuickGame = false
     var numberOfQuickGameAIAgents = 2
@@ -30,6 +29,7 @@ class StartScene: SKScene, GameManagerDelegate {
     override func didMove(to view: SKView) {
         
         self.gameManager.delegate = self
+        self.gameManager.getPublicGames()
         
         errorMessageLabel = SKLabelNode(fontNamed:"HelveticaNeue-UltraLight")
         errorMessageLabel.text = ""
@@ -93,13 +93,22 @@ class StartScene: SKScene, GameManagerDelegate {
     }
     
     func joinButtonPressed() {
-        if publicGames.count == 0 {
+        if gameManager.publicGames.count == 0 {
             return
         }
         if let label = joinLabel {
             pulseLabel(label)
         }
         moveToJoinScene()
+    }
+    
+    func didGetPublicGames() {
+        if self.gameManager.publicGames.count > 0 {
+            if let label = joinLabel {
+                fadeInNode(label)
+                slowPulseLabel(label)
+            }
+        }
     }
     
     func didCreateNewGame() {
