@@ -154,13 +154,14 @@ class StartScene: SKScene, GameManagerDelegate {
     }
     
     func moveToGameScene(_ player: Player) {
-        let gameScene = GameScene(fileNamed: "GameScene")
-        let transition = SKTransition.fade(withDuration: 1.0)
-        gameScene?.scaleMode = .aspectFit
-        gameScene?.gameUuid = gameUuid
-        gameScene?.player = player
-        gameScene?.gameManager = gameManager
-        scene?.view?.presentScene(gameScene!, transition: transition)
+        if let gameScene = GameScene(fileNamed: "GameScene") {
+            let transition = SKTransition.fade(withDuration: 1.0)
+            gameScene.scaleMode = .aspectFit
+            gameScene.gameUuid = gameUuid
+            gameScene.player = player
+            gameScene.gameManager = gameManager
+            scene?.view?.presentScene(gameScene, transition: transition)
+        }
     }
     
     func moveToJoinScene() {
