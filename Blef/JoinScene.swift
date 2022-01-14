@@ -13,6 +13,7 @@ import GameplayKit
 
 class JoinScene: SKScene {
     
+    var gameManager: GameManager?
     var messageLabel: SKLabelNode!
     var isDisplayingMessage = false
     
@@ -27,6 +28,5 @@ class JoinScene: SKScene {
         messageLabel.preferredMaxLayoutWidth = size.width * 0.8
         messageLabel.verticalAlignmentMode = .center
         self.addChild(messageLabel)
-
     }
 }

@@ -168,6 +168,7 @@ class StartScene: SKScene, GameManagerDelegate {
         if let joinScene = JoinScene(fileNamed: "JoinScene") {
             let transition = SKTransition.fade(withDuration: 0.5)
             joinScene.scaleMode = .aspectFit
+            joinScene.gameManager = gameManager
             scene?.view?.presentScene(joinScene, transition: transition)
         }
     }
