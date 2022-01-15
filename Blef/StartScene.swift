@@ -197,17 +197,17 @@ class StartScene: SKScene, GameManagerDelegate {
     }
     
     func clearStartUI() {
-        errorMessageLabel.removeFromParent()
         errorMessageLabel.alpha = 0.0
         joinLabel?.removeAllActions()
+        fadeOutNode(joinLabel)
         fadeOutNode(customGameLabel)
+        fadeOutNode(quickGameLabel)
     }
  
     func displayMessage(_ message: String) {
         isDisplayingMessage = true
         clearStartUI()
         errorMessageLabel.text = message
-        self.addChild(errorMessageLabel)
         fadeInNode(errorMessageLabel)
     }
     
@@ -215,6 +215,7 @@ class StartScene: SKScene, GameManagerDelegate {
         isDisplayingMessage = false
         fadeOutNode(errorMessageLabel)
         fadeInNode(customGameLabel)
+        fadeInNode(quickGameLabel)
     }
     
 }
