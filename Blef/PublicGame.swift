@@ -11,7 +11,7 @@ import Foundation
 struct PublicGame {
     var uuid: UUID
     var room: Int
-    var players: [PlayerInfo]?
+    var players: [String]?
     var isPublic: Bool?
     var lastModified: Int
 }
@@ -28,10 +28,8 @@ extension PublicGame {
         }
         self.uuid = uuid
         
-        if let playersJson = json["players"] as? [Dictionary<String, Any>] {
-            if let players = playersJson.map({ PlayerInfo(json: $0)}) as? [PlayerInfo] {
-                self.players = players
-            }
+        if let players = json["players"] as? [String] {
+            self.players = players
         }
         
         if let isPublicString = json["public"] as? String {
