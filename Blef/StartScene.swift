@@ -77,7 +77,7 @@ class StartScene: SKScene, GameManagerDelegate {
         if let label = quickGameLabel {
             pulseLabel(label)
         }
-        if preparingQuickGame {
+        if preparingQuickGame || preparingCustomGame {
             return
         }
         preparingQuickGame = true
@@ -90,7 +90,7 @@ class StartScene: SKScene, GameManagerDelegate {
         if let label = customGameLabel {
             pulseLabel(label)
         }
-        if preparingCustomGame {
+        if preparingCustomGame || preparingQuickGame {
             return
         }
         preparingCustomGame = true
@@ -105,6 +105,9 @@ class StartScene: SKScene, GameManagerDelegate {
         }
         if let label = joinLabel {
             pulseLabel(label)
+        }
+        if preparingCustomGame || preparingQuickGame {
+            return
         }
         moveToJoinScene()
     }
