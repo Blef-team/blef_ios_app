@@ -483,6 +483,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     
     func displayHands(_ hands: [NamedHand]) {
         if let revealCardSprites = revealCardSprites, let revealNicknameLabels = revealNicknameLabels {
+            fadeOutNode(messageLabel)
             displayMessage("")
             
             var playerIndex = 0
@@ -843,7 +844,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func clearGameLabels() {
-        messageLabel.removeFromParent()
         messageLabel.alpha = 0.0
         shareLabel?.removeAllActions()
         inviteAILabel?.removeAllActions()
@@ -871,7 +871,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         isDisplayingMessage = true
         clearGameLabels()
         messageLabel.text = message
-        self.addChild(messageLabel)
         fadeInNode(messageLabel)
     }
     
