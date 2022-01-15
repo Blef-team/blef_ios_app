@@ -16,7 +16,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     var gameUpdateInterval = 0.05
     var gameUpdateTimer: Timer?
     var gameUpdateScheduled: Bool?
-    var gameUuid: UUID?
     var player: Player?
     var game: Game?
     var lastBet: Action?

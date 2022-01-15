@@ -18,7 +18,6 @@ class StartScene: SKScene, GameManagerDelegate {
     var quickGameLabel: SKNode?
     var joinLabel: SKNode?
     var errorMessageLabel: SKLabelNode!
-    var gameUuid: UUID?
     var player: Player?
     var playerNickname: String?
     var isDisplayingMessage = false
@@ -157,7 +156,6 @@ class StartScene: SKScene, GameManagerDelegate {
         if let gameScene = GameScene(fileNamed: "GameScene") {
             let transition = SKTransition.fade(withDuration: 1.0)
             gameScene.scaleMode = .aspectFit
-            gameScene.gameUuid = gameUuid
             gameScene.player = player
             gameScene.gameManager = gameManager
             scene?.view?.presentScene(gameScene, transition: transition)
