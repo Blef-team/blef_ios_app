@@ -101,7 +101,11 @@ class JoinScene: SKScene, GameManagerDelegate {
         if preparingToJoin {
             return
         }
-        if let gameManager = gameManager, let uuid = UUID(uuidString: name), let _ = gameManager.publicGames[uuid] {
+        if let gameManager = gameManager, let uuid = UUID(uuidString: name), let game = gameManager.publicGames[uuid] {
+            if game.players?.count ?? 0 >= 8 {
+                displayMessage("Room \(game.room) is full")
+                return
+            }
             preparingToJoin = true
             let nickname = generatePlayerNickname()
             gameManager.gameUuid = uuid
