@@ -21,6 +21,7 @@ class StartScene: SKScene, GameManagerDelegate {
     var player: Player?
     var playerNickname: String?
     var isDisplayingMessage = false
+    var preparingCustomGame = false
     var preparingQuickGame = false
     var numberOfQuickGameAIAgents = 2
     var invitedAIs = 0
@@ -76,6 +77,9 @@ class StartScene: SKScene, GameManagerDelegate {
         if let label = quickGameLabel {
             pulseLabel(label)
         }
+        if preparingQuickGame {
+            return
+        }
         preparingQuickGame = true
         print("Going to attempt an API call")
         gameManager.createGame()
@@ -86,6 +90,10 @@ class StartScene: SKScene, GameManagerDelegate {
         if let label = customGameLabel {
             pulseLabel(label)
         }
+        if preparingCustomGame {
+            return
+        }
+        preparingCustomGame = true
         print("Going to attempt an API call")
         gameManager.createGame()
         print("Made API call")
@@ -153,6 +161,8 @@ class StartScene: SKScene, GameManagerDelegate {
     }
     
     func moveToGameScene(_ player: Player) {
+        preparingQuickGame = false
+        preparingCustomGame = false
         if let gameScene = GameScene(fileNamed: "GameScene") {
             let transition = SKTransition.fade(withDuration: 1.0)
             gameScene.scaleMode = .aspectFit
@@ -163,6 +173,8 @@ class StartScene: SKScene, GameManagerDelegate {
     }
     
     func moveToJoinScene() {
+        preparingQuickGame = false
+        preparingCustomGame = false
         if let joinScene = JoinScene(fileNamed: "JoinScene") {
             let transition = SKTransition.fade(withDuration: 0.5)
             joinScene.scaleMode = .aspectFit
@@ -174,6 +186,8 @@ class StartScene: SKScene, GameManagerDelegate {
     func didFailWithError(error: Error) {
         print("didFailWithError")
         print(error.localizedDescription)
+        preparingQuickGame = false
+        preparingCustomGame = false
         if error.localizedDescription == "Nickname already taken" {
             let nickname = generatePlayerNickname()
             gameManager.joinGame(nickname: nickname)
