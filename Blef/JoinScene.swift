@@ -201,7 +201,8 @@ class JoinScene: SKScene, GameManagerDelegate {
         
         let orderedPublicGames = publicGames.sorted { $0.value.lastModified < $1.value.lastModified }
         var roomIndex = 0
-        for (_, game) in orderedPublicGames {
+        let roomCount = min(roomSprites.count, roomLabels.count)
+        for (_, game) in orderedPublicGames.prefix(roomCount) {
             roomSprites[roomIndex].name = game.uuid.uuidString
             roomLabels[roomIndex].text = game.room.description
             fadeInNode(roomSprites[roomIndex])
