@@ -199,7 +199,7 @@ class JoinScene: SKScene, GameManagerDelegate {
             return
         }
         
-        let orderedPublicGames = publicGames.sorted { $0.value.lastModified < $1.value.lastModified }
+        let orderedPublicGames = publicGames.sorted { $0.value.lastModified > $1.value.lastModified }
         var roomIndex = 0
         let roomCount = min(roomSprites.count, roomLabels.count)
         for (_, game) in orderedPublicGames.prefix(roomCount) {
