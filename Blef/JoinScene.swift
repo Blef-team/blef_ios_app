@@ -69,9 +69,11 @@ class JoinScene: SKScene, GameManagerDelegate {
             let nodesarray = nodes(at: location)
             
             for node in nodesarray {
-                // If the Custom game button was tapped
-                if let name = node.name {
-                    pressedRoomSprite(name)
+                // If a room sprite was tapped
+                if let sprite = node as? SKSpriteNode, let name = node.name {
+                    if roomSprites.contains(sprite) {
+                        pressedRoomSprite(name)
+                    }
                 }
             }
         }
