@@ -15,9 +15,13 @@ class JoinScene: SKScene, GameManagerDelegate {
     
     var gameManager: GameManager?
     var messageLabel: SKLabelNode!
+    var joinLabel: SKNode?
+    var joinButton: SKNode?
     var player: Player?
     var playerNickname: String?
     var isDisplayingMessage = false
+    var isPresentingGameOverview = false
+    var presentedUuid: UUID?
     var preparingToJoin = false
     private var roomSprites: [SKSpriteNode] = []
     private var roomLabels: [SKLabelNode] = []
@@ -37,6 +41,11 @@ class JoinScene: SKScene, GameManagerDelegate {
         messageLabel.verticalAlignmentMode = .center
         self.addChild(messageLabel)
         
+        self.joinLabel = childNode(withName: "//joinLabel")
+        if let joinLabel = joinLabel {
+            joinLabel.alpha = 0
+        }
+        self.joinButton = childNode(withName: "//joinButton")
         
         roomSprites = []
         for roomIndex in 0...17 {
@@ -61,7 +70,16 @@ class JoinScene: SKScene, GameManagerDelegate {
      React to the users touches
      */
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if self.isDisplayingMessage {
+        if self.isPresentingGameOverview {
+            if let touch = touches.first, let joinButton = joinButton {
+                if nodes(at: touch.location(in: self)).contains(joinButton) {
+                    pressedJoinButton()
+                    return
+                }
+            }
+            clearGameOverview()
+        }
+        else if self.isDisplayingMessage {
             clearMessage()
         }
         else if let touch = touches.first {
@@ -103,26 +121,69 @@ class JoinScene: SKScene, GameManagerDelegate {
         if preparingToJoin {
             return
         }
-        if let gameManager = gameManager, let uuid = UUID(uuidString: name), let game = gameManager.publicGames[uuid] {
+        if let uuid = UUID(uuidString: name), let game = gameManager?.publicGames[uuid] {
             if game.players?.count ?? 0 >= 8 {
                 displayMessage("Room \(game.room) is full")
                 return
             }
-            preparingToJoin = true
-            let nickname = generatePlayerNickname()
-            gameManager.gameUuid = uuid
-            gameManager.joinGame(nickname: nickname)
-            self.playerNickname = nickname
+            displayGameOverview(uuid)
         }
     }
     
+    func pressedJoinButton() {
+        if let label = joinLabel {
+            pulseLabel(label)
+        }
+        if preparingToJoin {
+            return
+        }
+        guard let uuid = presentedUuid else {
+            return
+        }
+        
+        joinGame(uuid)
+    }
+    
+    func displayGameOverview(_ uuid: UUID) {
+        guard let game = gameManager?.publicGames[uuid] else {
+            return
+        }
+        isPresentingGameOverview = true
+        presentedUuid = uuid
+        var playersString = ""
+        if let players = game.players {
+            playersString = "Players in room \(game.room):\n"
+            playersString += players.joined(separator: "\n")
+        }
+        displayMessage(playersString)
+        fadeInNode(joinLabel)
+    }
+    
+    func clearGameOverview() {
+        isPresentingGameOverview = false
+        presentedUuid = nil
+        fadeOutNode(joinLabel)
+        clearMessage()
+    }
+    
+    func joinGame(_ uuid: UUID) {
+        guard let gameManager = gameManager else {
+            return
+        }
+        preparingToJoin = true
+        let nickname = generatePlayerNickname()
+        gameManager.gameUuid = uuid
+        gameManager.joinGame(nickname: nickname)
+        self.playerNickname = nickname
+    }
+    
     func moveToGameScene(_ player: Player) {
-        preparingToJoin = false
         if let gameScene = GameScene(fileNamed: "GameScene") {
             let transition = SKTransition.fade(withDuration: 1.0)
             gameScene.scaleMode = .aspectFit
             gameScene.player = player
             gameScene.gameManager = gameManager
+            preparingToJoin = false
             scene?.view?.presentScene(gameScene, transition: transition)
         }
     }
