@@ -153,7 +153,7 @@ class JoinScene: SKScene, GameManagerDelegate {
         var playersString = ""
         if let players = game.players {
             playersString = "Players in room \(game.room):\n"
-            playersString += players.joined(separator: "\n")
+            playersString += players.compactMap(formatDisplayNickname).joined(separator: "\n")
         }
         displayMessage(playersString)
         fadeInNode(joinLabel)
