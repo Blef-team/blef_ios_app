@@ -219,6 +219,7 @@ class StartScene: SKScene, GameManagerDelegate {
         fadeOutNode(errorMessageLabel)
         fadeInNode(customGameLabel)
         fadeInNode(quickGameLabel)
+        didGetPublicGames()
     }
     
 }

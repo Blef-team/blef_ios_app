@@ -56,7 +56,6 @@ func updateLabelText(_ label: SKLabelNode, _ newLabelText: String) {
 func fadeInNode(_ node: SKNode?) {
     if let node = node {
         node.removeAllActions()
-        node.alpha = 0.0
         node.run(SKAction.fadeIn(withDuration: 1.0))
     }
 }
