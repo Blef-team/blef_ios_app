@@ -46,6 +46,14 @@ extension GameManagerDelegate {
         print("GameManager started a game, but the result is not being used.")
         //this is a empty implementation to allow this method to be optional
     }
+    func didMakeGamePublic() {
+        print("GameManager made game public, but the result is not being used.")
+        //this is a empty implementation to allow this method to be optional
+    }
+    func didMakeGamePrivate() {
+        print("GameManager made game private, but the result is not being used.")
+        //this is a empty implementation to allow this method to be optional
+    }
     func didInviteAI() {
         print("GameManager invited an AI agent, but the result is not being used.")
         //this is a empty implementation to allow this method to be optional
@@ -245,6 +253,26 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
         }
     }
     
+    func makeGamePublic() {
+        if let gameUuidString = gameUuid?.uuidString.lowercased(), let playerUuidString = player?.uuid.uuidString.lowercased() {
+            let urlString = "\(GameEngineServiceURL)/\(gameUuidString)/make-public?admin_uuid=\(playerUuidString)"
+            print(urlString)
+            performRequest(with: urlString, parser: parsemakeGamePublicResponse(_:))
+        } else {
+            print("Game UUID missing in makeGamePublic!")
+        }
+    }
+    
+    func makeGamePrivate() {
+        if let gameUuidString = gameUuid?.uuidString.lowercased(), let playerUuidString = player?.uuid.uuidString.lowercased() {
+            let urlString = "\(GameEngineServiceURL)/\(gameUuidString)/make-private?admin_uuid=\(playerUuidString)"
+            print(urlString)
+            performRequest(with: urlString, parser: parsemakeGamePrivateResponse(_:))
+        } else {
+            print("Game UUID missing in makeGamePrivate!")
+        }
+    }
+    
     func inviteAI(_ agentName: String = "Dazhbog") {
         if let gameUuidString = gameUuid?.uuidString.lowercased(), let playerUuidString = player?.uuid.uuidString.lowercased() {
             let urlString = "\(GameEngineServiceURL)/\(gameUuidString)/invite-aiagent?admin_uuid=\(playerUuidString)&agent_name=\(agentName)"
@@ -441,6 +469,44 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
         return false
     }
     
+    func parsemakeGamePublicResponse(_ jsonObject: JSON?) -> Bool {
+        if let messageObject = jsonObject.flatMap(Message.init){
+            if messageObject.message != "Game made public" && messageObject.message != "Request redundant - game already public" {
+                return false
+            }
+            print(messageObject)
+            /**
+             The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
+             `invalid use of AppKit, UIKit, and other APIs from a background thread`
+             */
+            DispatchQueue.main.async {
+                print("Calling didMakeGamePublic")
+                self.delegate?.didMakeGamePublic()
+            }
+            return true
+        }
+        return false
+    }
+    
+    func parsemakeGamePrivateResponse(_ jsonObject: JSON?) -> Bool {
+        if let messageObject = jsonObject.flatMap(Message.init){
+            if messageObject.message != "Game made private" && messageObject.message != "Request redundant - game already private" {
+                return false
+            }
+            print(messageObject)
+            /**
+             The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
+             `invalid use of AppKit, UIKit, and other APIs from a background thread`
+             */
+            DispatchQueue.main.async {
+                print("Calling didMakeGamePublic")
+                self.delegate?.didMakeGamePrivate()
+            }
+            return true
+        }
+        return false
+    }
+
     func parseInviteAIResponse(_ jsonObject: JSON?) -> Bool {
         if let messageObject = jsonObject.flatMap(Message.init){
             if !messageObject.message.contains("(AI) joined the game") {
