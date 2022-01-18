@@ -43,6 +43,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     private var betSprites: [SKSpriteNode]?
     private var betLabel: SKLabelNode?
     private var helpLabelSprite: SKSpriteNode?
+    private var manageRoomLabel: SKLabelNode?
     
     override func didMove(to view: SKView) {
         
@@ -64,6 +65,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         playersLabel?.alpha = 0.0
         playersLabel?.numberOfLines = 0
         playersLabel?.preferredMaxLayoutWidth = 400
+        self.manageRoomLabel = self.childNode(withName: "//manageRoomLabel") as? SKLabelNode
+        self.manageRoomLabel?.alpha = 0.0
 
         self.actionPickerField = UITextField(frame: CGRect(x: UIScreen.main.bounds.size.width * 0.65, y: UIScreen.main.bounds.size.height * 0.2, width: 200, height: 30))
         
@@ -267,6 +270,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 }
                 if node.name == "inviteAIButton" {
                     inviteAIButtonPressed()
+                }
+                if node.name == "manageRoomButton" {
+                    manageRoomButtonPressed()
                 }
             }
         }
@@ -479,6 +485,14 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                         Reach too many cards and you're out of the game.
                         """
         displayMessage(gameRules)
+    }
+    
+    func manageRoomButtonPressed() {
+        if let player = self.player, let game = self.game {
+            if canManageRoom(game, player) {
+                print("Managing rooom \(game.room ?? -1)")
+            }
+        }
     }
     
     func displayHands(_ hands: [NamedHand]) {
@@ -812,6 +826,23 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
     }
     
+    func displayManageRoomLabel() {
+        guard let label = self.manageRoomLabel else {
+            return
+        }
+        if let player = self.player, let game = self.game, let room = game.room {
+            if canManageRoom(game, player) {
+                label.text = "Open a room"
+                if game.isPublic {
+                    label.text = "Room \(room)"
+                }
+                fadeInNode(label)
+                return
+            }
+        }
+        fadeOutNode(label)
+    }
+    
     func displayLabels() {
         displayCards()
         displayBet()
@@ -823,6 +854,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         displayStartGameLabel()
         displayPlayLabel()
         displayVictoryStatusMessage()
+        displayManageRoomLabel()
     }
     
     func getPlayerCardPosition(_ cardIndex: Int) -> CGPoint {
@@ -855,6 +887,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         fadeOutNode(currentPlayerLabel)
         fadeOutNode(playLabel)
         fadeOutNode(startGameLabel)
+        fadeOutNode(manageRoomLabel)
         if let actionPickerField = actionPickerField {
             actionPickerField.isHidden = true
         }
