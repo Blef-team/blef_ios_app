@@ -499,7 +499,7 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
              `invalid use of AppKit, UIKit, and other APIs from a background thread`
              */
             DispatchQueue.main.async {
-                print("Calling didMakeGamePublic")
+                print("Calling didMakeGamePrivate")
                 self.delegate?.didMakeGamePrivate()
             }
             return true
