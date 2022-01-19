@@ -180,6 +180,14 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         updateGame()
     }
     
+    func didMakeGamePublic() {
+        updateGame()
+    }
+    
+    func didMakeGamePrivate() {
+        updateGame()
+    }
+    
     func didUpdateGame(_ game: Game) {
         print(game)
         if game.lastModified < self.game?.lastModified ?? 0 {
@@ -490,7 +498,11 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     func manageRoomButtonPressed() {
         if let player = self.player, let game = self.game {
             if canManageRoom(game, player) {
-                print("Managing rooom \(game.room ?? -1)")
+                if game.isPublic {
+                    gameManager?.makeGamePrivate()
+                } else {
+                    gameManager?.makeGamePublic()
+                }
             }
         }
     }
