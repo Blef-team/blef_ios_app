@@ -26,6 +26,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     var pressedPlayButton = false
     var playerLost = false
     var roundNumber: Int?
+    var betScrollStartY: CGFloat = 0.0
+    var betScrollLastY: CGFloat = 0.0
+    var isBetScrolling = false
     private var startGameLabel: SKLabelNode?
     private var playLabel: SKLabelNode?
     private var actionPickerView : UIPickerView?
@@ -42,6 +45,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     private var cardLabels: [SKLabelNode]?
     private var betSprites: [SKSpriteNode]?
     private var betLabel: SKLabelNode?
+    private var betScrollNode: SKNode?
+    private var historyBets: [[SKSpriteNode]] = []
     private var helpLabelSprite: SKSpriteNode?
     private var manageRoomLabel: SKLabelNode?
     
@@ -131,11 +136,17 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             self.addChild(nicknameLabel)
         }
         
+        betScrollNode = SKNode()
+        if let betScrollNode = betScrollNode {
+            betScrollNode.position = getBetScrollNodePosition()
+            self.addChild(betScrollNode)
+        }
+                
         betSprites = []
         for cardIndex in 0...5 {
             let sprite = SKSpriteNode(texture: SKTexture(image: #imageLiteral(resourceName: "empty")), size: CGSize(width: 80, height: 80))
             sprite.position = getBetCardPosition(cardIndex)
-            addChild(sprite)
+            betScrollNode?.addChild(sprite)
             betSprites?.append(sprite)
         }
         self.betLabel = self.childNode(withName: "//betLabel") as? SKLabelNode
@@ -246,6 +257,12 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     
     func touchDown(atPoint pos : CGPoint) {
         self.view?.endEditing(true)
+        let nodesarray = nodes(at: pos)
+        for node in nodesarray {
+            if node.name == "betScrollArea" {
+                isBetScrolling = true
+            }
+        }
     }
     
     func touchMoved(toPoint pos : CGPoint) {
@@ -253,6 +270,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func touchUp(atPoint pos : CGPoint) {
+        isBetScrolling = false
         if self.isDisplayingMessage {
             clearMessage()
         }
@@ -288,10 +306,23 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         for t in touches { self.touchDown(atPoint: t.location(in: self)) }
+        if let yLocation = touches.first?.location(in: self).y {
+            betScrollStartY = yLocation
+            betScrollLastY = yLocation
+        }
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchMoved(toPoint: t.location(in: self)) }
+        for t in touches {
+            let pos = t.location(in: self)
+            self.touchMoved(toPoint: pos)
+            
+            if isBetScrolling {
+                moveBetScroll(pos.y)
+            }
+        }
+        
+        
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -362,6 +393,37 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     func resetGameUpdateTimer() {
         pauseGameUpdateTimer()
         resumeGameUpdateTimer()
+    }
+    
+    func moveBetScroll(_ currentY: CGFloat) {
+        guard let betScrollNode = betScrollNode else {
+            isBetScrolling = false
+            return
+        }
+        
+        // Set Top and Bottom scroll distances
+        let topLimit = getTopScrollLimit()
+        let bottomLimit = CGFloat(0)
+
+        // Set scrolling speed - Higher number is faster speed
+        let scrollSpeed:CGFloat = 1.0
+
+        // Calculate distance moved since last touch registered and add it to current position
+        let newY = betScrollNode.position.y + ((currentY - betScrollLastY)*scrollSpeed)
+
+        // Perform checks to see if new position will be over the limits, otherwise set as new position
+        if newY < -topLimit {
+            betScrollNode.position = CGPoint(x: betScrollNode.position.x, y: -topLimit)
+        }
+        else if newY > bottomLimit {
+            betScrollNode.position = CGPoint(x: betScrollNode.position.x, y: bottomLimit)
+        }
+        else {
+            betScrollNode.position = CGPoint(x: betScrollNode.position.x, y: newY)
+        }
+
+        // Set new last location for next time
+        betScrollLastY = currentY
     }
     
     func startGameButtonPressed() {
@@ -644,6 +706,32 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
     }
     
+    func updateHistoryBets() {
+        guard let betScrollNode = betScrollNode, let game = game, let history = game.history else {
+            return
+        }
+        betScrollNode.position.y -= getCardSize().height
+        let newPosition = getBetScrollNodePosition()
+        let scrollAction = SKAction.move(to: newPosition, duration: TimeInterval(0.5))
+        betScrollNode.run(scrollAction)
+        betScrollNode.removeAllChildren()
+        for (betIndex, bet) in history.enumerated() {
+            if let images = BetToCards[bet.action] {
+                var newBetSprites: [SKSpriteNode] = []
+                for (cardIndex, cardImage) in images.enumerated() {
+                    let sprite = SKSpriteNode(texture: SKTexture(image: cardImage), size: getCardSize())
+                    sprite.position = getBetCardPosition(cardIndex, withBetIndexOffset: history.count - betIndex - 1)
+                    if isDisplayingMessage {
+                        sprite.alpha = 0
+                    }
+                    betScrollNode.addChild(sprite)
+                    newBetSprites.append(sprite)
+                }
+                historyBets.append(newBetSprites)
+            }
+        }
+    }
+    
     func clearCardAndBetLabelsAtRoundStart() {
         /*
          Clear cardLabels amd betLabel at round start
@@ -701,6 +789,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         updateCurrentPlayerLabel()
         updatePlayersLabel()
         updateLastBet()
+        updateHistoryBets()
         updateCards()
     }
     
@@ -838,6 +927,22 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
     }
     
+    func displayHistoryBets() {
+        for sprites in historyBets {
+            for sprite in sprites {
+                fadeInNode(sprite)
+            }
+        }
+    }
+    
+    func clearHistoryBets() {
+        for sprites in historyBets {
+            for sprite in sprites {
+                fadeOutNode(sprite)
+            }
+        }
+    }
+    
     func displayManageRoomLabel() {
         guard let label = self.manageRoomLabel else {
             return
@@ -858,6 +963,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     func displayLabels() {
         displayCards()
         displayBet()
+        displayHistoryBets()
         displayPlayersLabel()
         displayExitLabel()
         displayHelpLabelSprite()
@@ -883,8 +989,23 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         return CGPoint(x: size.width * -0.15 + xOffset, y: size.width * 0.2 + yOffset)
     }
     
-    func getBetCardPosition(_ cardIndex: Int) -> CGPoint {
-        return CGPoint(x: size.width * -0.35 + CGFloat(60*cardIndex), y: size.height * 0)
+    func getBetCardPosition(_ cardIndex: Int, withBetIndexOffset yOffset: Int = 0) -> CGPoint {
+        return CGPoint(x: CGFloat(60*cardIndex), y: CGFloat(80*yOffset))
+    }
+    
+    func getCardSize() -> CGSize {
+        return CGSize(width: 80, height: 80)
+    }
+    
+    func getBetScrollNodePosition(offsetByNumBets: Int = 0) -> CGPoint {
+        return CGPoint(x: size.width * -0.35, y: CGFloat(-max(0, offsetByNumBets)) * getCardSize().height)
+    }
+    
+    func getTopScrollLimit() -> CGFloat{
+        guard let game = game, let history = game.history else {
+            return CGFloat(0)
+        }
+        return CGFloat(80*(history.count-1))
     }
     
     func clearGameLabels() {
@@ -910,6 +1031,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         for sprite in betSprites ?? [] {
             fadeOutNode(sprite)
         }
+        clearHistoryBets()
     }
     
     func displayMessage(_ message: String) {
