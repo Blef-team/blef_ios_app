@@ -43,7 +43,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     private var revealCardSprites: [[SKSpriteNode]]?
     private var revealNicknameLabels: [SKLabelNode]?
     private var cardLabels: [SKLabelNode]?
-    private var betSprites: [SKSpriteNode]?
     private var betLabel: SKLabelNode?
     private var betScrollNode: SKNode?
     private var historyBets: [[SKSpriteNode]] = []
@@ -141,14 +140,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             betScrollNode.position = getBetScrollNodePosition()
             self.addChild(betScrollNode)
         }
-                
-        betSprites = []
-        for cardIndex in 0...5 {
-            let sprite = SKSpriteNode(texture: SKTexture(image: #imageLiteral(resourceName: "empty")), size: CGSize(width: 80, height: 80))
-            sprite.position = getBetCardPosition(cardIndex)
-            betScrollNode?.addChild(sprite)
-            betSprites?.append(sprite)
-        }
+        
         self.betLabel = self.childNode(withName: "//betLabel") as? SKLabelNode
         if let betLabel = betLabel {
             betLabel.alpha = 0.0
@@ -683,30 +675,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
 
     }
     
-    func updateLastBet() {
-        // Update betSprites (and in emergency, betLabel text)
-        if let lastBet = lastBet {
-            if displayedBet != lastBet {
-                if let images = BetToCards[lastBet], let betSprites = betSprites {
-                    resetCardSprites(betSprites)
-                    for (cardIndex, image) in images.enumerated() {
-                        betSprites[cardIndex].texture = SKTexture(image: image)
-                    }
-                }
-                else if let betLabel = betLabel {
-                    updateLabelText(betLabel, String(describing: lastBet))
-                }
-                self.displayedBet = lastBet
-            }
-        }
-        else {
-            if let betSprites = betSprites {
-                resetCardSprites(betSprites)
-                self.displayedBet = nil
-            }
-        }
-    }
-    
     func updateHistoryBets() {
         guard let betScrollNode = betScrollNode, let game = game, let history = game.history else {
             return
@@ -792,7 +760,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     func updateLabelValues() {
         updateCurrentPlayerLabel()
         updatePlayersLabel()
-        updateLastBet()
         updateHistoryBets()
         updateCards()
     }
@@ -925,12 +892,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
     }
     
-    func displayBet() {
-        for sprite in betSprites ?? [] {
-            fadeInNode(sprite)
-        }
-    }
-    
     func updateHistoryBetsAlpha() {
         guard let betScrollNode = betScrollNode else {
             return
@@ -979,7 +940,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     
     func displayLabels() {
         displayCards()
-        displayBet()
         displayPlayersLabel()
         displayExitLabel()
         displayHelpLabelSprite()
@@ -1040,11 +1000,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         if let actionPickerField = actionPickerField {
             actionPickerField.isHidden = true
         }
-        
         for sprite in playerCardSprites ?? [] {
-            fadeOutNode(sprite)
-        }
-        for sprite in betSprites ?? [] {
             fadeOutNode(sprite)
         }
         clearHistoryBets()
