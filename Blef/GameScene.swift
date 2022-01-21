@@ -1005,7 +1005,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         guard let game = game, let history = game.history else {
             return CGFloat(0)
         }
-        return CGFloat(80*(history.count-1))
+        return getCardSize().height * CGFloat((history.count-1))
     }
     
     func clearGameLabels() {
