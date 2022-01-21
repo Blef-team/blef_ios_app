@@ -336,6 +336,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
+        updateHistoryBetsAlpha()
     }
     
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
@@ -714,6 +715,11 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         let newPosition = getBetScrollNodePosition()
         let scrollAction = SKAction.move(to: newPosition, duration: TimeInterval(0.5))
         betScrollNode.run(scrollAction)
+        for sprites in historyBets {
+            for sprite in sprites {
+                sprite.alpha = 0
+            }
+        }
         betScrollNode.removeAllChildren()
         for (betIndex, bet) in history.enumerated() {
             if let images = BetToCards[bet.action] {
@@ -721,9 +727,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 for (cardIndex, cardImage) in images.enumerated() {
                     let sprite = SKSpriteNode(texture: SKTexture(image: cardImage), size: getCardSize())
                     sprite.position = getBetCardPosition(cardIndex, withBetIndexOffset: history.count - betIndex - 1)
-                    if isDisplayingMessage {
-                        sprite.alpha = 0
-                    }
+                    sprite.alpha = 0
                     betScrollNode.addChild(sprite)
                     newBetSprites.append(sprite)
                 }
@@ -927,14 +931,27 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
     }
     
-    func displayHistoryBets() {
+    func updateHistoryBetsAlpha() {
+        guard let betScrollNode = betScrollNode else {
+            return
+        }
+        if isDisplayingMessage {
+            return
+        }
+        let yDisplacement = betScrollNode.position.y - getBetScrollNodePosition().y
+        let cardHeight = getCardSize().height
         for sprites in historyBets {
             for sprite in sprites {
-                fadeInNode(sprite)
+                updateBetSpriteAlpha(sprite, with: yDisplacement, range: cardHeight)
             }
         }
     }
     
+    func updateBetSpriteAlpha(_ sprite: SKSpriteNode, with displacement: CGFloat, range: CGFloat) {
+        let distanceRatio = (sprite.position.y - (-displacement)) / range
+        sprite.alpha = 1 - min(1.0, max(0, abs(distanceRatio)))
+    }
+        
     func clearHistoryBets() {
         for sprites in historyBets {
             for sprite in sprites {
@@ -963,7 +980,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     func displayLabels() {
         displayCards()
         displayBet()
-        displayHistoryBets()
         displayPlayersLabel()
         displayExitLabel()
         displayHelpLabelSprite()
