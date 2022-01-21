@@ -201,7 +201,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     
     func didUpdateGame(_ game: Game) {
         print(game)
-        if game.lastModified < self.game?.lastModified ?? 0 {
+        if game.lastModified <= self.game?.lastModified ?? 0 {
             if let receivedHands = game.hands {
                 if game.roundNumber < self.game?.roundNumber ?? 0 && game.hands?.count ?? 0 > 1 {
                     print("Received an old game state update, but will display hands")
