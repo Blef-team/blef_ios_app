@@ -844,7 +844,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
         if let player = self.player, let game = self.game, let room = game.room {
             if canManageRoom(game, player) {
-                label.text = "Open a room"
+                label.text = "Open the room"
                 if game.isPublic {
                     label.text = "Room \(room)"
                 }
