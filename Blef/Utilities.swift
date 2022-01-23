@@ -116,6 +116,13 @@ func canInviteAI(_ game: Game, _ player: Player, _ players: [PlayerInfo]?) -> Bo
     return game.status == .notStarted && game.adminNickname == player.nickname && (players?.count ?? 0) < 8
 }
 
+func canManageRoom(_ game: Game, _ player: Player) -> Bool {
+    if game.room == nil {
+        return false
+    }
+    return game.status == .notStarted && game.adminNickname == player.nickname
+}
+
 func generatePlayerNickname() -> String {
     guard let randomNames = Nicknames.randomElement(), let animal = randomNames.animals.randomElement(), let adjective = randomNames.adjectives.randomElement() else {
         let number = Int.random(in: 999 ... 9999)
