@@ -10,6 +10,7 @@ import Foundation
 
 struct Game {
     var adminNickname: String?
+    var room: Int?
     var isPublic: Bool
     var status: Status
     var roundNumber: Int
@@ -25,6 +26,10 @@ extension Game {
     init?(json: JSON) {
         if let adminNickname = json["admin_nickname"] as? String {
             self.adminNickname = adminNickname
+        }
+        
+        if let room = json["room"] as? Int {
+            self.room = room
         }
         
         guard let isPublicString = json["public"] as? String else {

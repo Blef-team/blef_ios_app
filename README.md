@@ -35,4 +35,7 @@ The current bet is displayed in the middle of the screen. The game will wait unt
 For information about the game engine API service, please check out the [Blef Game Engine repo](https://github.com/Blef-team/blef_game_engine).
 
 ### Attribution
+
 Card image assets were created by [Simon (aussiesim)](https://game-icons.net), licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/), and were adapted and modifed by Blef Team.
+
+Door icon assets were created by [inkubators - Flaticon](https://www.flaticon.com/authors/inkubators) ([license](https://www.freepikcompany.com/legal#nav-flaticon-agreement)), and were adapted and modified by Blef Team.

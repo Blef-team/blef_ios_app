@@ -12,9 +12,13 @@
 		47334E5A2452EA3900F9D4BD /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47334E592452EA3900F9D4BD /* Player.swift */; };
 		47334E5C2452FCC500F9D4BD /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47334E5B2452FCC500F9D4BD /* Utilities.swift */; };
 		47334E5E245308D400F9D4BD /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47334E5D245308D400F9D4BD /* Message.swift */; };
+		4736293427825F21005D0F7D /* JoinScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4736293327825F21005D0F7D /* JoinScene.swift */; };
+		4736293627826BC5005D0F7D /* JoinScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 4736293527826BC5005D0F7D /* JoinScene.sks */; };
 		47625DD7244A38CC0041E62D /* NewGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47625DD6244A38CC0041E62D /* NewGame.swift */; };
 		47625DD9244A44FF0041E62D /* ErrorResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47625DD8244A44FF0041E62D /* ErrorResponse.swift */; };
 		4765F4F6245CCB9E002A31CA /* Nicknames.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4765F4F5245CCB9E002A31CA /* Nicknames.swift */; };
+		477C1CB82786507B0037B3BE /* JSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477C1CB72786507A0037B3BE /* JSON.swift */; };
+		477C1CBA2786712A0037B3BE /* PublicGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477C1CB92786712A0037B3BE /* PublicGame.swift */; };
 		479E2A0B244744EC004BF702 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479E2A0A244744EC004BF702 /* AppDelegate.swift */; };
 		479E2A0D244744EC004BF702 /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 479E2A0C244744EC004BF702 /* GameScene.sks */; };
 		479E2A0F244744EC004BF702 /* Actions.sks in Resources */ = {isa = PBXBuildFile; fileRef = 479E2A0E244744EC004BF702 /* Actions.sks */; };
@@ -60,9 +64,13 @@
 		47334E592452EA3900F9D4BD /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		47334E5B2452FCC500F9D4BD /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		47334E5D245308D400F9D4BD /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
+		4736293327825F21005D0F7D /* JoinScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinScene.swift; sourceTree = "<group>"; };
+		4736293527826BC5005D0F7D /* JoinScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = JoinScene.sks; sourceTree = "<group>"; };
 		47625DD6244A38CC0041E62D /* NewGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewGame.swift; sourceTree = "<group>"; };
 		47625DD8244A44FF0041E62D /* ErrorResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorResponse.swift; sourceTree = "<group>"; };
 		4765F4F5245CCB9E002A31CA /* Nicknames.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Nicknames.swift; sourceTree = "<group>"; };
+		477C1CB72786507A0037B3BE /* JSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSON.swift; sourceTree = "<group>"; };
+		477C1CB92786712A0037B3BE /* PublicGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicGame.swift; sourceTree = "<group>"; };
 		479E2A07244744EC004BF702 /* Blef.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Blef.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		479E2A0A244744EC004BF702 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		479E2A0C244744EC004BF702 /* GameScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameScene.sks; sourceTree = "<group>"; };
@@ -135,6 +143,7 @@
 			isa = PBXGroup;
 			children = (
 				47625DD8244A44FF0041E62D /* ErrorResponse.swift */,
+				477C1CB72786507A0037B3BE /* JSON.swift */,
 				4765F4F5245CCB9E002A31CA /* Nicknames.swift */,
 				472E2080244979C2005915A0 /* GameManager.swift */,
 				47F035F6244B0BFE000136C1 /* Game.swift */,
@@ -142,6 +151,7 @@
 				47334E5D245308D400F9D4BD /* Message.swift */,
 				47334E592452EA3900F9D4BD /* Player.swift */,
 				47625DD6244A38CC0041E62D /* NewGame.swift */,
+				477C1CB92786712A0037B3BE /* PublicGame.swift */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -177,7 +187,9 @@
 				479E2A0C244744EC004BF702 /* GameScene.sks */,
 				479E2A10244744EC004BF702 /* GameScene.swift */,
 				47F2E91B2448BF37006DCB5C /* StartScene.sks */,
+				4736293527826BC5005D0F7D /* JoinScene.sks */,
 				47F2E91D2448C268006DCB5C /* StartScene.swift */,
+				4736293327825F21005D0F7D /* JoinScene.swift */,
 				47334E5B2452FCC500F9D4BD /* Utilities.swift */,
 				47625DDB244A48F00041E62D /* Model */,
 				479E2A12244744EC004BF702 /* GameViewController.swift */,
@@ -324,6 +336,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4736293627826BC5005D0F7D /* JoinScene.sks in Resources */,
 				479E2A16244744EC004BF702 /* Main.storyboard in Resources */,
 				479E2A0D244744EC004BF702 /* GameScene.sks in Resources */,
 				479E2A18244744EF004BF702 /* Assets.xcassets in Resources */,
@@ -427,10 +440,13 @@
 				47A21E81245E4DC500286A71 /* BetToCards.swift in Sources */,
 				479E2A13244744EC004BF702 /* GameViewController.swift in Sources */,
 				47625DD7244A38CC0041E62D /* NewGame.swift in Sources */,
+				477C1CBA2786712A0037B3BE /* PublicGame.swift in Sources */,
 				479E2A0B244744EC004BF702 /* AppDelegate.swift in Sources */,
 				47F2E91E2448C268006DCB5C /* StartScene.swift in Sources */,
+				477C1CB82786507B0037B3BE /* JSON.swift in Sources */,
 				472E2081244979C2005915A0 /* GameManager.swift in Sources */,
 				47334E5E245308D400F9D4BD /* Message.swift in Sources */,
+				4736293427825F21005D0F7D /* JoinScene.swift in Sources */,
 				47334E5C2452FCC500F9D4BD /* Utilities.swift in Sources */,
 				47625DD9244A44FF0041E62D /* ErrorResponse.swift in Sources */,
 				47334E5A2452EA3900F9D4BD /* Player.swift in Sources */,

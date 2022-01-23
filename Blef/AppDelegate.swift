@@ -14,7 +14,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GameManagerDelegate {
 
     var gameManager = GameManager()
     var playerNickname: String?
-    var gameUuid: UUID?
     var window: UIWindow?
 
 
@@ -50,7 +49,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GameManagerDelegate {
         
         self.gameManager.delegate = self
         playerNickname = generatePlayerNickname()
-        self.gameUuid = gameUuid
         if let playerNickname = playerNickname {
             gameManager.joinGame(nickname: playerNickname)
         }
@@ -64,7 +62,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GameManagerDelegate {
         let gameScene = GameScene(fileNamed: "GameScene")
         let transition = SKTransition.fade(withDuration: 1.0)
         gameScene?.scaleMode = .aspectFit
-        gameScene?.gameUuid = gameUuid
         gameScene?.player = player
         (self.window?.rootViewController!.view as! SKView).presentScene(gameScene!, transition: transition)
     }

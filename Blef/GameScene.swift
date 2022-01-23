@@ -16,7 +16,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     var gameUpdateInterval = 0.05
     var gameUpdateTimer: Timer?
     var gameUpdateScheduled: Bool?
-    var gameUuid: UUID?
     var player: Player?
     var game: Game?
     var lastBet: Action?
@@ -484,6 +483,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     
     func displayHands(_ hands: [NamedHand]) {
         if let revealCardSprites = revealCardSprites, let revealNicknameLabels = revealNicknameLabels {
+            fadeOutNode(messageLabel)
             displayMessage("")
             
             var playerIndex = 0
@@ -715,8 +715,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             if game.status == .notStarted && canShare(game, players) {
                 if label.alpha < 1 {
                     fadeInNode(label)
-                }
-                else {
                     slowPulseLabel(label)
                 }
             }
@@ -733,8 +731,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             if game.status == .notStarted && canInviteAI(game, player, players) {
                 if label.alpha < 1 {
                     fadeInNode(label)
-                }
-                else {
                     slowPulseLabel(label)
                 }
             }
@@ -848,8 +844,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func clearGameLabels() {
-        messageLabel.removeFromParent()
         messageLabel.alpha = 0.0
+        shareLabel?.removeAllActions()
+        inviteAILabel?.removeAllActions()
         fadeOutNode(shareLabel)
         fadeOutNode(inviteAILabel)
         fadeOutNode(exitLabel)
@@ -874,7 +871,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         isDisplayingMessage = true
         clearGameLabels()
         messageLabel.text = message
-        self.addChild(messageLabel)
         fadeInNode(messageLabel)
     }
     

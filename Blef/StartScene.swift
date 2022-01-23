@@ -16,11 +16,12 @@ class StartScene: SKScene, GameManagerDelegate {
     var gameManager = GameManager()
     var customGameLabel: SKNode?
     var quickGameLabel: SKNode?
+    var joinLabel: SKNode?
     var errorMessageLabel: SKLabelNode!
-    var gameUuid: UUID?
     var player: Player?
     var playerNickname: String?
     var isDisplayingMessage = false
+    var preparingCustomGame = false
     var preparingQuickGame = false
     var numberOfQuickGameAIAgents = 2
     var invitedAIs = 0
@@ -28,6 +29,7 @@ class StartScene: SKScene, GameManagerDelegate {
     override func didMove(to view: SKView) {
         
         self.gameManager.delegate = self
+        self.gameManager.getPublicGames()
         
         errorMessageLabel = SKLabelNode(fontNamed:"HelveticaNeue-UltraLight")
         errorMessageLabel.text = ""
@@ -37,7 +39,10 @@ class StartScene: SKScene, GameManagerDelegate {
         
         self.customGameLabel = childNode(withName: "//customGameLabel")
         self.quickGameLabel = childNode(withName: "//quickGameLabel")
-        
+        self.joinLabel = childNode(withName: "//joinLabel")
+        if let joinLabel = joinLabel {
+            joinLabel.alpha = 0
+        }
     }
     
     /**
@@ -60,6 +65,10 @@ class StartScene: SKScene, GameManagerDelegate {
                 if node.name == "quickGameButton" {
                     quickGameButtonPressed()
                 }
+                // If the Join button was tapped
+                if node.name == "joinButton" {
+                    joinButtonPressed()
+                }
             }
         }
     }
@@ -67,6 +76,9 @@ class StartScene: SKScene, GameManagerDelegate {
     func quickGameButtonPressed() {
         if let label = quickGameLabel {
             pulseLabel(label)
+        }
+        if preparingQuickGame || preparingCustomGame {
+            return
         }
         preparingQuickGame = true
         print("Going to attempt an API call")
@@ -78,9 +90,38 @@ class StartScene: SKScene, GameManagerDelegate {
         if let label = customGameLabel {
             pulseLabel(label)
         }
+        if preparingCustomGame || preparingQuickGame {
+            return
+        }
+        preparingCustomGame = true
         print("Going to attempt an API call")
         gameManager.createGame()
         print("Made API call")
+    }
+    
+    func joinButtonPressed() {
+        if gameManager.publicGames.count == 0 {
+            return
+        }
+        if let label = joinLabel {
+            pulseLabel(label)
+        }
+        if preparingCustomGame || preparingQuickGame {
+            return
+        }
+        moveToJoinScene()
+    }
+    
+    func didGetPublicGames() {
+        if let label = joinLabel {
+            if self.gameManager.publicGames.count > 0 {
+                fadeInNode(label)
+                slowPulseLabel(label)
+            } else {
+                label.removeAllActions()
+                fadeOutNode(label)
+            }
+        }
     }
     
     func didCreateNewGame() {
@@ -123,18 +164,33 @@ class StartScene: SKScene, GameManagerDelegate {
     }
     
     func moveToGameScene(_ player: Player) {
-        let gameScene = GameScene(fileNamed: "GameScene")
-        let transition = SKTransition.fade(withDuration: 1.0)
-        gameScene?.scaleMode = .aspectFit
-        gameScene?.gameUuid = gameUuid
-        gameScene?.player = player
-        gameScene?.gameManager = gameManager
-        scene?.view?.presentScene(gameScene!, transition: transition)
+        preparingQuickGame = false
+        preparingCustomGame = false
+        if let gameScene = GameScene(fileNamed: "GameScene") {
+            let transition = SKTransition.fade(withDuration: 1.0)
+            gameScene.scaleMode = .aspectFit
+            gameScene.player = player
+            gameScene.gameManager = gameManager
+            scene?.view?.presentScene(gameScene, transition: transition)
+        }
+    }
+    
+    func moveToJoinScene() {
+        preparingQuickGame = false
+        preparingCustomGame = false
+        if let joinScene = JoinScene(fileNamed: "JoinScene") {
+            let transition = SKTransition.fade(withDuration: 0.5)
+            joinScene.scaleMode = .aspectFit
+            joinScene.gameManager = gameManager
+            scene?.view?.presentScene(joinScene, transition: transition)
+        }
     }
     
     func didFailWithError(error: Error) {
         print("didFailWithError")
         print(error.localizedDescription)
+        preparingQuickGame = false
+        preparingCustomGame = false
         if error.localizedDescription == "Nickname already taken" {
             let nickname = generatePlayerNickname()
             gameManager.joinGame(nickname: nickname)
@@ -144,16 +200,17 @@ class StartScene: SKScene, GameManagerDelegate {
     }
     
     func clearStartUI() {
-        errorMessageLabel.removeFromParent()
         errorMessageLabel.alpha = 0.0
+        joinLabel?.removeAllActions()
+        fadeOutNode(joinLabel)
         fadeOutNode(customGameLabel)
+        fadeOutNode(quickGameLabel)
     }
  
     func displayMessage(_ message: String) {
         isDisplayingMessage = true
         clearStartUI()
         errorMessageLabel.text = message
-        self.addChild(errorMessageLabel)
         fadeInNode(errorMessageLabel)
     }
     
@@ -161,6 +218,8 @@ class StartScene: SKScene, GameManagerDelegate {
         isDisplayingMessage = false
         fadeOutNode(errorMessageLabel)
         fadeInNode(customGameLabel)
+        fadeInNode(quickGameLabel)
+        didGetPublicGames()
     }
     
 }
