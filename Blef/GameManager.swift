@@ -257,7 +257,7 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
         if let gameUuidString = gameUuid?.uuidString.lowercased(), let playerUuidString = player?.uuid.uuidString.lowercased() {
             let urlString = "\(GameEngineServiceURL)/\(gameUuidString)/make-public?admin_uuid=\(playerUuidString)"
             print(urlString)
-            performRequest(with: urlString, parser: parsemakeGamePublicResponse(_:))
+            performRequest(with: urlString, parser: parseMakeGamePublicResponse(_:))
         } else {
             print("Game UUID missing in makeGamePublic!")
         }
@@ -267,7 +267,7 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
         if let gameUuidString = gameUuid?.uuidString.lowercased(), let playerUuidString = player?.uuid.uuidString.lowercased() {
             let urlString = "\(GameEngineServiceURL)/\(gameUuidString)/make-private?admin_uuid=\(playerUuidString)"
             print(urlString)
-            performRequest(with: urlString, parser: parsemakeGamePrivateResponse(_:))
+            performRequest(with: urlString, parser: parseMakeGamePrivateResponse(_:))
         } else {
             print("Game UUID missing in makeGamePrivate!")
         }
@@ -469,7 +469,7 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
         return false
     }
     
-    func parsemakeGamePublicResponse(_ jsonObject: JSON?) -> Bool {
+    func parseMakeGamePublicResponse(_ jsonObject: JSON?) -> Bool {
         if let messageObject = jsonObject.flatMap(Message.init){
             if messageObject.message != "Game made public" && messageObject.message != "Request redundant - game already public" {
                 return false
@@ -488,7 +488,7 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
         return false
     }
     
-    func parsemakeGamePrivateResponse(_ jsonObject: JSON?) -> Bool {
+    func parseMakeGamePrivateResponse(_ jsonObject: JSON?) -> Bool {
         if let messageObject = jsonObject.flatMap(Message.init){
             if messageObject.message != "Game made private" && messageObject.message != "Request redundant - game already private" {
                 return false
