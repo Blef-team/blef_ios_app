@@ -649,6 +649,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
         }
         betScrollNode.removeAllChildren()
+        historyBets = []
         for (betIndex, bet) in history.enumerated() {
             if let images = BetToCards[bet.action] {
                 var newBetSprites: [SKSpriteNode] = []
