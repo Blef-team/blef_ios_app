@@ -113,6 +113,10 @@ class StartScene: SKScene, GameManagerDelegate {
     }
     
     func didGetPublicGames() {
+        displayJoinLabel()
+    }
+    
+    func displayJoinLabel() {
         if let label = joinLabel {
             if self.gameManager.publicGames.count > 0 {
                 fadeInNode(label)
@@ -219,7 +223,7 @@ class StartScene: SKScene, GameManagerDelegate {
         fadeOutNode(errorMessageLabel)
         fadeInNode(customGameLabel)
         fadeInNode(quickGameLabel)
-        didGetPublicGames()
+        displayJoinLabel()
     }
     
 }
