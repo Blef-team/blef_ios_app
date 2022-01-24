@@ -37,7 +37,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     private var inviteAILabel : SKLabelNode?
     private var exitLabel : SKLabelNode?
     private var currentPlayerLabel : SKLabelNode?
-    private var playersLabel : SKLabelNode?
+    private var playerLabels : [SKLabelNode] = []
     private var actionPickerField: UITextField?
     private var playerCardSprites: [SKSpriteNode]?
     private var revealCardSprites: [[SKSpriteNode]]?
@@ -63,16 +63,17 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         inviteAILabel?.alpha = 0.0
         self.exitLabel = self.childNode(withName: "//exitLabel") as? SKLabelNode
         exitLabel?.alpha = 0.0
-        self.currentPlayerLabel = self.childNode(withName: "//currentPlayerLabel") as? SKLabelNode
-        currentPlayerLabel?.alpha = 0.0
-        self.playersLabel = self.childNode(withName: "//playersLabel") as? SKLabelNode
-        playersLabel?.alpha = 0.0
-        playersLabel?.numberOfLines = 0
-        playersLabel?.preferredMaxLayoutWidth = 400
+        for i in 1...8 {
+            if let label = self.childNode(withName: "//player\(i)Label") as? SKLabelNode {
+                label.text = ""
+                label.alpha = 0
+                self.playerLabels.append(label)
+            }
+        }
         self.manageRoomLabel = self.childNode(withName: "//manageRoomLabel") as? SKLabelNode
         self.manageRoomLabel?.alpha = 0.0
 
-        self.actionPickerField = UITextField(frame: CGRect(x: UIScreen.main.bounds.size.width * 0.65, y: UIScreen.main.bounds.size.height * 0.2, width: 200, height: 30))
+        self.actionPickerField = UITextField(frame: CGRect(x: UIScreen.main.bounds.size.width * 0.65, y: UIScreen.main.bounds.size.height * 0.4, width: 200, height: 30))
         
         actionPickerView = UIPickerView()
         actionPickerView?.dataSource = self
@@ -600,6 +601,39 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
         }
     }
+
+    func updatePlayerLabels() {
+        guard let game = self.game, let players = game.players, let player = player else {
+            return
+        }
+        for (i, playerObject) in players.enumerated() {
+            if i > playerLabels.endIndex {
+                continue
+            }
+            var displayNickname = formatDisplayNickname(playerObject.nickname)
+            if playerObject.nickname == player.nickname ?? "Player \(i)" {
+                displayNickname = "You"
+            }
+            var cardsStatus = ""
+            if playerObject.nCards > 0 {
+                if game.status == .running {
+                    cardsStatus = String(playerObject.nCards)
+                } else {
+                    cardsStatus = "won"
+                }
+            } else if game.status == .finished {
+                cardsStatus = "lost"
+            }
+            let label = playerLabels[i]
+            label.text = "\(displayNickname): \(cardsStatus)"
+            
+            if playerObject.nickname == game.currentPlayerNickname {
+                label.fontSize = 20
+            } else {
+                label.fontSize = 15
+            }
+        }
+    }
     
     func updateCurrentPlayerLabel() {
         // Update currentPlayerLabel
@@ -612,67 +646,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 newLabelText = "Current player: \(formatDisplayNickname(currentPlayer))"
             }
             updateLabelText(label, newLabelText)
+            fadeInNode(label)
         }
-    }
-    
-    func computePlayersStrings(_ game: Game, _ players: [PlayerInfo], _ player: Player) -> [String] {
-        // Construct strings describing each player
-        var playersStrings: [String] = []
-        if game.status == .notStarted {
-            for playerObject in players {
-                if player.nickname == playerObject.nickname {
-                    playersStrings.append("You")
-                }
-                else {
-                    playersStrings.append("\(formatDisplayNickname(playerObject.nickname))")
-                }
-            }
-        }
-        else if game.status == .finished {
-            for playerObject in players {
-                var statusString = ""
-                if playerObject.nCards == 0 {
-                    statusString = "lost"
-                }
-                else {
-                    statusString = "won"
-                }
-                if player.nickname == playerObject.nickname {
-                    playersStrings.append("You: \(statusString)")
-                }
-                else {
-                    playersStrings.append("\(formatDisplayNickname(playerObject.nickname)): \(statusString)")
-                }
-            }
-        }
-        else {
-            for playerObject in players {
-                var nCardsString = ""
-                if playerObject.nCards == 0 {
-                    nCardsString = "lost"
-                }
-                else {
-                    nCardsString = String(playerObject.nCards)
-                }
-                if player.nickname == playerObject.nickname {
-                    playersStrings.append("You: \(nCardsString)")
-                }
-                else {
-                    playersStrings.append("\(formatDisplayNickname(playerObject.nickname)): \(nCardsString)")
-                }
-            }
-        }
-        return playersStrings
-    }
-    
-    func updatePlayersLabel() {
-        // Update playersLabel
-        if let label = self.playersLabel, let game = self.game, let players = game.players, let player = player {
-            let playersStrings = computePlayersStrings(game, players, player)
-            let newLabelText = "Players: \(playersStrings.joined(separator: " | "))"
-            updateLabelText(label, newLabelText)
-        }
-
     }
     
     func updateHistoryBets() {
@@ -759,9 +734,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     
     func updateLabelValues() {
         updateCurrentPlayerLabel()
-        updatePlayersLabel()
         updateHistoryBets()
         updateCards()
+        updatePlayerLabels()
     }
     
     func updateGameUI() {
@@ -770,12 +745,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             return
         }
         displayLabels()
-    }
-    
-    func displayPlayersLabel() {
-        if let label = self.playersLabel {
-            fadeInNode(label)
-        }
     }
     
     func displayExitLabel() {
@@ -921,6 +890,12 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
     }
     
+    func clearPlayerLabels() {
+        for label in playerLabels {
+            fadeOutNode(label)
+        }
+    }
+    
     func displayManageRoomLabel() {
         guard let label = self.manageRoomLabel else {
             return
@@ -938,9 +913,14 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         fadeOutNode(label)
     }
     
+    func displayPlayerLabels() {
+        for label in playerLabels {
+            fadeInNode(label)
+        }
+    }
+    
     func displayLabels() {
         displayCards()
-        displayPlayersLabel()
         displayExitLabel()
         displayHelpLabelSprite()
         displayShareLabel()
@@ -949,6 +929,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         displayPlayLabel()
         displayVictoryStatusMessage()
         displayManageRoomLabel()
+        displayPlayerLabels()
     }
     
     func getPlayerCardPosition(_ cardIndex: Int) -> CGPoint {
@@ -992,7 +973,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         fadeOutNode(inviteAILabel)
         fadeOutNode(exitLabel)
         fadeOutNode(helpLabelSprite)
-        fadeOutNode(playersLabel)
         fadeOutNode(currentPlayerLabel)
         fadeOutNode(playLabel)
         fadeOutNode(startGameLabel)
@@ -1004,6 +984,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             fadeOutNode(sprite)
         }
         clearHistoryBets()
+        clearPlayerLabels()
     }
     
     func displayMessage(_ message: String) {
