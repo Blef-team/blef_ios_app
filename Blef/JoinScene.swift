@@ -14,6 +14,9 @@ import GameplayKit
 class JoinScene: SKScene, GameManagerDelegate {
     
     var gameManager: GameManager?
+    var gameUpdateInterval = 0.05
+    var gameUpdateTimer: Timer?
+    var gameUpdateScheduled: Bool?
     var messageLabel: SKLabelNode!
     var joinLabel: SKNode?
     var joinButton: SKNode?
@@ -68,6 +71,7 @@ class JoinScene: SKScene, GameManagerDelegate {
         }
         
         displayRooms()
+        resumeGameUpdateTimer()
     }
     
     /**
@@ -101,6 +105,29 @@ class JoinScene: SKScene, GameManagerDelegate {
         }
     }
     
+    func resumeGameUpdateTimer() {
+        gameManager?.resetWatchGameWebsocket()
+        gameUpdateTimer = Timer.scheduledTimer(timeInterval: self.gameUpdateInterval, target: self, selector: #selector(updatePublicGames), userInfo: nil, repeats: true)
+        gameUpdateScheduled = true
+    }
+    
+    func pauseGameUpdateTimer() {
+        if let timer = gameUpdateTimer {
+            gameManager?.closeWatchGameWebsocket()
+            timer.invalidate()
+            gameUpdateScheduled = false
+        }
+    }
+    
+    func resetGameUpdateTimer() {
+        pauseGameUpdateTimer()
+        resumeGameUpdateTimer()
+    }
+    
+    @objc func updatePublicGames() {
+        gameManager?.receiveWatchGameWebsocket()
+    }
+    
     func didFailWithError(error: Error) {
         print("didFailWithError")
         print(error.localizedDescription)
@@ -111,6 +138,10 @@ class JoinScene: SKScene, GameManagerDelegate {
             self.playerNickname = nickname
         }
         displayMessage("Something went wrong. Try again.")
+    }
+    
+    func didUpdatePublicGames() {
+        displayRooms()
     }
     
     func didJoinGame(_ player: Player) {
