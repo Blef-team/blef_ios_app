@@ -14,7 +14,7 @@ var errorMessageLabel: SKLabelNode?
 class StartScene: SKScene, GameManagerDelegate {
     
     var gameManager = GameManager()
-    var gameUpdateInterval = 0.1
+    var gameUpdateInterval = 0.05
     var gameUpdateTimer: Timer?
     var gameUpdateScheduled: Bool?
     var customGameLabel: SKNode?
