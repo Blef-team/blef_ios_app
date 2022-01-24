@@ -27,7 +27,7 @@ extension Int {
 }
 
 extension SKNode {
-    func addGlow(radius:CGFloat=10) {
+    func addGlow(radius:CGFloat=5) {
         if hasEffect() {
             return
         }
