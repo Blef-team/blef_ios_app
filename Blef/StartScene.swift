@@ -14,6 +14,9 @@ var errorMessageLabel: SKLabelNode?
 class StartScene: SKScene, GameManagerDelegate {
     
     var gameManager = GameManager()
+    var gameUpdateInterval = 0.1
+    var gameUpdateTimer: Timer?
+    var gameUpdateScheduled: Bool?
     var customGameLabel: SKNode?
     var quickGameLabel: SKNode?
     var joinLabel: SKNode?
@@ -43,6 +46,8 @@ class StartScene: SKScene, GameManagerDelegate {
         if let joinLabel = joinLabel {
             joinLabel.alpha = 0
         }
+        
+        resumeGameUpdateTimer()
     }
     
     /**
@@ -71,6 +76,25 @@ class StartScene: SKScene, GameManagerDelegate {
                 }
             }
         }
+    }
+    
+    func resumeGameUpdateTimer() {
+        gameManager.resetWatchGameWebsocket()
+        gameUpdateTimer = Timer.scheduledTimer(timeInterval: self.gameUpdateInterval, target: self, selector: #selector(updatePublicGames), userInfo: nil, repeats: true)
+        gameUpdateScheduled = true
+    }
+    
+    func pauseGameUpdateTimer() {
+        if let timer = gameUpdateTimer {
+            gameManager.closeWatchGameWebsocket()
+            timer.invalidate()
+            gameUpdateScheduled = false
+        }
+    }
+    
+    func resetGameUpdateTimer() {
+        pauseGameUpdateTimer()
+        resumeGameUpdateTimer()
     }
     
     func quickGameButtonPressed() {
@@ -110,6 +134,10 @@ class StartScene: SKScene, GameManagerDelegate {
             return
         }
         moveToJoinScene()
+    }
+    
+    func didUpdatePublicGames() {
+        displayJoinLabel()
     }
     
     func didGetPublicGames() {
@@ -203,6 +231,16 @@ class StartScene: SKScene, GameManagerDelegate {
         displayMessage("Something went wrong. Try again.")
     }
     
+    @objc func updatePublicGames() {
+        gameManager.receiveWatchGameWebsocket()
+    }
+    
+    func displayLabels() {
+        fadeInNode(customGameLabel)
+        fadeInNode(quickGameLabel)
+        displayJoinLabel()
+    }
+    
     func clearStartUI() {
         errorMessageLabel.alpha = 0.0
         joinLabel?.removeAllActions()
@@ -221,9 +259,7 @@ class StartScene: SKScene, GameManagerDelegate {
     func clearMessage() {
         isDisplayingMessage = false
         fadeOutNode(errorMessageLabel)
-        fadeInNode(customGameLabel)
-        fadeInNode(quickGameLabel)
-        displayJoinLabel()
+        displayLabels()
     }
     
 }
