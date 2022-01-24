@@ -195,9 +195,14 @@ class StartScene: SKScene, GameManagerDelegate {
         }
     }
     
-    func moveToGameScene(_ player: Player) {
+    func windDownSceneActivity() {
         preparingQuickGame = false
         preparingCustomGame = false
+        pauseGameUpdateTimer()
+    }
+    
+    func moveToGameScene(_ player: Player) {
+        windDownSceneActivity()
         if let gameScene = GameScene(fileNamed: "GameScene") {
             let transition = SKTransition.fade(withDuration: 1.0)
             gameScene.scaleMode = .aspectFit
@@ -208,8 +213,7 @@ class StartScene: SKScene, GameManagerDelegate {
     }
     
     func moveToJoinScene() {
-        preparingQuickGame = false
-        preparingCustomGame = false
+        windDownSceneActivity()
         if let joinScene = JoinScene(fileNamed: "JoinScene") {
             let transition = SKTransition.fade(withDuration: 0.5)
             joinScene.scaleMode = .aspectFit
