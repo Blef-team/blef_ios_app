@@ -29,6 +29,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     var betScrollStartY: CGFloat = 0.0
     var betScrollLastY: CGFloat = 0.0
     var isBetScrolling = false
+    var viewingBetIndex: Int?
     private var startGameLabel: SKLabelNode?
     private var playLabel: SKLabelNode?
     private var actionPickerView : UIPickerView?
@@ -330,6 +331,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
         updateHistoryBetsAlpha()
+        updateBettingPlayerLabel()
     }
     
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
@@ -635,6 +637,34 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
     }
     
+    func updateBettingPlayerLabel() {
+        guard let viewingBetIndex = viewingBetIndex, let players = game?.players, let history = game?.history else {
+            return
+        }
+        if history.count <= viewingBetIndex {
+            if let players = game?.players {
+                for (i, _) in players.enumerated() {
+                    if i <= playerLabels.endIndex {
+                        playerLabels[i].removeEffects()
+                    }
+                }
+            }
+            return
+        }
+        let viewingBetOfPlayerNickname = history[viewingBetIndex].player
+        for (i, playerObject) in players.enumerated() {
+            if i > playerLabels.endIndex {
+                break
+            }
+            let label = playerLabels[i]
+            if playerObject.nickname == viewingBetOfPlayerNickname {
+                label.addGlow()
+            } else {
+                label.removeEffects()
+            }
+        }
+    }
+    
     func updateHistoryBets() {
         guard let betScrollNode = betScrollNode, let game = game, let history = game.history else {
             return
@@ -855,16 +885,27 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
         let yDisplacement = betScrollNode.position.y - getBetScrollNodePosition().y
         let cardHeight = getCardSize().height
-        for sprites in historyBets {
+        var maxAlphaIndex: Int?
+        var maxAlpha = CGFloat(0)
+        for (spriteIndex, sprites) in historyBets.enumerated() {
+            var newAlpha = CGFloat(0)
             for sprite in sprites {
-                updateBetSpriteAlpha(sprite, with: yDisplacement, range: cardHeight)
+                newAlpha = getBetSpriteAlpha(sprite, with: yDisplacement, range: cardHeight)
+                sprite.alpha = newAlpha
             }
+            if newAlpha > maxAlpha {
+                maxAlpha = newAlpha
+                maxAlphaIndex = spriteIndex
+            }
+        }
+        if let maxAlphaIndex = maxAlphaIndex {
+            self.viewingBetIndex = maxAlphaIndex
         }
     }
     
-    func updateBetSpriteAlpha(_ sprite: SKSpriteNode, with displacement: CGFloat, range: CGFloat) {
+    func getBetSpriteAlpha(_ sprite: SKSpriteNode, with displacement: CGFloat, range: CGFloat) -> CGFloat {
         let distanceRatio = (sprite.position.y - (-displacement)) / range
-        sprite.alpha = 1 - min(1.0, max(0, abs(distanceRatio)))
+        return 1 - min(1.0, max(0, abs(distanceRatio)))
     }
         
     func clearHistoryBets() {

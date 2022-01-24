@@ -26,6 +26,36 @@ extension Int {
     }
 }
 
+extension SKNode {
+    func addGlow(radius:CGFloat=10) {
+        if hasEffect() {
+            return
+        }
+        let view = SKView()
+        let effectNode = SKEffectNode()
+        let texture = view.texture(from: self)
+        effectNode.shouldRasterize = true
+        effectNode.filter = CIFilter(name: "CIGaussianBlur", parameters: ["inputRadius":radius])
+        addChild(effectNode)
+        effectNode.addChild(SKSpriteNode(texture: texture))
+    }
+    func hasEffect() -> Bool {
+        for child in self.children {
+            if child is SKEffectNode {
+                return true
+            }
+        }
+        return false
+    }
+    func removeEffects() {
+        for child in self.children {
+            if child is SKEffectNode {
+                child.removeFromParent()
+            }
+        }
+    }
+}
+
 func pulseLabel (_ label: SKNode) {
     let pulseSequence = SKAction.sequence([
         SKAction.fadeAlpha(by: -0.7, duration: 0.1),
