@@ -35,6 +35,7 @@ class JoinScene: SKScene, GameManagerDelegate {
         messageLabel.text = ""
         messageLabel.fontSize = 15
         messageLabel.position = CGPoint(x:self.frame.midX, y:self.frame.midY)
+        messageLabel.zPosition = 10
         messageLabel.lineBreakMode = NSLineBreakMode.byWordWrapping
         messageLabel.numberOfLines = 0
         messageLabel.preferredMaxLayoutWidth = size.width * 0.8
@@ -44,6 +45,7 @@ class JoinScene: SKScene, GameManagerDelegate {
         self.joinLabel = childNode(withName: "//joinLabel")
         if let joinLabel = joinLabel {
             joinLabel.alpha = 0
+            joinLabel.zPosition = 10
         }
         self.joinButton = childNode(withName: "//joinButton")
         
@@ -53,12 +55,14 @@ class JoinScene: SKScene, GameManagerDelegate {
             let sprite = SKSpriteNode(texture: SKTexture(image: #imageLiteral(resourceName: "white-door")), size: CGSize(width: 100, height: 100))
             sprite.alpha = 0
             sprite.position = position
+            sprite.zPosition = 10
             addChild(sprite)
             roomSprites.append(sprite)
             let label = SKLabelNode(fontNamed:"HelveticaNeue-Light")
             label.fontSize = 30
             label.alpha = 0
             label.position = position
+            label.zPosition = 10
             addChild(label)
             roomLabels.append(label)
         }
