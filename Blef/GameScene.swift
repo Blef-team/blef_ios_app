@@ -37,7 +37,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     private var shareLabel : SKLabelNode?
     private var inviteAILabel : SKLabelNode?
     private var exitLabel : SKLabelNode?
-    private var currentPlayerLabel : SKLabelNode?
     private var playerLabels : [SKLabelNode] = []
     private var actionPickerField: UITextField?
     private var playerCardSprites: [SKSpriteNode]?
@@ -999,7 +998,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         fadeOutNode(inviteAILabel)
         fadeOutNode(exitLabel)
         fadeOutNode(helpLabelSprite)
-        fadeOutNode(currentPlayerLabel)
         fadeOutNode(playLabel)
         fadeOutNode(startGameLabel)
         fadeOutNode(manageRoomLabel)
