@@ -635,21 +635,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
     }
     
-    func updateCurrentPlayerLabel() {
-        // Update currentPlayerLabel
-        if let label = self.currentPlayerLabel, let game = self.game, let currentPlayer = game.currentPlayerNickname, let player = player {
-            var newLabelText: String
-            if playerIsCurrentPlayer(player: player, game: game) {
-                newLabelText = "Current player: You"
-            }
-            else {
-                newLabelText = "Current player: \(formatDisplayNickname(currentPlayer))"
-            }
-            updateLabelText(label, newLabelText)
-            fadeInNode(label)
-        }
-    }
-    
     func updateHistoryBets() {
         guard let betScrollNode = betScrollNode, let game = game, let history = game.history else {
             return
@@ -733,7 +718,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func updateLabelValues() {
-        updateCurrentPlayerLabel()
         updateHistoryBets()
         updateCards()
         updatePlayerLabels()
