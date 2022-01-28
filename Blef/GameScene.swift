@@ -52,7 +52,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     override func didMove(to view: SKView) {
         
         self.gameManager!.delegate = self
-        
+                
         self.startGameLabel = childNode(withName: "//startGameLabel") as? SKLabelNode
         startGameLabel?.alpha = 0.0
         self.playLabel = childNode(withName: "//playLabel") as? SKLabelNode
@@ -157,6 +157,22 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         resumeGameUpdateTimer()
     }
     
+    func saveGame() {
+        guard let game = gameManager?.game, let gameUuid = gameManager?.gameUuid, let player = gameManager?.player else {
+            return
+        }
+        guard let currentGameSaved = SavedGame.init(game: game, gameUuid: gameUuid, player: player) else {
+            return
+        }
+        var savedGames = pruneSavedGames(getSavedGames(), ifAtLeast: 3, downTo: 2)
+        if game.status == .finished {
+            savedGames.removeValue(forKey: gameUuid.uuidString)
+        } else {
+            savedGames[gameUuid.uuidString] = currentGameSaved
+        }
+        saveGames(savedGames)
+    }
+    
     /**
      Request updated game state.
      */
@@ -206,6 +222,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             return
         }
         self.game = game
+        saveGame()
         self.lastBet = game.history?.last?.action
         if game.status == .running {
             self.roundNumber = game.roundNumber
