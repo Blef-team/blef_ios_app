@@ -90,7 +90,7 @@ struct PlayerInfo {
     let nickname: String
     let nCards: Int
     
-    init?(json: Dictionary<String, Any>) {
+    init?(json: JSON) {
         guard let nickname = json["nickname"] as? String else {
             return nil
         }
@@ -106,7 +106,7 @@ struct NamedHand {
     let nickname: String
     let hand: [Card]
     
-    init?(json: Dictionary<String, Any>) {
+    init?(json: JSON) {
         guard let nickname = json["nickname"] as? String else {
             return nil
         }
@@ -144,7 +144,7 @@ struct HistoryItem {
     let player: String
     let action: Action
     
-    init?(json: Dictionary<String, Any>) {
+    init?(json: JSON) {
         guard let player = json["player"] as? String else {
             return nil
         }
