@@ -549,8 +549,6 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
     
     
     func parseUpdatePublicGameResponse(_ jsonObject: JSON?) -> Bool {
-        print("Running parseUpdatePublicGameResponse") //DEBUG
-        print("jsonObject: \(jsonObject)") //DEBUG
         if let game = jsonObject.flatMap(PublicGame.init){
             print("Made PublicGame object")
             updatePublicGame(game)
