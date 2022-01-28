@@ -160,3 +160,39 @@ func generatePlayerNickname() -> String {
     }
     return "\((adjective))_\(animal)"
 }
+
+func pruneSavedGames(_ games: SavedGamesDict, ifAtLeast minCount: Int = 25, downTo maxCount: Int = 10, maxAge: TimeInterval = TimeInterval(600000)) -> SavedGamesDict {
+    if games.count < minCount {
+        return games
+    }
+    let prunedGames =  games.values.filter { game in
+        // Remove old games
+        return Date(timeIntervalSince1970: TimeInterval(game.lastModified)) > Date(timeIntervalSinceNow: -maxAge)
+        }.filter { game in
+            return game.status != .finished // Remove finished games
+        }.sorted(by: orderSavedGames).prefix(maxCount) // Trim down to maxCount saved games
+    var resultDict: SavedGamesDict = [:]
+    for game in prunedGames {
+        resultDict[game.gameUuid.uuidString] = game
+    }
+    return resultDict
+}
+
+func orderSavedGames(first: SavedGame, second: SavedGame) -> Bool {
+    return (first.status == .running && second.status != .running) ||
+    (first.status == .running && second.status == .running && first.lastModified > second.lastModified) ||
+    (first.status != .running && second.status != .running && first.lastModified > second.lastModified)
+}
+
+func getSavedGames(persistentStore: UserDefaults = UserDefaults.standard) -> SavedGamesDict {
+    if let jsonObject = persistentStore.object(forKey: SavedGamesKey) as? ShallowNestedJSON {
+        let savedGames = jsonObject.compactMapValues(SavedGame.init)
+        return savedGames
+    }
+    return SavedGamesDict()
+}
+
+func saveGames(_ games: SavedGamesDict, persistentStore: UserDefaults = UserDefaults.standard) {
+    let serialisedGames = games.mapValues { game in return game.serialised }
+    persistentStore.set(serialisedGames, forKey: SavedGamesKey)
+}
