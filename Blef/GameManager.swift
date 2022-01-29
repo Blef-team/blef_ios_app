@@ -31,6 +31,7 @@ protocol GameManagerDelegate {
     func failedIllegalPlay()
     func didFailWithError(error: Error)
     func didGetPublicGames()
+    func didUpdatePublicGames()
 }
 
 extension GameManagerDelegate {
@@ -76,6 +77,10 @@ extension GameManagerDelegate {
     }
     func didGetPublicGames() {
         print("GameManager did get public games, but the result is not being used.")
+        //this is a empty implementation to allow this method to be optional
+    }
+    func didUpdatePublicGames() {
+        print("GameManager did update public games, but the result is not being used.")
         //this is a empty implementation to allow this method to be optional
     }
 }
@@ -152,32 +157,31 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
                     print("fullJsonObject: \(String(describing: fullJsonObject))")
                     let bodyString = fullJsonObject?["body"] as! String
                     let jsonBody = (try? JSONSerialization.jsonObject(with: bodyString.data(using: .utf8)!, options: [])) as? JSON
-                    if let succeeded = self?.parseUpdateGameResponse(jsonBody) ?? self?.parseNewGameResponse(jsonBody) {
-                        /**
-                         The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
-                         `invalid use of AppKit, UIKit, and other APIs from a background thread`
-                         */
-                        if !succeeded {
-                            if let errorResponse = jsonBody.flatMap(ErrorResponse.init){
-                                print("Made errorResponse object")
-                                DispatchQueue.main.async {
-                                    print("Calling didFailWithError")
-                                    self?.delegate?.didFailWithError(error: RuntimeError(errorResponse.error))
-                                }
+                    let succeeded = self?.parseUpdateGameResponse(jsonBody) ?? false || self?.parseUpdatePublicGameResponse(jsonBody) ?? false || self?.parseNewGameResponse(jsonBody) ?? false
+                    /**
+                     The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
+                     `invalid use of AppKit, UIKit, and other APIs from a background thread`
+                     */
+                    if !succeeded {
+                        if let errorResponse = jsonBody.flatMap(ErrorResponse.init){
+                            print("Made errorResponse object")
+                            DispatchQueue.main.async {
+                                print("Calling didFailWithError")
+                                self?.delegate?.didFailWithError(error: RuntimeError(errorResponse.error))
                             }
-                            if let message = jsonBody.flatMap(Message.init){
-                                print("Made Message object")
-                                DispatchQueue.main.async {
-                                    print("Calling didFailWithError")
-                                    self?.delegate?.didFailWithError(error: RuntimeError(message.message))
-                                }
+                        }
+                        if let message = jsonBody.flatMap(Message.init){
+                            print("Made Message object")
+                            DispatchQueue.main.async {
+                                print("Calling didFailWithError")
+                                self?.delegate?.didFailWithError(error: RuntimeError(message.message))
                             }
-                            else {
-                                print("Failed to parse json")
-                                DispatchQueue.main.async {
-                                    print("Calling didFailWithError")
-                                    self?.delegate?.didFailWithError(error: RuntimeError("Failed to parse json response."))
-                                }
+                        }
+                        else {
+                            print("Failed to parse json")
+                            DispatchQueue.main.async {
+                                print("Calling didFailWithError")
+                                self?.delegate?.didFailWithError(error: RuntimeError("Failed to parse json response."))
                             }
                         }
                     }
@@ -537,6 +541,26 @@ class GameManager: NSObject, URLSessionWebSocketDelegate {
             DispatchQueue.main.async {
                 print("Calling didUpdateGame")
                 self.delegate?.didUpdateGame(game)
+            }
+            return true
+        }
+        return false
+    }
+    
+    
+    func parseUpdatePublicGameResponse(_ jsonObject: JSON?) -> Bool {
+        print("Running parseUpdatePublicGameResponse") //DEBUG
+        print("jsonObject: \(jsonObject)") //DEBUG
+        if let game = jsonObject.flatMap(PublicGame.init){
+            print("Made PublicGame object")
+            updatePublicGame(game)
+            /**
+             The `DispatchQueue` is necessary - otherwise Main Thread Checker will throw:
+             `invalid use of AppKit, UIKit, and other APIs from a background thread`
+             */
+            DispatchQueue.main.async {
+                print("Calling didUpdatePublicGames")
+                self.delegate?.didUpdatePublicGames()
             }
             return true
         }

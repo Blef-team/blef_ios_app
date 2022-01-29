@@ -14,6 +14,9 @@ var errorMessageLabel: SKLabelNode?
 class StartScene: SKScene, GameManagerDelegate {
     
     var gameManager = GameManager()
+    var gameUpdateInterval = 0.05
+    var gameUpdateTimer: Timer?
+    var gameUpdateScheduled: Bool?
     var customGameLabel: SKNode?
     var quickGameLabel: SKNode?
     var joinLabel: SKNode?
@@ -43,6 +46,8 @@ class StartScene: SKScene, GameManagerDelegate {
         if let joinLabel = joinLabel {
             joinLabel.alpha = 0
         }
+        
+        resumeGameUpdateTimer()
     }
     
     /**
@@ -71,6 +76,25 @@ class StartScene: SKScene, GameManagerDelegate {
                 }
             }
         }
+    }
+    
+    func resumeGameUpdateTimer() {
+        gameManager.resetWatchGameWebsocket()
+        gameUpdateTimer = Timer.scheduledTimer(timeInterval: self.gameUpdateInterval, target: self, selector: #selector(updatePublicGames), userInfo: nil, repeats: true)
+        gameUpdateScheduled = true
+    }
+    
+    func pauseGameUpdateTimer() {
+        if let timer = gameUpdateTimer {
+            gameManager.closeWatchGameWebsocket()
+            timer.invalidate()
+            gameUpdateScheduled = false
+        }
+    }
+    
+    func resetGameUpdateTimer() {
+        pauseGameUpdateTimer()
+        resumeGameUpdateTimer()
     }
     
     func quickGameButtonPressed() {
@@ -112,7 +136,15 @@ class StartScene: SKScene, GameManagerDelegate {
         moveToJoinScene()
     }
     
+    func didUpdatePublicGames() {
+        displayJoinLabel()
+    }
+    
     func didGetPublicGames() {
+        displayJoinLabel()
+    }
+    
+    func displayJoinLabel() {
         if let label = joinLabel {
             if self.gameManager.publicGames.count > 0 {
                 fadeInNode(label)
@@ -163,9 +195,14 @@ class StartScene: SKScene, GameManagerDelegate {
         }
     }
     
-    func moveToGameScene(_ player: Player) {
+    func windDownSceneActivity() {
         preparingQuickGame = false
         preparingCustomGame = false
+        pauseGameUpdateTimer()
+    }
+    
+    func moveToGameScene(_ player: Player) {
+        windDownSceneActivity()
         if let gameScene = GameScene(fileNamed: "GameScene") {
             let transition = SKTransition.fade(withDuration: 1.0)
             gameScene.scaleMode = .aspectFit
@@ -176,8 +213,7 @@ class StartScene: SKScene, GameManagerDelegate {
     }
     
     func moveToJoinScene() {
-        preparingQuickGame = false
-        preparingCustomGame = false
+        windDownSceneActivity()
         if let joinScene = JoinScene(fileNamed: "JoinScene") {
             let transition = SKTransition.fade(withDuration: 0.5)
             joinScene.scaleMode = .aspectFit
@@ -199,6 +235,16 @@ class StartScene: SKScene, GameManagerDelegate {
         displayMessage("Something went wrong. Try again.")
     }
     
+    @objc func updatePublicGames() {
+        gameManager.receiveWatchGameWebsocket()
+    }
+    
+    func displayLabels() {
+        fadeInNode(customGameLabel)
+        fadeInNode(quickGameLabel)
+        displayJoinLabel()
+    }
+    
     func clearStartUI() {
         errorMessageLabel.alpha = 0.0
         joinLabel?.removeAllActions()
@@ -217,9 +263,7 @@ class StartScene: SKScene, GameManagerDelegate {
     func clearMessage() {
         isDisplayingMessage = false
         fadeOutNode(errorMessageLabel)
-        fadeInNode(customGameLabel)
-        fadeInNode(quickGameLabel)
-        didGetPublicGames()
+        displayLabels()
     }
     
 }

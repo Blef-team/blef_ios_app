@@ -14,6 +14,9 @@ import GameplayKit
 class JoinScene: SKScene, GameManagerDelegate {
     
     var gameManager: GameManager?
+    var gameUpdateInterval = 0.05
+    var gameUpdateTimer: Timer?
+    var gameUpdateScheduled: Bool?
     var messageLabel: SKLabelNode!
     var joinLabel: SKNode?
     var joinButton: SKNode?
@@ -35,6 +38,7 @@ class JoinScene: SKScene, GameManagerDelegate {
         messageLabel.text = ""
         messageLabel.fontSize = 15
         messageLabel.position = CGPoint(x:self.frame.midX, y:self.frame.midY)
+        messageLabel.zPosition = 10
         messageLabel.lineBreakMode = NSLineBreakMode.byWordWrapping
         messageLabel.numberOfLines = 0
         messageLabel.preferredMaxLayoutWidth = size.width * 0.8
@@ -44,6 +48,7 @@ class JoinScene: SKScene, GameManagerDelegate {
         self.joinLabel = childNode(withName: "//joinLabel")
         if let joinLabel = joinLabel {
             joinLabel.alpha = 0
+            joinLabel.zPosition = 10
         }
         self.joinButton = childNode(withName: "//joinButton")
         
@@ -53,17 +58,20 @@ class JoinScene: SKScene, GameManagerDelegate {
             let sprite = SKSpriteNode(texture: SKTexture(image: #imageLiteral(resourceName: "white-door")), size: CGSize(width: 100, height: 100))
             sprite.alpha = 0
             sprite.position = position
+            sprite.zPosition = 10
             addChild(sprite)
             roomSprites.append(sprite)
             let label = SKLabelNode(fontNamed:"HelveticaNeue-Light")
             label.fontSize = 30
             label.alpha = 0
             label.position = position
+            label.zPosition = 10
             addChild(label)
             roomLabels.append(label)
         }
         
         displayRooms()
+        resumeGameUpdateTimer()
     }
     
     /**
@@ -97,6 +105,29 @@ class JoinScene: SKScene, GameManagerDelegate {
         }
     }
     
+    func resumeGameUpdateTimer() {
+        gameManager?.resetWatchGameWebsocket()
+        gameUpdateTimer = Timer.scheduledTimer(timeInterval: self.gameUpdateInterval, target: self, selector: #selector(updatePublicGames), userInfo: nil, repeats: true)
+        gameUpdateScheduled = true
+    }
+    
+    func pauseGameUpdateTimer() {
+        if let timer = gameUpdateTimer {
+            gameManager?.closeWatchGameWebsocket()
+            timer.invalidate()
+            gameUpdateScheduled = false
+        }
+    }
+    
+    func resetGameUpdateTimer() {
+        pauseGameUpdateTimer()
+        resumeGameUpdateTimer()
+    }
+    
+    @objc func updatePublicGames() {
+        gameManager?.receiveWatchGameWebsocket()
+    }
+    
     func didFailWithError(error: Error) {
         print("didFailWithError")
         print(error.localizedDescription)
@@ -107,6 +138,10 @@ class JoinScene: SKScene, GameManagerDelegate {
             self.playerNickname = nickname
         }
         displayMessage("Something went wrong. Try again.")
+    }
+    
+    func didUpdatePublicGames() {
+        displayRooms()
     }
     
     func didJoinGame(_ player: Player) {
@@ -198,6 +233,8 @@ class JoinScene: SKScene, GameManagerDelegate {
         guard let publicGames = gameManager?.publicGames else {
             return
         }
+        
+        clearRooms()
         
         let orderedPublicGames = publicGames.sorted { $0.value.lastModified > $1.value.lastModified }
         var roomIndex = 0
