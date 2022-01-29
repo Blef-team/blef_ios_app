@@ -161,6 +161,13 @@ class JoinScene: SKScene, GameManagerDelegate {
                 displayMessage("Room \(game.room) is full")
                 return
             }
+            if let savedGame = getSavedGames()[uuid.uuidString] {
+                displayMessage("""
+                               You already joined this room!
+                               Continue from the Menu
+                               """)
+                return
+            }
             displayGameOverview(uuid)
         }
     }
