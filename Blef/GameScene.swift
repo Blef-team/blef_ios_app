@@ -30,6 +30,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     var betScrollLastY: CGFloat = 0.0
     var isBetScrolling = false
     var viewingBetIndex: Int?
+    private var menuNavigateLabel: SKLabelNode?
     private var startGameLabel: SKLabelNode?
     private var playLabel: SKLabelNode?
     private var actionPickerView : UIPickerView?
@@ -52,7 +53,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     override func didMove(to view: SKView) {
         
         self.gameManager!.delegate = self
-                
+    
+        self.menuNavigateLabel = childNode(withName: "//menuNavigateLabel") as? SKLabelNode
+        menuNavigateLabel?.alpha = 0.0
         self.startGameLabel = childNode(withName: "//startGameLabel") as? SKLabelNode
         startGameLabel?.alpha = 0.0
         self.playLabel = childNode(withName: "//playLabel") as? SKLabelNode
@@ -309,6 +312,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 }
                 if node.name == "manageRoomButton" {
                     manageRoomButtonPressed()
+                }
+                if node.name == "menuNavigateButton" {
+                    menuNavigateButtonPressed()
                 }
             }
         }
@@ -584,6 +590,21 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
     }
     
+    func menuNavigateButtonPressed() {
+        if let label = menuNavigateLabel {
+            pulseLabel(label)
+        }
+        moveToStartScene()
+    }
+    
+    func moveToStartScene() {
+        if let startScene = StartScene(fileNamed: "StartScene") {
+            let transition = SKTransition.fade(withDuration: 1.0)
+            startScene.scaleMode = .aspectFit
+            scene?.view?.presentScene(startScene, transition: transition)
+        }
+    }
+    
     func displayHands(_ hands: [NamedHand]) {
         if let revealCardSprites = revealCardSprites, let revealNicknameLabels = revealNicknameLabels {
             fadeOutNode(messageLabel)
@@ -831,6 +852,14 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
     }
     
+    func displayMenuNavigateLabel() {
+        fadeInNode(menuNavigateLabel)
+    }
+    
+    func clearMenuNavigateLabel() {
+        fadeOutNode(menuNavigateLabel)
+    }
+    
     func displayStartGameLabel() {
         if let label = self.startGameLabel, let game = self.game, let player = player, let players = game.players {
             if canStartGame(game, player, players) {
@@ -970,11 +999,13 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         displayHelpLabelSprite()
         displayShareLabel()
         displayInviteAILabel()
+        displayMenuNavigateLabel()
         displayStartGameLabel()
         displayPlayLabel()
         displayVictoryStatusMessage()
         displayManageRoomLabel()
         displayPlayerLabels()
+        displayMenuNavigateLabel()
     }
     
     func getPlayerCardPosition(_ cardIndex: Int) -> CGPoint {
@@ -1027,6 +1058,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         for sprite in playerCardSprites ?? [] {
             fadeOutNode(sprite)
         }
+        clearMenuNavigateLabel()
         clearHistoryBets()
         clearPlayerLabels()
     }
