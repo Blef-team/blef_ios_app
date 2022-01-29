@@ -29,6 +29,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     var betScrollStartY: CGFloat = 0.0
     var betScrollLastY: CGFloat = 0.0
     var isBetScrolling = false
+    var viewingBetIndex: Int?
     private var startGameLabel: SKLabelNode?
     private var playLabel: SKLabelNode?
     private var actionPickerView : UIPickerView?
@@ -36,8 +37,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     private var shareLabel : SKLabelNode?
     private var inviteAILabel : SKLabelNode?
     private var exitLabel : SKLabelNode?
-    private var currentPlayerLabel : SKLabelNode?
-    private var playersLabel : SKLabelNode?
+    private var playerLabels : [SKLabelNode] = []
     private var actionPickerField: UITextField?
     private var playerCardSprites: [SKSpriteNode]?
     private var revealCardSprites: [[SKSpriteNode]]?
@@ -63,16 +63,17 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         inviteAILabel?.alpha = 0.0
         self.exitLabel = self.childNode(withName: "//exitLabel") as? SKLabelNode
         exitLabel?.alpha = 0.0
-        self.currentPlayerLabel = self.childNode(withName: "//currentPlayerLabel") as? SKLabelNode
-        currentPlayerLabel?.alpha = 0.0
-        self.playersLabel = self.childNode(withName: "//playersLabel") as? SKLabelNode
-        playersLabel?.alpha = 0.0
-        playersLabel?.numberOfLines = 0
-        playersLabel?.preferredMaxLayoutWidth = 400
+        for i in 1...8 {
+            if let label = self.childNode(withName: "//player\(i)Label") as? SKLabelNode {
+                label.text = ""
+                label.alpha = 0
+                self.playerLabels.append(label)
+            }
+        }
         self.manageRoomLabel = self.childNode(withName: "//manageRoomLabel") as? SKLabelNode
         self.manageRoomLabel?.alpha = 0.0
 
-        self.actionPickerField = UITextField(frame: CGRect(x: UIScreen.main.bounds.size.width * 0.65, y: UIScreen.main.bounds.size.height * 0.2, width: 200, height: 30))
+        self.actionPickerField = UITextField(frame: CGRect(x: UIScreen.main.bounds.size.width * 0.65, y: UIScreen.main.bounds.size.height * 0.4, width: 200, height: 30))
         
         actionPickerView = UIPickerView()
         actionPickerView?.dataSource = self
@@ -329,6 +330,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
         updateHistoryBetsAlpha()
+        updateBettingPlayerLabel()
     }
     
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
@@ -600,79 +602,66 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
         }
     }
-    
-    func updateCurrentPlayerLabel() {
-        // Update currentPlayerLabel
-        if let label = self.currentPlayerLabel, let game = self.game, let currentPlayer = game.currentPlayerNickname, let player = player {
-            var newLabelText: String
-            if playerIsCurrentPlayer(player: player, game: game) {
-                newLabelText = "Current player: You"
-            }
-            else {
-                newLabelText = "Current player: \(formatDisplayNickname(currentPlayer))"
-            }
-            updateLabelText(label, newLabelText)
-        }
-    }
-    
-    func computePlayersStrings(_ game: Game, _ players: [PlayerInfo], _ player: Player) -> [String] {
-        // Construct strings describing each player
-        var playersStrings: [String] = []
-        if game.status == .notStarted {
-            for playerObject in players {
-                if player.nickname == playerObject.nickname {
-                    playersStrings.append("You")
-                }
-                else {
-                    playersStrings.append("\(formatDisplayNickname(playerObject.nickname))")
-                }
-            }
-        }
-        else if game.status == .finished {
-            for playerObject in players {
-                var statusString = ""
-                if playerObject.nCards == 0 {
-                    statusString = "lost"
-                }
-                else {
-                    statusString = "won"
-                }
-                if player.nickname == playerObject.nickname {
-                    playersStrings.append("You: \(statusString)")
-                }
-                else {
-                    playersStrings.append("\(formatDisplayNickname(playerObject.nickname)): \(statusString)")
-                }
-            }
-        }
-        else {
-            for playerObject in players {
-                var nCardsString = ""
-                if playerObject.nCards == 0 {
-                    nCardsString = "lost"
-                }
-                else {
-                    nCardsString = String(playerObject.nCards)
-                }
-                if player.nickname == playerObject.nickname {
-                    playersStrings.append("You: \(nCardsString)")
-                }
-                else {
-                    playersStrings.append("\(formatDisplayNickname(playerObject.nickname)): \(nCardsString)")
-                }
-            }
-        }
-        return playersStrings
-    }
-    
-    func updatePlayersLabel() {
-        // Update playersLabel
-        if let label = self.playersLabel, let game = self.game, let players = game.players, let player = player {
-            let playersStrings = computePlayersStrings(game, players, player)
-            let newLabelText = "Players: \(playersStrings.joined(separator: " | "))"
-            updateLabelText(label, newLabelText)
-        }
 
+    func updatePlayerLabels() {
+        guard let game = self.game, let players = game.players, let player = player else {
+            return
+        }
+        for (i, playerObject) in players.enumerated() {
+            if i > playerLabels.endIndex {
+                continue
+            }
+            var displayNickname = formatDisplayNickname(playerObject.nickname)
+            if playerObject.nickname == player.nickname ?? "Player \(i)" {
+                displayNickname = "You"
+            }
+            var cardsStatus = ""
+            if playerObject.nCards > 0 {
+                if game.status == .running {
+                    cardsStatus = String(playerObject.nCards)
+                } else {
+                    cardsStatus = "won"
+                }
+            } else if game.status == .finished {
+                cardsStatus = "lost"
+            }
+            let label = playerLabels[i]
+            label.text = "\(displayNickname): \(cardsStatus)"
+            
+            if playerObject.nickname == game.currentPlayerNickname {
+                label.fontSize = 20
+            } else {
+                label.fontSize = 15
+            }
+        }
+    }
+    
+    func updateBettingPlayerLabel() {
+        guard let viewingBetIndex = viewingBetIndex, let players = game?.players, let history = game?.history else {
+            return
+        }
+        if history.count <= viewingBetIndex {
+            if let players = game?.players {
+                for (i, _) in players.enumerated() {
+                    if i <= playerLabels.endIndex {
+                        playerLabels[i].removeEffects()
+                    }
+                }
+            }
+            return
+        }
+        let viewingBetOfPlayerNickname = history[viewingBetIndex].player
+        for (i, playerObject) in players.enumerated() {
+            if i > playerLabels.endIndex {
+                break
+            }
+            let label = playerLabels[i]
+            if playerObject.nickname == viewingBetOfPlayerNickname {
+                label.addGlow()
+            } else {
+                label.removeEffects()
+            }
+        }
     }
     
     func updateHistoryBets() {
@@ -689,6 +678,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
         }
         betScrollNode.removeAllChildren()
+        historyBets = []
         for (betIndex, bet) in history.enumerated() {
             if let images = BetToCards[bet.action] {
                 var newBetSprites: [SKSpriteNode] = []
@@ -758,10 +748,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func updateLabelValues() {
-        updateCurrentPlayerLabel()
-        updatePlayersLabel()
         updateHistoryBets()
         updateCards()
+        updatePlayerLabels()
     }
     
     func updateGameUI() {
@@ -770,12 +759,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             return
         }
         displayLabels()
-    }
-    
-    func displayPlayersLabel() {
-        if let label = self.playersLabel {
-            fadeInNode(label)
-        }
     }
     
     func displayExitLabel() {
@@ -901,16 +884,27 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
         let yDisplacement = betScrollNode.position.y - getBetScrollNodePosition().y
         let cardHeight = getCardSize().height
-        for sprites in historyBets {
+        var maxAlphaIndex: Int?
+        var maxAlpha = CGFloat(0)
+        for (spriteIndex, sprites) in historyBets.enumerated() {
+            var newAlpha = CGFloat(0)
             for sprite in sprites {
-                updateBetSpriteAlpha(sprite, with: yDisplacement, range: cardHeight)
+                newAlpha = getBetSpriteAlpha(sprite, with: yDisplacement, range: cardHeight)
+                sprite.alpha = newAlpha
             }
+            if newAlpha > maxAlpha {
+                maxAlpha = newAlpha
+                maxAlphaIndex = spriteIndex
+            }
+        }
+        if let maxAlphaIndex = maxAlphaIndex {
+            self.viewingBetIndex = maxAlphaIndex
         }
     }
     
-    func updateBetSpriteAlpha(_ sprite: SKSpriteNode, with displacement: CGFloat, range: CGFloat) {
+    func getBetSpriteAlpha(_ sprite: SKSpriteNode, with displacement: CGFloat, range: CGFloat) -> CGFloat {
         let distanceRatio = (sprite.position.y - (-displacement)) / range
-        sprite.alpha = 1 - min(1.0, max(0, abs(distanceRatio)))
+        return 1 - min(1.0, max(0, abs(distanceRatio)))
     }
         
     func clearHistoryBets() {
@@ -918,6 +912,12 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             for sprite in sprites {
                 fadeOutNode(sprite)
             }
+        }
+    }
+    
+    func clearPlayerLabels() {
+        for label in playerLabels {
+            fadeOutNode(label)
         }
     }
     
@@ -938,9 +938,14 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         fadeOutNode(label)
     }
     
+    func displayPlayerLabels() {
+        for label in playerLabels {
+            fadeInNode(label)
+        }
+    }
+    
     func displayLabels() {
         displayCards()
-        displayPlayersLabel()
         displayExitLabel()
         displayHelpLabelSprite()
         displayShareLabel()
@@ -949,6 +954,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         displayPlayLabel()
         displayVictoryStatusMessage()
         displayManageRoomLabel()
+        displayPlayerLabels()
     }
     
     func getPlayerCardPosition(_ cardIndex: Int) -> CGPoint {
@@ -992,8 +998,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         fadeOutNode(inviteAILabel)
         fadeOutNode(exitLabel)
         fadeOutNode(helpLabelSprite)
-        fadeOutNode(playersLabel)
-        fadeOutNode(currentPlayerLabel)
         fadeOutNode(playLabel)
         fadeOutNode(startGameLabel)
         fadeOutNode(manageRoomLabel)
@@ -1004,6 +1008,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             fadeOutNode(sprite)
         }
         clearHistoryBets()
+        clearPlayerLabels()
     }
     
     func displayMessage(_ message: String) {
