@@ -572,6 +572,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     func manageRoomButtonPressed() {
         if let player = self.player, let game = self.game {
             if canManageRoom(game, player) {
+                if let label = manageRoomLabel {
+                    pulseLabel(label)
+                }
                 if game.isPublic {
                     gameManager?.makeGamePrivate()
                 } else {
