@@ -601,6 +601,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         if let startScene = StartScene(fileNamed: "StartScene") {
             let transition = SKTransition.fade(withDuration: 1.0)
             startScene.scaleMode = .aspectFit
+            actionPickerView?.removeFromSuperview()
+            actionPickerField?.removeFromSuperview()
             scene?.view?.presentScene(startScene, transition: transition)
         }
     }
