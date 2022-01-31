@@ -18,7 +18,7 @@ class JoinScene: SKScene, GameManagerDelegate {
     var gameUpdateTimer: Timer?
     var gameUpdateScheduled: Bool?
     var messageLabel: SKLabelNode!
-    var joinLabel: SKNode?
+    var joinLabel: SKLabelNode?
     var joinButton: SKNode?
     var player: Player?
     var playerNickname: String?
@@ -26,6 +26,7 @@ class JoinScene: SKScene, GameManagerDelegate {
     var isPresentingGameOverview = false
     var presentedUuid: UUID?
     var preparingToJoin = false
+    var savedGame: SavedGame?
     private var roomSprites: [SKSpriteNode] = []
     private var roomLabels: [SKLabelNode] = []
     
@@ -45,7 +46,7 @@ class JoinScene: SKScene, GameManagerDelegate {
         messageLabel.verticalAlignmentMode = .center
         self.addChild(messageLabel)
         
-        self.joinLabel = childNode(withName: "//joinLabel")
+        self.joinLabel = childNode(withName: "//joinLabel") as? SKLabelNode
         if let joinLabel = joinLabel {
             joinLabel.alpha = 0
             joinLabel.zPosition = 10
@@ -161,6 +162,11 @@ class JoinScene: SKScene, GameManagerDelegate {
                 displayMessage("Room \(game.room) is full")
                 return
             }
+            if let savedGame = getSavedGames()[uuid.uuidString] {
+                self.savedGame = savedGame
+                displayGameOverview(uuid, continuingPlayerNickname: savedGame.playerNickname)
+                return
+            }
             displayGameOverview(uuid)
         }
     }
@@ -175,11 +181,19 @@ class JoinScene: SKScene, GameManagerDelegate {
         guard let uuid = presentedUuid else {
             return
         }
-        
+        guard let game = gameManager?.publicGames[uuid], let players = game.players else {
+            return
+        }
+        if let savedPlayerNickname = savedGame?.playerNickname {
+            if players.contains(savedPlayerNickname) {
+                continueGame(uuid)
+                return
+            }
+        }
         joinGame(uuid)
     }
     
-    func displayGameOverview(_ uuid: UUID) {
+    func displayGameOverview(_ uuid: UUID, continuingPlayerNickname: String? = nil) {
         guard let game = gameManager?.publicGames[uuid] else {
             return
         }
@@ -188,14 +202,19 @@ class JoinScene: SKScene, GameManagerDelegate {
         var playersString = ""
         if let players = game.players {
             playersString = "Players in room \(game.room):\n"
-            playersString += players.compactMap(formatDisplayNickname).joined(separator: "\n")
+            playersString += players.map { nickname in
+                return (nickname == savedGame?.playerNickname) ? "You" : formatDisplayNickname(nickname)
+            }.map(formatDisplayNickname).joined(separator: "\n")
         }
         displayMessage(playersString)
-        fadeInNode(joinLabel)
+        if let joinLabel = joinLabel {
+            updateAndDisplayLabel(joinLabel, (savedGame?.playerNickname != nil) ? "Continue" : "Join room")
+        }
     }
     
     func clearGameOverview() {
         isPresentingGameOverview = false
+        savedGame = nil
         presentedUuid = nil
         fadeOutNode(joinLabel)
         clearMessage()
@@ -210,6 +229,19 @@ class JoinScene: SKScene, GameManagerDelegate {
         gameManager.gameUuid = uuid
         gameManager.joinGame(nickname: nickname)
         self.playerNickname = nickname
+    }
+    
+    func continueGame(_ uuid: UUID) {
+        guard let gameManager = gameManager, let savedGame = savedGame else {
+            return
+        }
+        if savedGame.gameUuid != uuid {
+            return
+        }
+        let player = Player(uuid: savedGame.playerUuid, nickname: savedGame.playerNickname)
+        gameManager.gameUuid = uuid
+        gameManager.player = player
+        moveToGameScene(player)
     }
     
     func moveToGameScene(_ player: Player) {

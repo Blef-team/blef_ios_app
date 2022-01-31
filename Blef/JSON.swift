@@ -11,3 +11,5 @@ import Foundation
 typealias JSON = [String: Any]
 
 typealias JSONArray = [JSON]
+
+typealias ShallowNestedJSON = [String: JSON]

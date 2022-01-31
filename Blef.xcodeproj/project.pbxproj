@@ -30,6 +30,7 @@
 		479E2A26244744EF004BF702 /* BlefTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479E2A25244744EF004BF702 /* BlefTests.swift */; };
 		479E2A31244744EF004BF702 /* BlefUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479E2A30244744EF004BF702 /* BlefUITests.swift */; };
 		47A21E81245E4DC500286A71 /* BetToCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47A21E80245E4DC500286A71 /* BetToCards.swift */; };
+		47E15A5327A47EFE00026D24 /* SavedGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E15A5227A47EFE00026D24 /* SavedGame.swift */; };
 		47F035F7244B0BFE000136C1 /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47F035F6244B0BFE000136C1 /* Game.swift */; };
 		47F2E91C2448BF37006DCB5C /* StartScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 47F2E91B2448BF37006DCB5C /* StartScene.sks */; };
 		47F2E91E2448C268006DCB5C /* StartScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47F2E91D2448C268006DCB5C /* StartScene.swift */; };
@@ -88,6 +89,7 @@
 		479E2A30244744EF004BF702 /* BlefUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlefUITests.swift; sourceTree = "<group>"; };
 		479E2A32244744EF004BF702 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		47A21E80245E4DC500286A71 /* BetToCards.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BetToCards.swift; sourceTree = "<group>"; };
+		47E15A5227A47EFE00026D24 /* SavedGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedGame.swift; sourceTree = "<group>"; };
 		47F035F6244B0BFE000136C1 /* Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game.swift; sourceTree = "<group>"; };
 		47F2114627407106006EFBA6 /* Blef.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Blef.entitlements; sourceTree = "<group>"; };
 		47F2E91B2448BF37006DCB5C /* StartScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = StartScene.sks; sourceTree = "<group>"; };
@@ -143,6 +145,7 @@
 			isa = PBXGroup;
 			children = (
 				47625DD8244A44FF0041E62D /* ErrorResponse.swift */,
+				47E15A5227A47EFE00026D24 /* SavedGame.swift */,
 				477C1CB72786507A0037B3BE /* JSON.swift */,
 				4765F4F5245CCB9E002A31CA /* Nicknames.swift */,
 				472E2080244979C2005915A0 /* GameManager.swift */,
@@ -439,6 +442,7 @@
 				479E2A11244744EC004BF702 /* GameScene.swift in Sources */,
 				47A21E81245E4DC500286A71 /* BetToCards.swift in Sources */,
 				479E2A13244744EC004BF702 /* GameViewController.swift in Sources */,
+				47E15A5327A47EFE00026D24 /* SavedGame.swift in Sources */,
 				47625DD7244A38CC0041E62D /* NewGame.swift in Sources */,
 				477C1CBA2786712A0037B3BE /* PublicGame.swift in Sources */,
 				479E2A0B244744EC004BF702 /* AppDelegate.swift in Sources */,

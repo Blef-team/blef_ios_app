@@ -20,19 +20,25 @@ class StartScene: SKScene, GameManagerDelegate {
     var customGameLabel: SKNode?
     var quickGameLabel: SKNode?
     var joinLabel: SKNode?
+    var continueLabel: SKNode?
     var errorMessageLabel: SKLabelNode!
     var player: Player?
+    var savedGameUuid: UUID?
+    var savedPlayer: Player?
     var playerNickname: String?
     var isDisplayingMessage = false
     var preparingCustomGame = false
     var preparingQuickGame = false
     var numberOfQuickGameAIAgents = 2
     var invitedAIs = 0
+
     
     override func didMove(to view: SKView) {
         
         self.gameManager.delegate = self
         self.gameManager.getPublicGames()
+        
+        getSavedGame()
         
         errorMessageLabel = SKLabelNode(fontNamed:"HelveticaNeue-UltraLight")
         errorMessageLabel.text = ""
@@ -46,8 +52,15 @@ class StartScene: SKScene, GameManagerDelegate {
         if let joinLabel = joinLabel {
             joinLabel.alpha = 0
         }
+        self.continueLabel = childNode(withName: "//continueLabel")
+        if let continueLabel = continueLabel {
+            continueLabel.alpha = 0
+            continueLabel.zPosition = 10
+        }
         
         resumeGameUpdateTimer()
+        
+        displayLabels()
     }
     
     /**
@@ -74,8 +87,26 @@ class StartScene: SKScene, GameManagerDelegate {
                 if node.name == "joinButton" {
                     joinButtonPressed()
                 }
+                // If the Continue button was tapped
+                if node.name == "continueButton" {
+                    continueButtonPressed()
+                }
             }
         }
+    }
+    
+    func getSavedGame() {
+        let savedGames = getSavedGames()
+        if savedGames.count < 1 {
+            return
+        }
+        let orderedSavedGames = savedGames.values.sorted(by: orderSavedGames)
+        if orderedSavedGames.count < 1 {
+            return
+        }
+        let savedGame = orderedSavedGames[0]
+        self.savedGameUuid = savedGame.gameUuid
+        self.savedPlayer = Player(uuid: savedGame.playerUuid, nickname: savedGame.playerNickname)
     }
     
     func resumeGameUpdateTimer() {
@@ -136,6 +167,21 @@ class StartScene: SKScene, GameManagerDelegate {
         moveToJoinScene()
     }
     
+    func continueButtonPressed() {
+        if let label = continueLabel {
+            pulseLabel(label)
+        }
+        if preparingCustomGame || preparingQuickGame {
+            return
+        }
+        guard let savedGameUuid = savedGameUuid, let savedPlayer = savedPlayer else {
+            return
+        }
+        self.gameManager.gameUuid = savedGameUuid
+        self.gameManager.player = savedPlayer
+        self.moveToGameScene(savedPlayer)
+    }
+    
     func didUpdatePublicGames() {
         displayJoinLabel()
     }
@@ -147,6 +193,18 @@ class StartScene: SKScene, GameManagerDelegate {
     func displayJoinLabel() {
         if let label = joinLabel {
             if self.gameManager.publicGames.count > 0 {
+                fadeInNode(label)
+                slowPulseLabel(label)
+            } else {
+                label.removeAllActions()
+                fadeOutNode(label)
+            }
+        }
+    }
+    
+    func displayContinueLabel() {
+        if let label = continueLabel {
+            if self.savedGameUuid != nil && self.savedPlayer != nil {
                 fadeInNode(label)
                 slowPulseLabel(label)
             } else {
@@ -243,12 +301,15 @@ class StartScene: SKScene, GameManagerDelegate {
         fadeInNode(customGameLabel)
         fadeInNode(quickGameLabel)
         displayJoinLabel()
+        displayContinueLabel()
     }
     
     func clearStartUI() {
         errorMessageLabel.alpha = 0.0
         joinLabel?.removeAllActions()
         fadeOutNode(joinLabel)
+        continueLabel?.removeAllActions()
+        fadeOutNode(continueLabel)
         fadeOutNode(customGameLabel)
         fadeOutNode(quickGameLabel)
     }
