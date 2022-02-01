@@ -27,6 +27,7 @@ class JoinScene: SKScene, GameManagerDelegate {
     var presentedUuid: UUID?
     var preparingToJoin = false
     var savedGame: SavedGame?
+    private var menuNavigateLabel: SKLabelNode?
     private var roomSprites: [SKSpriteNode] = []
     private var roomLabels: [SKLabelNode] = []
     
@@ -45,6 +46,9 @@ class JoinScene: SKScene, GameManagerDelegate {
         messageLabel.preferredMaxLayoutWidth = size.width * 0.8
         messageLabel.verticalAlignmentMode = .center
         self.addChild(messageLabel)
+        
+        self.menuNavigateLabel = childNode(withName: "//menuNavigateLabel") as? SKLabelNode
+        menuNavigateLabel?.alpha = 0.0
         
         self.joinLabel = childNode(withName: "//joinLabel") as? SKLabelNode
         if let joinLabel = joinLabel {
@@ -71,7 +75,7 @@ class JoinScene: SKScene, GameManagerDelegate {
             roomLabels.append(label)
         }
         
-        displayRooms()
+        displayLabels()
         resumeGameUpdateTimer()
     }
     
@@ -101,6 +105,10 @@ class JoinScene: SKScene, GameManagerDelegate {
                     if roomSprites.contains(sprite) {
                         pressedRoomSprite(name)
                     }
+                }
+                // Menu pressed
+                if node.name == "menuNavigateButton" {
+                    menuNavigateButtonPressed()
                 }
             }
         }
@@ -193,6 +201,13 @@ class JoinScene: SKScene, GameManagerDelegate {
         joinGame(uuid)
     }
     
+    func menuNavigateButtonPressed() {
+        if let label = menuNavigateLabel {
+            pulseLabel(label)
+        }
+        moveToStartScene()
+    }
+    
     func displayGameOverview(_ uuid: UUID, continuingPlayerNickname: String? = nil) {
         guard let game = gameManager?.publicGames[uuid] else {
             return
@@ -255,6 +270,14 @@ class JoinScene: SKScene, GameManagerDelegate {
         }
     }
     
+    func moveToStartScene() {
+        if let startScene = StartScene(fileNamed: "StartScene") {
+            let transition = SKTransition.fade(withDuration: 1.0)
+            startScene.scaleMode = .aspectFit
+            scene?.view?.presentScene(startScene, transition: transition)
+        }
+    }
+    
     func getRoomPosition(_ roomIndex: Int) -> CGPoint {
         let xPosition = size.width * -0.35 + CGFloat(100 * (roomIndex % 6))
         let yPosition = size.height * -0.25 * CGFloat((Double(roomIndex / 6) - 0.5))
@@ -288,10 +311,28 @@ class JoinScene: SKScene, GameManagerDelegate {
             fadeOutNode(label)
         }
     }
+    
+    func displayMenuNavigateLabel() {
+        fadeInNode(menuNavigateLabel)
+    }
+    
+    func clearMenuNavigateLabel() {
+        fadeOutNode(menuNavigateLabel)
+    }
  
+    func displayLabels() {
+        displayRooms()
+        displayMenuNavigateLabel()
+    }
+    
+    func clearLabels() {
+        clearRooms()
+        clearMenuNavigateLabel()
+    }
+    
     func displayMessage(_ message: String) {
         isDisplayingMessage = true
-        clearRooms()
+        clearLabels()
         messageLabel.text = message
         fadeInNode(messageLabel)
     }
@@ -299,6 +340,6 @@ class JoinScene: SKScene, GameManagerDelegate {
     func clearMessage() {
         isDisplayingMessage = false
         fadeOutNode(messageLabel)
-        displayRooms()
+        displayLabels()
     }
 }
