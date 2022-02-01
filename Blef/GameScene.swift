@@ -733,9 +733,11 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         for (betIndex, bet) in history.enumerated() {
             if let images = BetToCards[bet.action] {
                 var newBetSprites: [SKSpriteNode] = []
+                let centeringOffset = Double(6 - images.count) / 2
                 for (cardIndex, cardImage) in images.enumerated() {
                     let sprite = SKSpriteNode(texture: SKTexture(image: cardImage), size: getCardSize())
-                    sprite.position = getBetCardPosition(cardIndex, withBetIndexOffset: history.count - betIndex - 1)
+                    
+                    sprite.position = getBetCardPosition(cardIndex, withBetIndexOffset: history.count - betIndex - 1, withCenteringOffset: centeringOffset)
                     sprite.alpha = 0
                     betScrollNode.addChild(sprite)
                     newBetSprites.append(sprite)
@@ -1026,8 +1028,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         return CGPoint(x: size.width * -0.15 + xOffset, y: size.width * 0.2 + yOffset)
     }
     
-    func getBetCardPosition(_ cardIndex: Int, withBetIndexOffset yOffset: Int = 0) -> CGPoint {
-        return CGPoint(x: CGFloat(60*cardIndex), y: CGFloat(80*yOffset))
+    func getBetCardPosition(_ cardIndex: Int, withBetIndexOffset yOffset: Int = 0, withCenteringOffset xOffset: Double = 0 ) -> CGPoint {
+        return CGPoint(x: CGFloat(60*cardIndex) + CGFloat(60*xOffset), y: CGFloat(80*yOffset))
     }
     
     func getCardSize() -> CGSize {
@@ -1035,7 +1037,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func getBetScrollNodePosition(offsetByNumBets: Int = 0) -> CGPoint {
-        return CGPoint(x: size.width * -0.4, y: CGFloat(-max(0, offsetByNumBets)) * getCardSize().height)
+        return CGPoint(x: size.width * -0.45, y: CGFloat(-max(0, offsetByNumBets)) * getCardSize().height)
     }
     
     func getTopScrollLimit() -> CGFloat{
