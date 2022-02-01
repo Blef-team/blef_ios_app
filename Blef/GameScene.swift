@@ -39,7 +39,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     private var inviteAILabel : SKLabelNode?
     private var exitLabel : SKLabelNode?
     private var playerLabels : [SKLabelNode] = []
-    private var actionPickerField: UITextField?
     private var playerCardSprites: [SKSpriteNode]?
     private var revealCardSprites: [[SKSpriteNode]]?
     private var revealNicknameLabels: [SKLabelNode]?
@@ -75,20 +74,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
         self.manageRoomLabel = self.childNode(withName: "//manageRoomLabel") as? SKLabelNode
         self.manageRoomLabel?.alpha = 0.0
-
-        self.actionPickerField = UITextField(frame: CGRect(x: UIScreen.main.bounds.size.width * 0.65, y: UIScreen.main.bounds.size.height * 0.4, width: 200, height: 30))
-        
-        actionPickerView = UIPickerView()
-        actionPickerView?.dataSource = self
-        actionPickerView?.delegate = self
-        if let myField = actionPickerField {
-            myField.inputView = actionPickerView
-            myField.font = UIFont(name: "HelveticaNeue-Light", size: 20)
-            myField.textColor = .black
-            myField.backgroundColor = .lightGray
-            myField.borderStyle = UITextField.BorderStyle.roundedRect
-            myField.delegate = self
-        }
         
         messageLabel = SKLabelNode(fontNamed:"HelveticaNeue-Light")
         messageLabel.text = ""
@@ -254,11 +239,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func didPlay(_ game: Game) {
-        if let playLabel = playLabel, let actionPickerField = actionPickerField {
+        if let playLabel = playLabel {
             fadeOutNode(playLabel)
-            actionPickerField.text = ""
-            actionPickerField.isHidden = true
-            actionPickerField.removeFromSuperview()
         }
         didUpdateGame(game)
     }
@@ -266,6 +248,24 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     func failedIllegalPlay() {
         print("failedIllegalPlay")
         displayMessage("You can't do that now")
+    }
+    
+    func getActionPickerView() {
+        self.actionPickerView = UIPickerView(frame: CGRect(x: UIScreen.main.bounds.width * 0.45, y: UIScreen.main.bounds.height * 0.5, width: max(300, UIScreen.main.bounds.width * 0.5), height: max(120, UIScreen.main.bounds.height * 0.3)))
+        if let actionPickerView = actionPickerView {
+            actionPickerView.dataSource = self
+            actionPickerView.delegate = self
+            actionPickerView.layer.zPosition = 10
+            self.view?.addSubview(actionPickerView)
+        }
+    }
+    
+    func clearActionPickerView() {
+        for subView in self.view?.subviews ?? [] {
+            if let picker = subView as? UIPickerView {
+                picker.removeFromSuperview()
+            }
+        }
     }
     
     func touchDown(atPoint pos : CGPoint) {
@@ -367,20 +367,29 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         return Action.allCases.count
     }
     
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        let actionId = getActionIdForRow(row)
-        if let action = Action.init(rawValue: actionId) {
-            return String(describing: action.description)
-        }
-        return "?"
-    }
-    
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         let actionId = getActionIdForRow(row)
-        if let myField = actionPickerField, let action = Action.init(rawValue: actionId){
-            myField.text = String(describing: action.description)
+        if let action = Action.init(rawValue: actionId){
             self.actionSelected = action
         }
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
+        var label = UILabel()
+        if let v = view as? UILabel { label = v }
+        if let frame = actionPickerView?.frame {
+            label.frame = CGRect(x: frame.midX, y: frame.midY, width: frame.width, height: frame.height / 6)
+        }
+        label.font = UIFont(name: "HelveticaNeue-Light", size: label.frame.height)
+        label.adjustsFontSizeToFitWidth = true
+        label.textColor = .white
+        label.textAlignment = .center
+        let actionId = getActionIdForRow(row)
+        label.text = "?"
+        if let action = Action.init(rawValue: actionId) {
+            label.text = String(describing: action.description)
+        }
+        return label
     }
     
     func getActionIdForRow(_ row: Int) -> Int {
@@ -601,8 +610,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         if let startScene = StartScene(fileNamed: "StartScene") {
             let transition = SKTransition.fade(withDuration: 1.0)
             startScene.scaleMode = .aspectFit
-            actionPickerView?.removeFromSuperview()
-            actionPickerField?.removeFromSuperview()
+            clearActionPickerView()
             scene?.view?.presentScene(startScene, transition: transition)
         }
     }
@@ -876,23 +884,17 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func displayPlayLabel() {
-        if let playLabel = self.playLabel, let player = self.player, let game = self.game, let actionPickerField = actionPickerField {
+        if let playLabel = self.playLabel, let player = self.player, let game = self.game {
             if game.status == .running && playerIsCurrentPlayer(player: player, game: game) {
                 pressedPlayButton = false
                 if playLabel.alpha < 1 {
                     fadeInNode(playLabel)
+                    getActionPickerView()
                 }
-                if self.view != nil && !actionPickerField.isDescendant(of: self.view!) {
-                    self.view!.addSubview(actionPickerField)
-                }
-                actionPickerField.isHidden = false
             }
             else {
-                if self.view != nil && actionPickerField.isDescendant(of: self.view!) {
-                    actionPickerField.removeFromSuperview()
-                }
-                actionPickerField.isHidden = true
                 fadeOutNode(playLabel)
+                clearActionPickerView()
             }
         }
     }
@@ -1033,7 +1035,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func getBetScrollNodePosition(offsetByNumBets: Int = 0) -> CGPoint {
-        return CGPoint(x: size.width * -0.35, y: CGFloat(-max(0, offsetByNumBets)) * getCardSize().height)
+        return CGPoint(x: size.width * -0.4, y: CGFloat(-max(0, offsetByNumBets)) * getCardSize().height)
     }
     
     func getTopScrollLimit() -> CGFloat{
@@ -1052,11 +1054,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         fadeOutNode(exitLabel)
         fadeOutNode(helpLabelSprite)
         fadeOutNode(playLabel)
+        clearActionPickerView()
         fadeOutNode(startGameLabel)
         fadeOutNode(manageRoomLabel)
-        if let actionPickerField = actionPickerField {
-            actionPickerField.isHidden = true
-        }
         for sprite in playerCardSprites ?? [] {
             fadeOutNode(sprite)
         }
