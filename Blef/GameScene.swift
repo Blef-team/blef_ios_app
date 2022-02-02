@@ -386,9 +386,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
         var label = UILabel()
         if let v = view as? UILabel { label = v }
-//        if let frame = actionPickerView?.frame {
-//            label.frame = CGRect(x: frame.minX, y: frame.minY, width: frame.width, height: frame.height / 6)
-//        }
         label.font = UIFont(name: "HelveticaNeue-Light", size: 18)
         label.adjustsFontSizeToFitWidth = true
         label.textColor = .white
