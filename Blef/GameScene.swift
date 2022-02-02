@@ -253,7 +253,16 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func getActionPickerView() {
-        self.actionPickerView = UIPickerView(frame: CGRect(x: UIScreen.main.bounds.width * 0.45, y: UIScreen.main.bounds.height * 0.5, width: max(300, UIScreen.main.bounds.width * 0.5), height: max(120, UIScreen.main.bounds.height * 0.3)))
+        let windowSize = self.view!.frame.size
+        let originalAspect = originalSize.width / originalSize.height
+        let windowAspect = windowSize.width / windowSize.height
+        let xScaling = max(1.0, windowAspect / originalAspect)
+        let yScaling = max(1.0, originalAspect / windowAspect)
+        let width = UIScreen.main.bounds.width * 0.45 / xScaling
+        let height = UIScreen.main.bounds.height * 0.35 / yScaling
+        let xPosition = UIScreen.main.bounds.width * computeRescaledPosition(0.5, xScaling)
+        let yPosition = UIScreen.main.bounds.height * computeRescaledPosition(0.5, yScaling)
+        self.actionPickerView = UIPickerView(frame: CGRect(x: xPosition, y: yPosition, width: width, height: height))
         if let actionPickerView = actionPickerView {
             actionPickerView.dataSource = self
             actionPickerView.delegate = self
@@ -396,10 +405,10 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
         var label = UILabel()
         if let v = view as? UILabel { label = v }
-        if let frame = actionPickerView?.frame {
-            label.frame = CGRect(x: frame.midX, y: frame.midY, width: frame.width, height: frame.height / 6)
-        }
-        label.font = UIFont(name: "HelveticaNeue-Light", size: label.frame.height)
+//        if let frame = actionPickerView?.frame {
+//            label.frame = CGRect(x: frame.minX, y: frame.minY, width: frame.width, height: frame.height / 6)
+//        }
+        label.font = UIFont(name: "HelveticaNeue-Light", size: 18)
         label.adjustsFontSizeToFitWidth = true
         label.textColor = .white
         label.textAlignment = .center

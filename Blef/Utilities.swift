@@ -196,3 +196,7 @@ func saveGames(_ games: SavedGamesDict, persistentStore: UserDefaults = UserDefa
     let serialisedGames = games.mapValues { game in return game.serialised }
     persistentStore.set(serialisedGames, forKey: SavedGamesKey)
 }
+
+func computeRescaledPosition(_ distanceRatio: CGFloat, _ scaling: CGFloat) -> CGFloat {
+    return distanceRatio * scaling + (1 - scaling) / 2
+}
