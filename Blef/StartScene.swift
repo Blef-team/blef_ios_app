@@ -95,6 +95,29 @@ class StartScene: SKScene, GameManagerDelegate {
         }
     }
     
+    override func update(_ currentTime: TimeInterval) {
+        // Called before each frame is rendered
+        adjustSceneAspect()
+    }
+    
+    func adjustSceneAspect() {
+        do {
+            let originalSize = CGSize(width: 666.999, height: 375)
+            let winSize = self.view!.frame.size
+            let originalAspect = originalSize.width/originalSize.height
+            let winAspect = winSize.width/winSize.height
+            var newSize = originalSize; do {
+                if winAspect > originalAspect {
+                    newSize.width = originalSize.height * winAspect
+                } else if winAspect < originalAspect {
+                    newSize.height = originalSize.width / winAspect
+                }
+            }
+            self.size = newSize
+            self.scaleMode = .aspectFit
+        }
+    }
+    
     func getSavedGame() {
         let savedGames = getSavedGames()
         if savedGames.count < 1 {
