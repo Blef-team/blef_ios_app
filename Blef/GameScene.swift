@@ -30,7 +30,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     var betScrollLastY: CGFloat = 0.0
     var isBetScrolling = false
     var viewingBetIndex: Int?
-    var originalSize = CGSize(width: 666.999, height: 375)
     var adjustSceneAspectDone = false
     private var menuNavigateLabel: SKLabelNode?
     private var startGameLabel: SKLabelNode?
@@ -363,26 +362,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         // Called before each frame is rendered
         updateHistoryBetsAlpha()
         updateBettingPlayerLabel()
-        adjustSceneAspect()
-    }
-    
-    func adjustSceneAspect() {
-        if adjustSceneAspectDone {
-            return
-        }
-        let winSize = self.view!.frame.size
-        let originalAspect = originalSize.width/originalSize.height
-        let windowAspect = winSize.width/winSize.height
-        var newSize = originalSize; do {
-            if windowAspect > originalAspect {
-                newSize.width = originalSize.height * windowAspect
-            } else if windowAspect < originalAspect {
-                newSize.height = originalSize.width / windowAspect
-            }
-        }
-        self.size = newSize
-        self.scaleMode = .aspectFit
-        adjustSceneAspectDone = true
+        adjustSceneAspect(self)
     }
     
     func numberOfComponents(in pickerView: UIPickerView) -> Int {

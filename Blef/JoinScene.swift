@@ -27,7 +27,6 @@ class JoinScene: SKScene, GameManagerDelegate {
     var presentedUuid: UUID?
     var preparingToJoin = false
     var savedGame: SavedGame?
-    var originalSize = CGSize(width: 666.999, height: 375)
     var adjustSceneAspectDone = false
     private var menuNavigateLabel: SKLabelNode?
     private var roomSprites: [SKSpriteNode] = []
@@ -118,26 +117,7 @@ class JoinScene: SKScene, GameManagerDelegate {
     
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
-        adjustSceneAspect()
-    }
-    
-    func adjustSceneAspect() {
-        if adjustSceneAspectDone {
-            return
-        }
-        let winSize = self.view!.frame.size
-        let originalAspect = originalSize.width/originalSize.height
-        let windowAspect = winSize.width/winSize.height
-        var newSize = originalSize; do {
-            if windowAspect > originalAspect {
-                newSize.width = originalSize.height * windowAspect
-            } else if windowAspect < originalAspect {
-                newSize.height = originalSize.width / windowAspect
-            }
-        }
-        self.size = newSize
-        self.scaleMode = .aspectFit
-        adjustSceneAspectDone = true
+        adjustSceneAspect(self)
     }
     
     func resumeGameUpdateTimer() {

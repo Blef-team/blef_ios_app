@@ -200,3 +200,44 @@ func saveGames(_ games: SavedGamesDict, persistentStore: UserDefaults = UserDefa
 func computeRescaledPosition(_ distanceRatio: CGFloat, _ scaling: CGFloat) -> CGFloat {
     return distanceRatio * scaling + (1 - scaling) / 2
 }
+
+var originalSize = CGSize(width: 666.999, height: 375)
+
+func adjustSceneAspect(_ scene: GameScene) {
+    if scene.adjustSceneAspectDone {
+        return
+    }
+    adjustSceneAspect(scene as SKScene)
+    scene.adjustSceneAspectDone = true
+}
+
+func adjustSceneAspect(_ scene: StartScene) {
+    if scene.adjustSceneAspectDone {
+        return
+    }
+    adjustSceneAspect(scene as SKScene)
+    scene.adjustSceneAspectDone = true
+}
+
+func adjustSceneAspect(_ scene: JoinScene) {
+    if scene.adjustSceneAspectDone {
+        return
+    }
+    adjustSceneAspect(scene as SKScene)
+    scene.adjustSceneAspectDone = true
+}
+
+func adjustSceneAspect(_ scene: SKScene) {
+    let winSize = scene.view!.frame.size
+    let originalAspect = originalSize.width/originalSize.height
+    let windowAspect = winSize.width/winSize.height
+    var newSize = originalSize; do {
+        if windowAspect > originalAspect {
+            newSize.width = originalSize.height * windowAspect
+        } else if windowAspect < originalAspect {
+            newSize.height = originalSize.width / windowAspect
+        }
+    }
+    scene.size = newSize
+    scene.scaleMode = .aspectFit
+}
