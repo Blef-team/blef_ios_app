@@ -382,6 +382,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
         self.size = newSize
         self.scaleMode = .aspectFit
+        adjustSceneAspectDone = true
     }
     
     func numberOfComponents(in pickerView: UIPickerView) -> Int {

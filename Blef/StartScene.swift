@@ -31,7 +31,8 @@ class StartScene: SKScene, GameManagerDelegate {
     var preparingQuickGame = false
     var numberOfQuickGameAIAgents = 2
     var invitedAIs = 0
-
+    var originalSize = CGSize(width: 666.999, height: 375)
+    var adjustSceneAspectDone = false
     
     override func didMove(to view: SKView) {
         
@@ -101,21 +102,22 @@ class StartScene: SKScene, GameManagerDelegate {
     }
     
     func adjustSceneAspect() {
-        do {
-            let originalSize = CGSize(width: 666.999, height: 375)
-            let winSize = self.view!.frame.size
-            let originalAspect = originalSize.width/originalSize.height
-            let winAspect = winSize.width/winSize.height
-            var newSize = originalSize; do {
-                if winAspect > originalAspect {
-                    newSize.width = originalSize.height * winAspect
-                } else if winAspect < originalAspect {
-                    newSize.height = originalSize.width / winAspect
-                }
-            }
-            self.size = newSize
-            self.scaleMode = .aspectFit
+        if adjustSceneAspectDone {
+            return
         }
+        let winSize = self.view!.frame.size
+        let originalAspect = originalSize.width/originalSize.height
+        let windowAspect = winSize.width/winSize.height
+        var newSize = originalSize; do {
+            if windowAspect > originalAspect {
+                newSize.width = originalSize.height * windowAspect
+            } else if windowAspect < originalAspect {
+                newSize.height = originalSize.width / windowAspect
+            }
+        }
+        self.size = newSize
+        self.scaleMode = .aspectFit
+        adjustSceneAspectDone = true
     }
     
     func getSavedGame() {
