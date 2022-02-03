@@ -31,7 +31,7 @@ class StartScene: SKScene, GameManagerDelegate {
     var preparingQuickGame = false
     var numberOfQuickGameAIAgents = 2
     var invitedAIs = 0
-
+    var adjustSceneAspectDone = false
     
     override func didMove(to view: SKView) {
         
@@ -93,6 +93,11 @@ class StartScene: SKScene, GameManagerDelegate {
                 }
             }
         }
+    }
+    
+    override func update(_ currentTime: TimeInterval) {
+        // Called before each frame is rendered
+        adjustSceneAspect(self)
     }
     
     func getSavedGame() {

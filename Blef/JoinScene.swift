@@ -27,6 +27,7 @@ class JoinScene: SKScene, GameManagerDelegate {
     var presentedUuid: UUID?
     var preparingToJoin = false
     var savedGame: SavedGame?
+    var adjustSceneAspectDone = false
     private var menuNavigateLabel: SKLabelNode?
     private var roomSprites: [SKSpriteNode] = []
     private var roomLabels: [SKLabelNode] = []
@@ -112,6 +113,11 @@ class JoinScene: SKScene, GameManagerDelegate {
                 }
             }
         }
+    }
+    
+    override func update(_ currentTime: TimeInterval) {
+        // Called before each frame is rendered
+        adjustSceneAspect(self)
     }
     
     func resumeGameUpdateTimer() {
