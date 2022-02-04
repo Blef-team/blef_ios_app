@@ -626,6 +626,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func displayHands(_ hands: [NamedHand]) {
+        clearDisplayedHands()
         if let revealCardSprites = revealCardSprites, let revealNicknameLabels = revealNicknameLabels {
             fadeOutNode(messageLabel)
             displayMessage("")
