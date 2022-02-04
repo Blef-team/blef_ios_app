@@ -293,6 +293,10 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func touchUp(atPoint pos : CGPoint) {
+        if isBetScrolling {
+            isBetScrolling = false
+            return
+        }
         isBetScrolling = false
         if self.isDisplayingMessage {
             clearMessage()
