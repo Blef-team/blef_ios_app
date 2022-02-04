@@ -49,6 +49,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     private var historyBets: [[SKSpriteNode]] = []
     private var helpLabelSprite: SKSpriteNode?
     private var manageRoomLabel: SKLabelNode?
+    private var soundNode = SKNode()
     
     override func didMove(to view: SKView) {
         
@@ -143,6 +144,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         addChild(helpLabelSprite)
         self.helpLabelSprite = helpLabelSprite
         
+        addChild(soundNode)
+        
         resumeGameUpdateTimer()
     }
     
@@ -199,17 +202,20 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     
     func didUpdateGame(_ game: Game) {
         print(game)
+        var displayingHands = false
         if game.lastModified <= self.game?.lastModified ?? 0 {
             if let receivedHands = game.hands {
                 if game.roundNumber < self.game?.roundNumber ?? 0 && game.hands?.count ?? 0 > 1 {
                     print("Received an old game state update, but will display hands")
                     displayHands(receivedHands)
+                    displayingHands = true
                 }
             } else {
                 print("Received an old game state update, ignoring")
             }
             return
         }
+
         self.game = game
         saveGame()
         self.lastBet = game.history?.last?.action
@@ -218,9 +224,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
         
         if let hands = game.hands {
-            
             if hands.count > 1 {
                 displayHands(hands)
+                displayingHands = true
                 self.roundNumber = nil // Go to the latest round
             }
         }
@@ -233,6 +239,20 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
         }
         updateGameUI()
+        
+        var lostRound = false
+        if let player = player {
+            if checkPlayerLostRound(player, game) {
+                lostRound = true
+                soundNode.removeAllActions()
+                soundNode.run(playLossSound)
+            }
+        }
+        if !displayingHands && !lostRound {
+            if !soundNode.hasActions() {
+                soundNode.run(playUpdateSound)
+            }
+        }
     }
     
     func didResetWatchGameWebsocket() {
@@ -920,6 +940,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 if game.status == .finished {
                     if playerInfo.nCards > 0 {
                         displayMessage("You won")
+                        soundNode.removeAllActions()
+                        soundNode.run(playWinSound)
                     }
                     else {
                         displayMessage("Game over")
