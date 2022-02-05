@@ -262,11 +262,14 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func getActionPickerView() {
-        let windowSize = self.view!.frame.size
-        let originalAspect = originalSize.width / originalSize.height
-        let windowAspect = windowSize.width / windowSize.height
-        let xScaling = max(1.0, windowAspect / originalAspect)
-        let yScaling = max(1.0, originalAspect / windowAspect)
+        var xScaling = 1.0
+        var yScaling = 1.0
+        if let windowSize = self.view?.frame.size {
+            let originalAspect = originalSize.width / originalSize.height
+            let windowAspect = windowSize.width / windowSize.height
+            xScaling = max(1.0, windowAspect / originalAspect)
+            yScaling = max(1.0, originalAspect / windowAspect)
+        }
         let width = UIScreen.main.bounds.width * 0.45 / xScaling
         let height = UIScreen.main.bounds.height * 0.35 / yScaling
         let xPosition = UIScreen.main.bounds.width * computeRescaledPosition(0.5, xScaling)
