@@ -56,16 +56,22 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     
         self.menuNavigateLabel = childNode(withName: "//menuNavigateLabel") as? SKLabelNode
         menuNavigateLabel?.alpha = 0.0
+        menuNavigateLabel?.text = NSLocalizedString("menu", comment: "Button name to move to StartScene")
         self.startGameLabel = childNode(withName: "//startGameLabel") as? SKLabelNode
         startGameLabel?.alpha = 0.0
+        startGameLabel?.text = NSLocalizedString("startGame", comment: "Button name to start the game")
         self.playLabel = childNode(withName: "//playLabel") as? SKLabelNode
         playLabel?.alpha = 0.0
+        playLabel?.text = NSLocalizedString("play", comment: "Button name to play a move")
         self.shareLabel = self.childNode(withName: "//shareLabel") as? SKLabelNode
         shareLabel?.alpha = 0.0
+        shareLabel?.text = NSLocalizedString("share", comment: "Button name to share a game link")
         self.inviteAILabel = self.childNode(withName: "//inviteAILabel") as? SKLabelNode
         inviteAILabel?.alpha = 0.0
+        inviteAILabel?.text = NSLocalizedString("inviteAI", comment: "Button name to invite an AI")
         self.exitLabel = self.childNode(withName: "//exitLabel") as? SKLabelNode
         exitLabel?.alpha = 0.0
+        exitLabel?.text = NSLocalizedString("exit", comment: "Button name to exit the game")
         for i in 1...8 {
             if let label = self.childNode(withName: "//player\(i)Label") as? SKLabelNode {
                 label.text = ""
@@ -75,6 +81,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
         self.manageRoomLabel = self.childNode(withName: "//manageRoomLabel") as? SKLabelNode
         self.manageRoomLabel?.alpha = 0.0
+        manageRoomLabel?.text = NSLocalizedString("openRoom", comment: "Button name to open the game room")
         
         messageLabel = SKLabelNode(fontNamed:"HelveticaNeue-Light")
         messageLabel.text = ""
@@ -88,7 +95,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         
         self.helloLabel = self.childNode(withName: "//helloLabel") as? SKLabelNode
         if let label = self.helloLabel {
-            label.text = "Hello, \(formatDisplayNickname(player?.nickname ?? "new player"))"
+            let helloText = NSLocalizedString("hello", comment: "Hello greeting")
+            label.text = "\(helloText), \(formatDisplayNickname(player?.nickname ?? "new player"))"
             label.run(SKAction.fadeOut(withDuration: 2.0))
         }
         
@@ -170,7 +178,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func didFailWithError(error: Error) {
-        displayMessage("Something went wrong.")
+        let messageText = NSLocalizedString("errorMessage", comment: "Message to say something went wrong")
+        displayMessage(messageText)
     }
     
     func didJoinGame() {
@@ -248,7 +257,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     
     func failedIllegalPlay() {
         print("failedIllegalPlay")
-        displayMessage("You can't do that now")
+        let messageText = NSLocalizedString("illegalMoveMessage", comment: "Message to say you can't do that")
+        displayMessage(messageText)
     }
     
     func getActionPickerView() {
@@ -510,9 +520,10 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
         }
         let pasteboard = UIPasteboard.general
-        displayMessage("Share the link with another player")
+        let messageText = NSLocalizedString("shareMessage", comment: "Message to say share the link with another player")
+        displayMessage(messageText)
         
-        let firstActivityItem = "Join me for a game of Blef"
+        let firstActivityItem = NSLocalizedString("inviteString", comment: "Text message to invite someone with")
         if let uuid = gameManager?.gameUuid?.uuidString.lowercased() {
             let gameUrlString = "blef:///\(uuid)"
             pasteboard.string = gameUrlString
@@ -572,21 +583,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func helpLabelSpritePressed() {
-        let gameRules = """
-                        Game rules
-
-                        There are 24 cards in the deck (9 to Ace).
-                        New cards are dealt to each player at the start of each round.
-
-                        In Blef, you can only bet or check.
-                        E.g. if you bet "Pair of 9s", you are betting that at least two 9s can be found among all cards dealt this round.
-                        
-                        If anyone checks, the round ends.
-                        If someone checks your bet and it can't be found among all cards, you lose the round and gain a card.
-                        If your bet was correct, the player who checked you loses and gains a card.
-
-                        Reach too many cards and you're out of the game.
-                        """
+        let gameRules = NSLocalizedString("gameRules", comment: "Multi-line description of the game rules")
         displayMessage(gameRules)
     }
     
@@ -626,9 +623,10 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             fadeOutNode(messageLabel)
             displayMessage("")
             
+            let youText = NSLocalizedString("you", comment: "Second person singular pronoun")
             var playerIndex = 0
             for namedHand in hands {
-                let nickname = (namedHand.nickname == player?.nickname ? "You" : formatDisplayNickname(namedHand.nickname) )
+                let nickname = (namedHand.nickname == player?.nickname ? youText : formatDisplayNickname(namedHand.nickname) )
                 if namedHand.hand.count == 0 {
                     continue
                 }
@@ -668,19 +666,20 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             if i > playerLabels.endIndex {
                 continue
             }
+            let playerText = NSLocalizedString("player", comment: "The noun describing a game participant")
             var displayNickname = formatDisplayNickname(playerObject.nickname)
-            if playerObject.nickname == player.nickname ?? "Player \(i)" {
-                displayNickname = "You"
+            if playerObject.nickname == player.nickname ?? "\(playerText) \(i)" {
+                displayNickname = NSLocalizedString("you", comment: "Second person singular pronoun")
             }
             var cardsStatus = ""
             if playerObject.nCards > 0 {
                 if game.status == .running {
                     cardsStatus = String(playerObject.nCards)
                 } else {
-                    cardsStatus = "won"
+                    cardsStatus = NSLocalizedString("won", comment: "Third person perfect aspect of the verb to win")
                 }
             } else if game.status == .finished {
-                cardsStatus = "lost"
+                cardsStatus = NSLocalizedString("lost", comment: "Third person perfect aspect of the verb to lose")
             }
             let label = playerLabels[i]
             label.text = "\(displayNickname): \(cardsStatus)"
@@ -914,16 +913,19 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 
                 if game.status == .finished {
                     if playerInfo.nCards > 0 {
-                        displayMessage("You won")
+                        let youWonMessage = NSLocalizedString("youWon", comment: "Message to say that you won in the game")
+                        displayMessage(youWonMessage)
                     }
                     else {
-                        displayMessage("Game over")
+                        let gameOverMessage = NSLocalizedString("gameOver", comment: "Message to say that the game is over")
+                        displayMessage(gameOverMessage)
                     }
                 }
                 else if game.status != .notStarted && playerInfo.nCards == 0 {
                     if !playerLost {
                         playerLost = true
-                        displayMessage("You lost")
+                        let youLostMessage = NSLocalizedString("youLost", comment: "Message to say that you lost in the game")
+                        displayMessage(youLostMessage)
                     }
                 }
             }
@@ -988,9 +990,10 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
         if let player = self.player, let game = self.game, let room = game.room {
             if canManageRoom(game, player) {
-                label.text = "Open the room"
+                label.text = NSLocalizedString("openRoom", comment: "Button name to open the game room")
                 if game.isPublic {
-                    label.text = "Room \(room)"
+                    let roomText = NSLocalizedString("room", comment: "The noun meaning a closed space that can be occupied")
+                    label.text = "\(roomText) \(room)"
                 }
                 fadeInNode(label)
                 return
