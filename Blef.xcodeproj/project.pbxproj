@@ -30,6 +30,7 @@
 		479E2A26244744EF004BF702 /* BlefTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479E2A25244744EF004BF702 /* BlefTests.swift */; };
 		479E2A31244744EF004BF702 /* BlefUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479E2A30244744EF004BF702 /* BlefUITests.swift */; };
 		47A21E81245E4DC500286A71 /* BetToCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47A21E80245E4DC500286A71 /* BetToCards.swift */; };
+		47A282C127AE1D9A00834C9F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 47A282C327AE1D9A00834C9F /* Localizable.strings */; };
 		47E15A5327A47EFE00026D24 /* SavedGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E15A5227A47EFE00026D24 /* SavedGame.swift */; };
 		47F035F7244B0BFE000136C1 /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47F035F6244B0BFE000136C1 /* Game.swift */; };
 		47F2E91C2448BF37006DCB5C /* StartScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 47F2E91B2448BF37006DCB5C /* StartScene.sks */; };
@@ -89,6 +90,13 @@
 		479E2A30244744EF004BF702 /* BlefUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlefUITests.swift; sourceTree = "<group>"; };
 		479E2A32244744EF004BF702 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		47A21E80245E4DC500286A71 /* BetToCards.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BetToCards.swift; sourceTree = "<group>"; };
+		47A282C227AE1D9A00834C9F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		47A282C427AE1E6E00834C9F /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/Main.strings; sourceTree = "<group>"; };
+		47A282C527AE1E6E00834C9F /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
+		47A282C627AE1E6E00834C9F /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/Localizable.strings; sourceTree = "<group>"; };
+		47A282C727AE1E7400834C9F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Main.strings"; sourceTree = "<group>"; };
+		47A282C827AE1E7400834C9F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
+		47A282C927AE1E7400834C9F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		47E15A5227A47EFE00026D24 /* SavedGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedGame.swift; sourceTree = "<group>"; };
 		47F035F6244B0BFE000136C1 /* Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game.swift; sourceTree = "<group>"; };
 		47F2114627407106006EFBA6 /* Blef.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Blef.entitlements; sourceTree = "<group>"; };
@@ -185,6 +193,7 @@
 			isa = PBXGroup;
 			children = (
 				47F2114627407106006EFBA6 /* Blef.entitlements */,
+				47A282C327AE1D9A00834C9F /* Localizable.strings */,
 				479E2A0A244744EC004BF702 /* AppDelegate.swift */,
 				479E2A0E244744EC004BF702 /* Actions.sks */,
 				479E2A0C244744EC004BF702 /* GameScene.sks */,
@@ -321,6 +330,8 @@
 			knownRegions = (
 				en,
 				Base,
+				pl,
+				"zh-Hans",
 			);
 			mainGroup = 479E29FE244744EB004BF702;
 			productRefGroup = 479E2A08244744EC004BF702 /* Products */;
@@ -344,6 +355,7 @@
 				479E2A0D244744EC004BF702 /* GameScene.sks in Resources */,
 				479E2A18244744EF004BF702 /* Assets.xcassets in Resources */,
 				47F2E91C2448BF37006DCB5C /* StartScene.sks in Resources */,
+				47A282C127AE1D9A00834C9F /* Localizable.strings in Resources */,
 				479E2A1B244744EF004BF702 /* LaunchScreen.storyboard in Resources */,
 				479E2A0F244744EC004BF702 /* Actions.sks in Resources */,
 			);
@@ -495,6 +507,8 @@
 			isa = PBXVariantGroup;
 			children = (
 				479E2A15244744EC004BF702 /* Base */,
+				47A282C427AE1E6E00834C9F /* pl */,
+				47A282C727AE1E7400834C9F /* zh-Hans */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -503,8 +517,20 @@
 			isa = PBXVariantGroup;
 			children = (
 				479E2A1A244744EF004BF702 /* Base */,
+				47A282C527AE1E6E00834C9F /* pl */,
+				47A282C827AE1E7400834C9F /* zh-Hans */,
 			);
 			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		47A282C327AE1D9A00834C9F /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				47A282C227AE1D9A00834C9F /* en */,
+				47A282C627AE1E6E00834C9F /* pl */,
+				47A282C927AE1E7400834C9F /* zh-Hans */,
+			);
+			name = Localizable.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -514,6 +540,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -575,6 +602,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -631,7 +659,6 @@
 			baseConfigurationReference = B1DAB7CE90C576564A3D0AF8 /* Pods-Blef.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = Blef/Blef.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1.1.1;
@@ -656,7 +683,6 @@
 			baseConfigurationReference = 9D59782A9F7B87FB445FA494 /* Pods-Blef.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = Blef/Blef.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1.1.1;
