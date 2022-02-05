@@ -227,9 +227,10 @@ class JoinScene: SKScene, GameManagerDelegate {
         presentedUuid = uuid
         var playersString = ""
         if let players = game.players {
-            let playersInRoomText = NSLocalizedString("playersInRoom", comment: "State that players in room (... are ...)")
+            let playersInRoomPrefixText = NSLocalizedString("playersInRoomPrefix", comment: "State that players in room (... are ...)")
+            let playersInRoomPostfixText = NSLocalizedString("playersInRoomPostfix", comment: "POSTFIX FOR: State that players in room (... are ...)")
             let youText = NSLocalizedString("you", comment: "Second person singular pronoun")
-            playersString = "\(playersInRoomText) \(game.room):\n"
+            playersString = "\(playersInRoomPrefixText) \(game.room) \(playersInRoomPostfixText):\n"
             playersString += players.map { nickname in
                 return (nickname == savedGame?.playerNickname) ? youText : formatDisplayNickname(nickname)
             }.map(formatDisplayNickname).joined(separator: "\n")
