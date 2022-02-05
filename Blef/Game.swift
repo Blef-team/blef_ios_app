@@ -256,183 +256,183 @@ enum Action: Int, CaseIterable {
     var description: String {
         switch self {
         case .highCard9:
-           return "9"
+           return NSLocalizedString("highCard9", comment: "High card 9")
         case .highCard10:
-            return "10"
+            return NSLocalizedString("highCard10", comment: "High card 10")
         case .highCardJ:
-            return "Jack"
+            return NSLocalizedString("highCardJ", comment: "High card Jack")
         case .highCardQ:
-            return "Queen"
+            return NSLocalizedString("highCardQ", comment: "High card Queen")
         case .highCardK:
-            return "King"
+            return NSLocalizedString("highCardK", comment: "High card King")
         case .highCardA:
-            return "Ace"
+            return NSLocalizedString("highCardA", comment: "High card Ace")
         case .pairOf9s:
-            return "Pair of 9s"
+            return NSLocalizedString("pairOf9s", comment: "Pair of 9s")
         case .pairOf10s:
-            return "Pair of 10s"
+            return NSLocalizedString("pairOf10s", comment: "Pair of 10s")
         case .pairOfJs:
-            return "Pair of Jacks"
+            return NSLocalizedString("pairOfJs", comment: "Pair of Jacks")
         case .pairOfQs:
-            return "Pair of Queens"
+            return NSLocalizedString("pairOfQs", comment: "Pair of Queens")
         case .pairOfKs:
-            return "Pair of Kings"
+            return NSLocalizedString("pairOfKs", comment: "Pair of Kings")
         case .pairOfAs:
-            return "Pair of Aces"
+            return NSLocalizedString("pairOfAs", comment: "Pair of Aces")
         case .twoPairs10sAnd9s:
-            return "Two pair, 10s and 9s"
+            return NSLocalizedString("twoPairs10sAnd9s", comment: "Two pair, 10s and 9s")
         case .twoPairsJsAnd9s:
-            return "Two pair, Jacks and 9s"
+            return NSLocalizedString("twoPairsJsAnd9s", comment: "Two pair, Jacks and 9s")
         case .twoPairsJsAnd10s:
-            return "Two pair, Jacks and 10s"
+            return NSLocalizedString("twoPairsJsAnd10s", comment: "Two pair, Jacks and 10s")
         case .twoPairsQsAnd9s:
-            return "Two pair, Queens and 9s"
+            return NSLocalizedString("twoPairsQsAnd9s", comment: "Two pair, Queens and 9s")
         case .twoPairsQsAnd10s:
-            return "Two pair, Queens and 10s"
+            return NSLocalizedString("twoPairsQsAnd10s", comment: "Two pair, Queens and 10s")
         case .twoPairsQsAndJs:
-            return "Two pair, Queens and Jacks"
+            return NSLocalizedString("twoPairsQsAndJs", comment: "Two pair, Queens and Jacks")
         case .twoPairsKsAnd9s:
-            return "Two pair, Kings and 9s"
+            return NSLocalizedString("twoPairsKsAnd9s", comment: "Two pair, Kings and 9s")
         case .twoPairsKsAnd10s:
-            return "Two pair, Kings and 10s"
+            return NSLocalizedString("twoPairsKsAnd10s", comment: "Two pair, Kings and 10s")
         case .twoPairsKsAndJs:
-            return "Two pair, Kings and Jacks"
+            return NSLocalizedString("twoPairsKsAndJs", comment: "Two pair, Kings and Jacks")
         case .twoPairsKsAndQs:
-            return "Two pair, Kings and Queens"
+            return NSLocalizedString("twoPairsKsAndQs", comment: "Two pair, Kings and Queens")
         case .twoPairsAsAnd9s:
-            return "Two pair, Aces and 9s"
+            return NSLocalizedString("twoPairsAsAnd9s", comment: "Two pair, Aces and 9s")
         case .twoPairsAsAnd10s:
-            return "Two pair, Aces and 10s"
+            return NSLocalizedString("twoPairsAsAnd10s", comment: "Two pair, Aces and 10s")
         case .twoPairsAsAndJs:
-            return "Two pair, Aces and Jacks"
+            return NSLocalizedString("twoPairsAsAndJs", comment: "Two pair, Aces and Jacks")
         case .twoPairsAsAndQs:
-            return "Two pair, Aces and Queens"
+            return NSLocalizedString("twoPairsAsAndQs", comment: "Two pair, Aces and Queens")
         case .twoPairsAsAndKs:
-            return "Two pair, Aces and Kings"
+            return NSLocalizedString("twoPairsAsAndKs", comment: "Two pair, Aces and Kings")
         case .smallStraight:
-            return "Small straight (9-King)"
+            return NSLocalizedString("smallStraight", comment: "Small straight (9-King)")
         case .bigStraight:
-            return "Big straight (10-Ace)"
+            return NSLocalizedString("bigStraight", comment: "Big straight (10-Ace)")
         case .greatStraight:
-            return "Great straight (9-Ace)"
+            return NSLocalizedString("greatStraight", comment: "Great straight (9-Ace)")
         case .three9s:
-            return "Three 9s"
+            return NSLocalizedString("three9s", comment: "Three 9s")
         case .three10s:
-            return "Three 10s"
+            return NSLocalizedString("three10s", comment: "Three 10s")
         case .threeJs:
-            return "Three Jacks"
+            return NSLocalizedString("threeJs", comment: "Three Jacks")
         case .threeQs:
-            return "Three Queens"
+            return NSLocalizedString("threeQs", comment: "Three Queens")
         case .threeKs:
-            return "Three Kings"
+            return NSLocalizedString("threeKs", comment: "Three Kings")
         case .threeAs:
-            return "Three Aces"
+            return NSLocalizedString("threeAs", comment: "Three Aces")
         case .fullHouse9sOver10s:
-            return "Full house, 9s over 10s"
+            return NSLocalizedString("fullHouse9sOver10s", comment: "Full house, 9s over 10s")
         case .fullHouse9sOverJs:
-            return "Full house, 9s over Jacks"
+            return NSLocalizedString("fullHouse9sOverJs", comment: "Full house, 9s over Jacks")
         case .fullHouse9sOverQs:
-            return "Full house, 9s over Queens"
+            return NSLocalizedString("fullHouse9sOverQs", comment: "Full house, 9s over Queens")
         case .fullHouse9sOverKs:
-            return "Full house, 9s over Kings"
+            return NSLocalizedString("fullHouse9sOverKs", comment: "Full house, 9s over Kings")
         case .fullHouse9sOverAs:
-            return "Full house, 9s over Aces"
+            return NSLocalizedString("fullHouse9sOverAs", comment: "Full house, 9s over Aces")
         case .fullHouse10sOver9s:
-            return "Full house, 10s over 9s"
+            return NSLocalizedString("fullHouse10sOver9s", comment: "Full house, 10s over 9s")
         case .fullHouse10sOverJs:
-            return "Full house, 10s over Jacks"
+            return NSLocalizedString("fullHouse10sOverJs", comment: "Full house, 10s over Jacks")
         case .fullHouse10sOverQs:
-            return "Full house, 10s over Queens"
+            return NSLocalizedString("fullHouse10sOverQs", comment: "Full house, 10s over Queens")
         case .fullHouse10sOverKs:
-            return "Full house, 10s over Kings"
+            return NSLocalizedString("fullHouse10sOverKs", comment: "Full house, 10s over Kings")
         case .fullHouse10sOverAs:
-            return "Full house, 10s over Aces"
+            return NSLocalizedString("fullHouse10sOverAs", comment: "Full house, 10s over Aces")
         case .fullHouseJsOver9s:
-            return "Full house, Jacks over 9s"
+            return NSLocalizedString("fullHouseJsOver9s", comment: "Full house, Jacks over 9s")
         case .fullHouseJsOver10s:
-            return "Full house, Jacks over 10s"
+            return NSLocalizedString("fullHouseJsOver10s", comment: "Full house, Jacks over 10s")
         case .fullHouseJsOverQs:
-            return "Full house, Jacks over Queens"
+            return NSLocalizedString("fullHouseJsOverQs", comment: "Full house, Jacks over Queens")
         case .fullHouseJsOverKs:
-            return "Full house, Jacks over Kings"
+            return NSLocalizedString("fullHouseJsOverKs", comment: "Full house, Jacks over Kings")
         case .fullHouseJsOverAs:
-            return "Full house, Jacks over Aces"
+            return NSLocalizedString("fullHouseJsOverAs", comment: "Full house, Jacks over Aces")
         case .fullHouseQsOver9s:
-            return "Full house, Queens over 9s"
+            return NSLocalizedString("fullHouseQsOver9s", comment: "Full house, Queens over 9s")
         case .fullHouseQsOver10s:
-            return "Full house, Queens over 10s"
+            return NSLocalizedString("fullHouseQsOver10s", comment: "Full house, Queens over 10s")
         case .fullHouseQsOverJs:
-            return "Full house, Queens over Jacks"
+            return NSLocalizedString("fullHouseQsOverJs", comment: "Full house, Queens over Jacks")
         case .fullHouseQsOverKs:
-            return "Full house, Queens over Kings"
+            return NSLocalizedString("fullHouseQsOverKs", comment: "Full house, Queens over Kings")
         case .fullHouseQsOverAs:
-            return "Full house, Queens over Aces"
+            return NSLocalizedString("fullHouseQsOverAs", comment: "Full house, Queens over Aces")
         case .fullHouseKsOver9s:
-            return "Full house, Kings over 9s"
+            return NSLocalizedString("fullHouseKsOver9s", comment: "Full house, Kings over 9s")
         case .fullHouseKsOver10s:
-            return "Full house, Kings over 10s"
+            return NSLocalizedString("fullHouseKsOver10s", comment: "Full house, Kings over 10s")
         case .fullHouseKsOverJs:
-            return "Full house, Kings over Jacks"
+            return NSLocalizedString("fullHouseKsOverJs", comment: "Full house, Kings over Jacks")
         case .fullHouseKsOverQs:
-            return "Full house, Kings over Queens"
+            return NSLocalizedString("fullHouseKsOverQs", comment: "Full house, Kings over Queens")
         case .fullHouseKsOverAs:
-            return "Full house, Kings over Aces"
+            return NSLocalizedString("fullHouseKsOverAs", comment: "Full house, Kings over Aces")
         case .fullHouseAsOver9s:
-            return "Full house, Aces over 9s"
+            return NSLocalizedString("fullHouseAsOver9s", comment: "Full house, Aces over 9s")
         case .fullHouseAsOver10s:
-            return "Full house, Aces over 10s"
+            return NSLocalizedString("fullHouseAsOver10s", comment: "Full house, Aces over 10s")
         case .fullHouseAsOverJs:
-            return "Full house, Aces over Jacks"
+            return NSLocalizedString("fullHouseAsOverJs", comment: "Full house, Aces over Jacks")
         case .fullHouseAsOverQs:
-            return "Full house, Aces over Queens"
+            return NSLocalizedString("fullHouseAsOverQs", comment: "Full house, Aces over Queens")
         case .fullHouseAsOverKs:
-            return "Full house, Aces over Kings"
+            return NSLocalizedString("fullHouseAsOverKs", comment: "Full house, Aces over Kings")
         case .flushClubs:
-            return "Flush of ♣"
+            return NSLocalizedString("flushClubs", comment: "Flush of ♣")
         case .flushDiamonds:
-            return "Flush of ♦"
+            return  NSLocalizedString("flushDiamonds", comment: "Flush of ♦")
         case .flushHearts:
-            return "Flush of ♥"
+            return  NSLocalizedString("flushHearts", comment: "Flush of ♥")
         case .flushSpades:
-            return "Flush of ♠"
+            return NSLocalizedString("flushSpades", comment: "Flush of ♠")
         case .four9s:
-            return "Four 9s"
+            return NSLocalizedString("four9s", comment: "Four 9s")
         case .four10s:
-            return "Four 10s"
+            return NSLocalizedString("four10s", comment: "Four 10s")
         case .fourJs:
-            return "Four Jacks"
+            return NSLocalizedString("fourJs", comment: "Four Jacks")
         case .fourQs:
-            return "Four Queens"
+            return NSLocalizedString("fourQs", comment: "Four Queens")
         case .fourKs:
-            return "Four Kings"
+            return NSLocalizedString("fourKs", comment: "Four Kings")
         case .fourAs:
-            return "Four Aces"
+            return NSLocalizedString("fourAs", comment: "Four Aces")
         case .smallStraightFlushClubs:
-            return "Small straight flush (9-King) ♣"
+            return NSLocalizedString("smallStraightFlushClubs", comment: "Small straight flush (9-King) ♣")
         case .smallStraightFlushDiamonds:
-            return "Small straight flush (9-King) ♦"
+            return NSLocalizedString("smallStraightFlushDiamonds", comment: "Small straight flush (9-King) ♦")
         case .smallStraightFlushHearts:
-            return "Small straight flush (9-King) ♥"
+            return NSLocalizedString("smallStraightFlushHearts", comment: "Small straight flush (9-King) ♥")
         case .smallStraightFlushSpades:
-            return "Small straight flush (9-King) ♠"
+            return NSLocalizedString("smallStraightFlushSpades", comment: "Small straight flush (9-King) ♠")
         case .bigStraightFlushClubs:
-            return "Big straight flush (10-Ace) ♣"
+            return NSLocalizedString("bigStraightFlushClubs", comment: "Big straight flush (10-Ace) ♣")
         case .bigStraightFlushDiamonds:
-            return "Big straight flush (10-Ace) ♦"
+            return NSLocalizedString("bigStraightFlushDiamonds", comment: "Big straight flush (10-Ace) ♦")
         case .bigStraightFlushHearts:
-            return "Big straight flush (10-Ace) ♥"
+            return NSLocalizedString("bigStraightFlushHearts", comment: "Big straight flush (10-Ace) ♥")
         case .bigStraightFlushSpades:
-            return "Big straight flush (10-Ace) ♠"
+            return NSLocalizedString("bigStraightFlushSpades", comment: "Big straight flush (10-Ace) ♠")
         case .greatStraightFlushClubs:
-            return "Great straight flush (9-Ace) ♣"
+            return NSLocalizedString("greatStraightFlushClubs", comment: "Great straight flush (9-Ace) ♣")
         case .greatStraightFlushDiamonds:
-            return "Great straight flush (9-Ace) ♦"
+            return NSLocalizedString("greatStraightFlushDiamonds", comment: "Great straight flush (9-Ace) ♦")
         case .greatStraightFlushHearts:
-            return "Great straight flush (9-Ace) ♥"
+            return NSLocalizedString("greatStraightFlushHearts", comment: "Great straight flush (9-Ace) ♥")
         case .greatStraightFlushSpades:
-            return "Great straight flush (9-Ace) ♠"
+            return NSLocalizedString("greatStraightFlushSpades", comment: "Great straight flush (9-Ace) ♠")
         case .check:
-            return "CHECK"
+            return NSLocalizedString("check", comment: "CHECK")
         }
     }
 }
