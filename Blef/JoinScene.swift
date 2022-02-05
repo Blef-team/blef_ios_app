@@ -54,7 +54,7 @@ class JoinScene: SKScene, GameManagerDelegate {
         
         self.joinLabel = childNode(withName: "//joinLabel") as? SKLabelNode
         if let joinLabel = joinLabel {
-            joinLabel.text = NSLocalizedString("joinRoom", comment: "Button text to join the rooms")
+            joinLabel.text = NSLocalizedString("joinARoom", comment: "Button text to join the rooms")
             joinLabel.alpha = 0
             joinLabel.zPosition = 10
         }
