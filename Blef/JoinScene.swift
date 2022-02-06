@@ -177,7 +177,7 @@ class JoinScene: SKScene, GameManagerDelegate {
         if let uuid = UUID(uuidString: name), let game = gameManager?.publicGames[uuid] {
             if game.players?.count ?? 0 >= 8 {
                 let roomText = NSLocalizedString("room", comment: "The noun meaning a closed space that can be occupied")
-                let isFullText = NSLocalizedString("isFull", comment: "State that something is full")
+                let isFullText = NSLocalizedString("isFull", comment: "State that something (room) is full")
                 displayMessage("\(roomText) \(game.room) \(isFullText)")
                 return
             }
