@@ -35,6 +35,10 @@
 		47F035F7244B0BFE000136C1 /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47F035F6244B0BFE000136C1 /* Game.swift */; };
 		47F2E91C2448BF37006DCB5C /* StartScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 47F2E91B2448BF37006DCB5C /* StartScene.sks */; };
 		47F2E91E2448C268006DCB5C /* StartScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47F2E91D2448C268006DCB5C /* StartScene.swift */; };
+		47F8670427AD8CC900712CED /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 47F8670327AD8CC900712CED /* AVFAudio.framework */; };
+		47F8670F27AD906200712CED /* Blef-loss.wav in Resources */ = {isa = PBXBuildFile; fileRef = 47F8670C27AD906000712CED /* Blef-loss.wav */; };
+		47F8671027AD906200712CED /* Blef-win.wav in Resources */ = {isa = PBXBuildFile; fileRef = 47F8670D27AD906200712CED /* Blef-win.wav */; };
+		47F8671127AD906200712CED /* Blef-update.wav in Resources */ = {isa = PBXBuildFile; fileRef = 47F8670E27AD906200712CED /* Blef-update.wav */; };
 		59FD50576FB759E1EFD1D975 /* Pods_BlefTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237A5B559F0AE9943E5D23E0 /* Pods_BlefTests.framework */; };
 		C840B3AF602C9C76AF5295AC /* Pods_Blef_BlefUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ED54D86E847A1ED87948500 /* Pods_Blef_BlefUITests.framework */; };
 /* End PBXBuildFile section */
@@ -102,6 +106,10 @@
 		47F2114627407106006EFBA6 /* Blef.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Blef.entitlements; sourceTree = "<group>"; };
 		47F2E91B2448BF37006DCB5C /* StartScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = StartScene.sks; sourceTree = "<group>"; };
 		47F2E91D2448C268006DCB5C /* StartScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartScene.swift; sourceTree = "<group>"; };
+		47F8670327AD8CC900712CED /* AVFAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFAudio.framework; path = System/Library/Frameworks/AVFAudio.framework; sourceTree = SDKROOT; };
+		47F8670C27AD906000712CED /* Blef-loss.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "Blef-loss.wav"; sourceTree = "<group>"; };
+		47F8670D27AD906200712CED /* Blef-win.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "Blef-win.wav"; sourceTree = "<group>"; };
+		47F8670E27AD906200712CED /* Blef-update.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "Blef-update.wav"; sourceTree = "<group>"; };
 		9510D762248A1B92CE32ACC6 /* Pods-BlefTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlefTests.release.xcconfig"; path = "Target Support Files/Pods-BlefTests/Pods-BlefTests.release.xcconfig"; sourceTree = "<group>"; };
 		9D59782A9F7B87FB445FA494 /* Pods-Blef.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Blef.release.xcconfig"; path = "Target Support Files/Pods-Blef/Pods-Blef.release.xcconfig"; sourceTree = "<group>"; };
 		A030AF446F246F62C44CDF83 /* Pods-BlefTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlefTests.debug.xcconfig"; path = "Target Support Files/Pods-BlefTests/Pods-BlefTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -114,6 +122,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				03487D6E832AC9725442A7C5 /* Pods_Blef.framework in Frameworks */,
+				47F8670427AD8CC900712CED /* AVFAudio.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -206,6 +215,7 @@
 				47625DDB244A48F00041E62D /* Model */,
 				479E2A12244744EC004BF702 /* GameViewController.swift */,
 				479E2A14244744EC004BF702 /* Main.storyboard */,
+				47F8671227AD907000712CED /* Sounds */,
 				479E2A17244744EF004BF702 /* Assets.xcassets */,
 				479E2A19244744EF004BF702 /* LaunchScreen.storyboard */,
 				479E2A1C244744EF004BF702 /* Info.plist */,
@@ -231,9 +241,20 @@
 			path = BlefUITests;
 			sourceTree = "<group>";
 		};
+		47F8671227AD907000712CED /* Sounds */ = {
+			isa = PBXGroup;
+			children = (
+				47F8670C27AD906000712CED /* Blef-loss.wav */,
+				47F8670E27AD906200712CED /* Blef-update.wav */,
+				47F8670D27AD906200712CED /* Blef-win.wav */,
+			);
+			name = Sounds;
+			sourceTree = "<group>";
+		};
 		DA3173373B3EBFD519ED71CC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				47F8670327AD8CC900712CED /* AVFAudio.framework */,
 				03EF88A9F41C012C52623F22 /* Pods_Blef.framework */,
 				0ED54D86E847A1ED87948500 /* Pods_Blef_BlefUITests.framework */,
 				237A5B559F0AE9943E5D23E0 /* Pods_BlefTests.framework */,
@@ -350,10 +371,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				47F8670F27AD906200712CED /* Blef-loss.wav in Resources */,
 				4736293627826BC5005D0F7D /* JoinScene.sks in Resources */,
+				47F8671127AD906200712CED /* Blef-update.wav in Resources */,
 				479E2A16244744EC004BF702 /* Main.storyboard in Resources */,
 				479E2A0D244744EC004BF702 /* GameScene.sks in Resources */,
 				479E2A18244744EF004BF702 /* Assets.xcassets in Resources */,
+				47F8671027AD906200712CED /* Blef-win.wav in Resources */,
 				47F2E91C2448BF37006DCB5C /* StartScene.sks in Resources */,
 				47A282C127AE1D9A00834C9F /* Localizable.strings in Resources */,
 				479E2A1B244744EF004BF702 /* LaunchScreen.storyboard in Resources */,
