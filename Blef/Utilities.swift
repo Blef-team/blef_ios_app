@@ -153,6 +153,13 @@ func canManageRoom(_ game: Game, _ player: Player) -> Bool {
     return game.status == .notStarted && game.adminNickname == player.nickname
 }
 
+func checkPlayerLostRound(_ player: Player, _ game: Game) -> Bool {
+    if player.nickname == game.losingPlayer {
+        return true
+    }
+    return false
+}
+
 func generatePlayerNickname() -> String {
     guard let randomNames = Nicknames.randomElement(), let animal = randomNames.animals.randomElement(), let adjective = randomNames.adjectives.randomElement() else {
         let number = Int.random(in: 999 ... 9999)
@@ -241,3 +248,7 @@ func adjustSceneAspect(_ scene: SKScene) {
     scene.size = newSize
     scene.scaleMode = .aspectFit
 }
+
+var playUpdateSound = SKAction.playSoundFileNamed("Blef-update.wav", waitForCompletion: true)
+var playLossSound = SKAction.playSoundFileNamed("Blef-loss.wav", waitForCompletion: true)
+var playWinSound = SKAction.playSoundFileNamed("Blef-win.wav", waitForCompletion: true)

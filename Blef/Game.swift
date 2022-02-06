@@ -20,6 +20,7 @@ struct Game {
     var currentPlayerNickname: String?
     var history: [HistoryItem]?
     var lastModified: Double
+    var losingPlayer: String?
 }
 
 extension Game {
@@ -81,6 +82,16 @@ extension Game {
                 self.lastModified = Double(lastModified)
             } else {
                 return nil
+            }
+        }
+        
+        if let historyJson = json["history"] as? [Dictionary<String, Any>] {
+            if historyJson.count > 1 {
+                if let player = historyJson.last?["player"] as? String, let actionId = historyJson.last?["action_id"] as? Int {
+                    if actionId == 89 && Action(rawValue: actionId) == nil {
+                        self.losingPlayer = player
+                    }
+                }
             }
         }
     }
