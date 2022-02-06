@@ -17,10 +17,10 @@ class StartScene: SKScene, GameManagerDelegate {
     var gameUpdateInterval = 0.05
     var gameUpdateTimer: Timer?
     var gameUpdateScheduled: Bool?
-    var customGameLabel: SKNode?
-    var quickGameLabel: SKNode?
-    var joinLabel: SKNode?
-    var continueLabel: SKNode?
+    var customGameLabel: SKLabelNode?
+    var quickGameLabel: SKLabelNode?
+    var joinLabel: SKLabelNode?
+    var continueLabel: SKLabelNode?
     var errorMessageLabel: SKLabelNode!
     var player: Player?
     var savedGameUuid: UUID?
@@ -46,14 +46,19 @@ class StartScene: SKScene, GameManagerDelegate {
         errorMessageLabel.position = CGPoint(x:self.frame.midX, y:self.frame.midY)
         self.addChild(errorMessageLabel)
         
-        self.customGameLabel = childNode(withName: "//customGameLabel")
-        self.quickGameLabel = childNode(withName: "//quickGameLabel")
-        self.joinLabel = childNode(withName: "//joinLabel")
+        self.customGameLabel = childNode(withName: "//customGameLabel") as? SKLabelNode
+        customGameLabel?.text = NSLocalizedString("customGame", comment: "Button text to start a custom game")
+        print(customGameLabel?.text) //DEBUG
+        self.quickGameLabel = childNode(withName: "//quickGameLabel") as? SKLabelNode
+        quickGameLabel?.text = NSLocalizedString("quickGame", comment: "Button text to start a quick game")
+        self.joinLabel = childNode(withName: "//joinLabel") as? SKLabelNode
         if let joinLabel = joinLabel {
+            joinLabel.text = NSLocalizedString("joinARoom", comment: "Button text to join game rooms")
             joinLabel.alpha = 0
         }
-        self.continueLabel = childNode(withName: "//continueLabel")
+        self.continueLabel = childNode(withName: "//continueLabel") as? SKLabelNode
         if let continueLabel = continueLabel {
+            continueLabel.text = NSLocalizedString("continue", comment: "Button text to continue a game")
             continueLabel.alpha = 0
             continueLabel.zPosition = 10
         }
@@ -295,7 +300,8 @@ class StartScene: SKScene, GameManagerDelegate {
             gameManager.joinGame(nickname: nickname)
             self.playerNickname = nickname
         }
-        displayMessage("Something went wrong. Try again.")
+        let messageText = NSLocalizedString("errorMessage", comment: "Message to say something went wrong")
+        displayMessage(messageText)
     }
     
     @objc func updatePublicGames() {

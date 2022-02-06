@@ -49,10 +49,12 @@ class JoinScene: SKScene, GameManagerDelegate {
         self.addChild(messageLabel)
         
         self.menuNavigateLabel = childNode(withName: "//menuNavigateLabel") as? SKLabelNode
+        menuNavigateLabel?.text = NSLocalizedString("menu", comment: "Button name to move to StartScene")
         menuNavigateLabel?.alpha = 0.0
         
         self.joinLabel = childNode(withName: "//joinLabel") as? SKLabelNode
         if let joinLabel = joinLabel {
+            joinLabel.text = NSLocalizedString("joinARoom", comment: "Button text to join the rooms")
             joinLabel.alpha = 0
             joinLabel.zPosition = 10
         }
@@ -152,7 +154,8 @@ class JoinScene: SKScene, GameManagerDelegate {
             gameManager?.joinGame(nickname: nickname)
             self.playerNickname = nickname
         }
-        displayMessage("Something went wrong. Try again.")
+        let messageText = NSLocalizedString("errorMessage", comment: "Message to say something went wrong")
+        displayMessage(messageText)
     }
     
     func didUpdatePublicGames() {
@@ -173,7 +176,9 @@ class JoinScene: SKScene, GameManagerDelegate {
         }
         if let uuid = UUID(uuidString: name), let game = gameManager?.publicGames[uuid] {
             if game.players?.count ?? 0 >= 8 {
-                displayMessage("Room \(game.room) is full")
+                let roomText = NSLocalizedString("room", comment: "The noun meaning a closed space that can be occupied")
+                let isFullText = NSLocalizedString("isFull", comment: "State that something (room) is full")
+                displayMessage("\(roomText) \(game.room) \(isFullText)")
                 return
             }
             if let savedGame = getSavedGames()[uuid.uuidString] {
@@ -222,14 +227,19 @@ class JoinScene: SKScene, GameManagerDelegate {
         presentedUuid = uuid
         var playersString = ""
         if let players = game.players {
-            playersString = "Players in room \(game.room):\n"
+            let playersInRoomPrefixText = NSLocalizedString("playersInRoomPrefix", comment: "State that players in room (... are ...)")
+            let playersInRoomPostfixText = NSLocalizedString("playersInRoomPostfix", comment: "POSTFIX FOR: State that players in room (... are ...)")
+            let youText = NSLocalizedString("you", comment: "Second person singular pronoun")
+            playersString = "\(playersInRoomPrefixText) \(game.room) \(playersInRoomPostfixText):\n"
             playersString += players.map { nickname in
-                return (nickname == savedGame?.playerNickname) ? "You" : formatDisplayNickname(nickname)
+                return (nickname == savedGame?.playerNickname) ? youText : formatDisplayNickname(nickname)
             }.map(formatDisplayNickname).joined(separator: "\n")
         }
+        let continueText = NSLocalizedString("continue", comment: "To continue the game")
+        let joinRoomText = NSLocalizedString("joinRoom", comment: "To join the room")
         displayMessage(playersString)
         if let joinLabel = joinLabel {
-            updateAndDisplayLabel(joinLabel, (savedGame?.playerNickname != nil) ? "Continue" : "Join room")
+            updateAndDisplayLabel(joinLabel, (savedGame?.playerNickname != nil) ? continueText : joinRoomText)
         }
     }
     
