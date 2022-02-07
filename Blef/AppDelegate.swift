@@ -29,6 +29,46 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GameManagerDelegate {
     }
     
     func application(_ application: UIApplication,
+                     continue userActivity: NSUserActivity,
+                     restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+        // Get URL components from the incoming user activity.
+        guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+            let incomingURL = userActivity.webpageURL,
+            let components = NSURLComponents(url: incomingURL, resolvingAgainstBaseURL: true) else {
+            return false
+        }
+
+        // Check for specific URL components that you need.
+        guard let path = components.path,
+        let params = components.queryItems else {
+            return false
+        }
+        print("path = \(path)")
+
+        if let gameUuidString = params.first(where: { $0.name == "game_uuid" } )?.value, let gameUuid = UUID(uuidString: gameUuidString) {
+            // Check if the new game uuid is not the same as current scene (avoid joining your own game)
+            if let currentScene = (self.window?.rootViewController!.view as! SKView).scene as? GameScene {
+                if let currentUuid = currentScene.gameManager?.gameUuid {
+                    if currentUuid == gameUuid {
+                        return false
+                    }
+                }
+            }
+            
+            self.gameManager.delegate = self
+            playerNickname = generatePlayerNickname()
+            if let playerNickname = playerNickname {
+                gameManager.gameUuid = gameUuid
+                gameManager.joinGame(nickname: playerNickname)
+            }
+            return true
+        } else {
+            print("No valid game uuid in the URL parameters")
+            return false
+        }
+    }
+    
+    func application(_ application: UIApplication,
                      open url: URL,
                      options: [UIApplication.OpenURLOptionsKey : Any] = [:] ) -> Bool {
         
@@ -43,7 +83,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GameManagerDelegate {
                 return false
         }
         
-        // Check if the new game uuid is not the same (avoid joining your own game)
+        // Check if the new game uuid is not the same as current scene (avoid joining your own game)
         if let currentScene = (self.window?.rootViewController!.view as! SKView).scene as? GameScene {
             if let currentUuid = currentScene.gameManager?.gameUuid {
                 if currentUuid == gameUuid {
@@ -51,11 +91,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GameManagerDelegate {
                 }
             }
         }
-
         
         self.gameManager.delegate = self
         playerNickname = generatePlayerNickname()
         if let playerNickname = playerNickname {
+            gameManager.gameUuid = gameUuid
             gameManager.joinGame(nickname: playerNickname)
         }
         return true
@@ -69,6 +109,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GameManagerDelegate {
         let transition = SKTransition.fade(withDuration: 1.0)
         gameScene?.scaleMode = .aspectFit
         gameScene?.player = player
+        gameScene?.gameManager = gameManager
         (self.window?.rootViewController!.view as! SKView).presentScene(gameScene!, transition: transition)
     }
     
