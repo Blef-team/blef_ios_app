@@ -626,8 +626,13 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         moveToStartScene()
     }
     
+    func windDownSceneActivity() {
+        pauseGameUpdateTimer()
+    }
+    
     func moveToStartScene() {
         if let startScene = StartScene(fileNamed: "StartScene") {
+            windDownSceneActivity()
             let transition = SKTransition.fade(withDuration: 1.0)
             startScene.scaleMode = .aspectFit
             clearActionPickerView()
