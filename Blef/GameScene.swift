@@ -562,7 +562,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         
         let firstActivityItem = NSLocalizedString("inviteString", comment: "Text message to invite someone with")
         if let uuid = gameManager?.gameUuid?.uuidString.lowercased() {
-            let gameUrlString = "blef:///\(uuid)"
+            let gameUrlString = "\(baseShareURL)\(uuid)"
             pasteboard.string = gameUrlString
             let secondActivityItem : NSURL = NSURL(string: gameUrlString)!
             let activityViewController : UIActivityViewController = UIActivityViewController(
