@@ -31,6 +31,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     var isBetScrolling = false
     var viewingBetIndex: Int?
     var adjustSceneAspectDone = false
+    var gameFinished = false
     private var menuNavigateLabel: SKLabelNode?
     private var startGameLabel: SKLabelNode?
     private var playLabel: SKLabelNode?
@@ -326,43 +327,43 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func touchUp(atPoint pos : CGPoint) {
+        if self.isDisplayingMessage {
+            clearMessage()
+            isBetScrolling = false
+            return
+        }
         if isBetScrolling {
             isBetScrolling = false
             return
         }
         isBetScrolling = false
-        if self.isDisplayingMessage {
-            clearMessage()
-        }
-        else {
-            let nodesarray = nodes(at: pos)
-            for node in nodesarray {
-                if node.name == "startGameButton" {
-                    startGameButtonPressed()
+        let nodesarray = nodes(at: pos)
+        for node in nodesarray {
+            if node.name == "startGameButton" {
+                startGameButtonPressed()
+            }
+            if node.name == "playButton" {
+                if !pressedPlayButton {
+                    playButtonPressed()
                 }
-                if node.name == "playButton" {
-                    if !pressedPlayButton {
-                        playButtonPressed()
-                    }
-                }
-                if node.name == "shareButton" {
-                    shareButtonPressed()
-                }
-                if node.name == "exitButton" {
-                    exitButtonPressed()
-                }
-                if node.name == "helpLabelSprite" {
-                    helpLabelSpritePressed()
-                }
-                if node.name == "inviteAIButton" {
-                    inviteAIButtonPressed()
-                }
-                if node.name == "manageRoomButton" {
-                    manageRoomButtonPressed()
-                }
-                if node.name == "menuNavigateButton" {
-                    menuNavigateButtonPressed()
-                }
+            }
+            if node.name == "shareButton" {
+                shareButtonPressed()
+            }
+            if node.name == "exitButton" {
+                exitButtonPressed()
+            }
+            if node.name == "helpLabelSprite" {
+                helpLabelSpritePressed()
+            }
+            if node.name == "inviteAIButton" {
+                inviteAIButtonPressed()
+            }
+            if node.name == "manageRoomButton" {
+                manageRoomButtonPressed()
+            }
+            if node.name == "menuNavigateButton" {
+                menuNavigateButtonPressed()
             }
         }
     }
@@ -948,6 +949,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             if let playerInfo = game.players?.first(where:{$0.nickname == player.nickname }) {
                 
                 if game.status == .finished {
+                    gameFinished = true
                     if playerInfo.nCards > 0 {
                         let youWonMessage = NSLocalizedString("youWon", comment: "Message to say that you won in the game")
                         displayMessage(youWonMessage)
@@ -1122,10 +1124,26 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func clearMessage() {
+        if checkGameIsFinished() {
+            return
+        }
         isDisplayingMessage = false
         fadeOutNode(messageLabel)
         clearDisplayedHands()
         displayLabels()
+    }
+    
+    func checkGameIsFinished() -> Bool{
+        if let game = game {
+            if game.status != .finished {
+                return false
+            }
+        }
+        if gameFinished {
+            moveToStartScene()
+            return true
+        }
+        return false
     }
     
 }
