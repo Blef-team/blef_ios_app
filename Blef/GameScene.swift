@@ -315,7 +315,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         self.view?.endEditing(true)
         let nodesarray = nodes(at: pos)
         for node in nodesarray {
-            if node.name == "betScrollArea" {
+            if node.name == "betScrollArea" && canScroll(game) {
                 isBetScrolling = true
             }
         }
@@ -380,7 +380,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             let pos = t.location(in: self)
             self.touchMoved(toPoint: pos)
             
-            if isBetScrolling {
+            if isBetScrolling && canScroll(game) {
                 moveBetScroll(pos.y)
             }
         }
@@ -496,6 +496,16 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         betScrollLastY = currentY
     }
     
+    func canScroll(_ gameOptional: Game?) -> Bool {
+        guard let game = gameOptional else {
+            return false
+        }
+        if game.status != .notStarted {
+            return true
+        }
+        return false
+    }
+    
     func startGameButtonPressed() {
         if let game = game {
             if game.status != .notStarted {
@@ -552,7 +562,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         
         let firstActivityItem = NSLocalizedString("inviteString", comment: "Text message to invite someone with")
         if let uuid = gameManager?.gameUuid?.uuidString.lowercased() {
-            let gameUrlString = "blef:///\(uuid)"
+            let gameUrlString = "\(baseShareURL)\(uuid)"
             pasteboard.string = gameUrlString
             let secondActivityItem : NSURL = NSURL(string: gameUrlString)!
             let activityViewController : UIActivityViewController = UIActivityViewController(

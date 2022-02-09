@@ -8,6 +8,8 @@
 
 import SpriteKit
 
+let baseShareURL = "https://www.blef.app/join.html?game_uuid="
+
 extension Int {
     func times(_ f: () -> ()) {
         if self > 0 {
