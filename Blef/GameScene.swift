@@ -39,7 +39,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     private var helloLabel : SKLabelNode?
     private var shareLabel : SKLabelNode?
     private var inviteAILabel : SKLabelNode?
-    private var exitLabel : SKLabelNode?
     private var playerLabels : [SKLabelNode] = []
     private var playerCardSprites: [SKSpriteNode]?
     private var revealCardSprites: [[SKSpriteNode]]?
@@ -71,9 +70,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         self.inviteAILabel = self.childNode(withName: "//inviteAILabel") as? SKLabelNode
         inviteAILabel?.alpha = 0.0
         inviteAILabel?.text = NSLocalizedString("inviteAI", comment: "Button name to invite an AI")
-        self.exitLabel = self.childNode(withName: "//exitLabel") as? SKLabelNode
-        exitLabel?.alpha = 0.0
-        exitLabel?.text = NSLocalizedString("exit", comment: "Button name to exit the game")
         for i in 1...8 {
             if let label = self.childNode(withName: "//player\(i)Label") as? SKLabelNode {
                 label.text = ""
@@ -350,9 +346,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             if node.name == "shareButton" {
                 shareButtonPressed()
             }
-            if node.name == "exitButton" {
-                exitButtonPressed()
-            }
             if node.name == "helpLabelSprite" {
                 helpLabelSpritePressed()
             }
@@ -606,20 +599,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
     }
     
-    func exitButtonPressed() {
-        if let game = game {
-            if game.status != .finished {
-                return
-            }
-        }
-        let startScene = StartScene(fileNamed: "StartScene")
-        let transition = SKTransition.fade(withDuration: 1.0)
-        startScene?.scaleMode = .aspectFit
-        pauseGameUpdateTimer()
-        self.removeFromParent()
-        scene?.view?.presentScene(startScene!, transition: transition)
-    }
-    
     func helpLabelSpritePressed() {
         let gameRules = NSLocalizedString("gameRules", comment: "Multi-line description of the game rules")
         displayMessage(gameRules)
@@ -856,16 +835,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         displayLabels()
     }
     
-    func displayExitLabel() {
-        if let label = self.exitLabel, let game = self.game {
-            if game.status == .finished {
-                if label.alpha < 1 {
-                    fadeInNode(label)
-                }
-            }
-        }
-    }
-    
     func displayHelpLabelSprite() {
         if let label = self.helpLabelSprite {
             if label.alpha < 1 {
@@ -1050,7 +1019,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     
     func displayLabels() {
         displayCards()
-        displayExitLabel()
         displayHelpLabelSprite()
         displayShareLabel()
         displayInviteAILabel()
@@ -1102,7 +1070,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         inviteAILabel?.removeAllActions()
         fadeOutNode(shareLabel)
         fadeOutNode(inviteAILabel)
-        fadeOutNode(exitLabel)
         fadeOutNode(helpLabelSprite)
         fadeOutNode(playLabel)
         clearActionPickerView()
