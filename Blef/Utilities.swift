@@ -136,6 +136,13 @@ func getCardLabel(_ card: Card) -> SKLabelNode {
     return label
 }
 
+func orderHand(_ hand: [Card], orderByColour: Bool = false) -> [Card] {
+    if orderByColour {
+        return hand.sorted { $0.colour < $1.colour || ($0.colour == $1.colour && $0.value < $1.value) }
+    }
+    return hand.sorted { $0 < $1 }
+}
+
 func canStartGame(_ game: Game, _ player: Player, _ players: [PlayerInfo]?) -> Bool {
     return game.status == .notStarted && game.adminNickname == player.nickname && (players?.count ?? 0) >= 2 
 }

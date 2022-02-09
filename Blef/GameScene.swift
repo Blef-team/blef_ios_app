@@ -32,6 +32,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     var viewingBetIndex: Int?
     var adjustSceneAspectDone = false
     var gameFinished = false
+    var orderCardsByColour = false
     private var menuNavigateLabel: SKLabelNode?
     private var startGameLabel: SKLabelNode?
     private var playLabel: SKLabelNode?
@@ -811,7 +812,8 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 // If game was started
                 if let hand = game.hands?.first(where:{$0.nickname == player.nickname })?.hand, let playerCardSprites = playerCardSprites {
                     if !playerLost && game.status != .finished {
-                        for (cardIndex, card) in hand.enumerated() {
+                        let orderedHand = orderHand(hand, orderByColour: orderCardsByColour)
+                        for (cardIndex, card) in orderedHand.enumerated() {
                             if let image = getCardImage(card) {
                                 playerCardSprites[cardIndex].texture = image
                             }
