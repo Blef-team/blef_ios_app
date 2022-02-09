@@ -807,6 +807,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
 
             clearCardAndBetLabelsAtRoundStart()
 
+            if let playerCardSprites = playerCardSprites {
+                resetCardSprites(playerCardSprites)
+            }
             if game.status != .notStarted {
                 // If game was started
                 if let hand = game.hands?.first(where:{$0.nickname == player.nickname })?.hand, let playerCardSprites = playerCardSprites {
@@ -823,11 +826,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                             }
                         }
                     }
-                }
-            } else {
-                // Clear playerCardSprites
-                if let playerCardSprites = playerCardSprites {
-                    resetCardSprites(playerCardSprites)
                 }
             }
         }
