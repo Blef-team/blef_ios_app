@@ -706,7 +706,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
                 } else {
                     cardsStatus = NSLocalizedString("won", comment: "Third person perfect aspect of the verb to win")
                 }
-            } else if game.status == .finished {
+            } else if game.status != .notStarted {
                 cardsStatus = NSLocalizedString("lost", comment: "Third person perfect aspect of the verb to lose")
             }
             let label = playerLabels[i]
