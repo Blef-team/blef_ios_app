@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		03487D6E832AC9725442A7C5 /* Pods_Blef.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03EF88A9F41C012C52623F22 /* Pods_Blef.framework */; };
+		472D0C0A27B1A13600216E0A /* Blef.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = 47F2114627407106006EFBA6 /* Blef.entitlements */; };
 		472E2081244979C2005915A0 /* GameManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 472E2080244979C2005915A0 /* GameManager.swift */; };
 		47334E5A2452EA3900F9D4BD /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47334E592452EA3900F9D4BD /* Player.swift */; };
 		47334E5C2452FCC500F9D4BD /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47334E5B2452FCC500F9D4BD /* Utilities.swift */; };
@@ -371,6 +372,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				472D0C0A27B1A13600216E0A /* Blef.entitlements in Resources */,
 				47F8670F27AD906200712CED /* Blef-loss.wav in Resources */,
 				4736293627826BC5005D0F7D /* JoinScene.sks in Resources */,
 				47F8671127AD906200712CED /* Blef-update.wav in Resources */,
@@ -683,6 +685,7 @@
 			baseConfigurationReference = B1DAB7CE90C576564A3D0AF8 /* Pods-Blef.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Blef/Blef.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1.1.1;
@@ -707,6 +710,7 @@
 			baseConfigurationReference = 9D59782A9F7B87FB445FA494 /* Pods-Blef.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Blef/Blef.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1.1.1;
