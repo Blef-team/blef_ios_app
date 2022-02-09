@@ -33,6 +33,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     var adjustSceneAspectDone = false
     var gameFinished = false
     var orderCardsByColour = false
+    var hand: [Card] = []
     private var menuNavigateLabel: SKLabelNode?
     private var startGameLabel: SKLabelNode?
     private var playLabel: SKLabelNode?
@@ -820,6 +821,10 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             if game.status != .notStarted {
                 // If game was started
                 if let hand = game.hands?.first(where:{$0.nickname == player.nickname })?.hand, let playerCardSprites = playerCardSprites {
+                    if hand == self.hand {
+                        return
+                    }
+                    self.hand = hand
                     if !playerLost && game.status != .finished {
                         let orderedHand = orderHand(hand, orderByColour: orderCardsByColour)
                         for (cardIndex, card) in orderedHand.enumerated() {
