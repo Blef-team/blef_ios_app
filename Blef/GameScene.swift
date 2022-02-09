@@ -102,6 +102,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         for cardIndex in 0...10 {
             let sprite = SKSpriteNode(texture: SKTexture(image: #imageLiteral(resourceName: "empty")), size: CGSize(width: 70, height: 70))
             sprite.position = getPlayerCardPosition(cardIndex)
+            sprite.name = "cardSprite"
             addChild(sprite)
             playerCardSprites?.append(sprite)
         }
@@ -343,6 +344,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             if node.name == "playButton" {
                 if !pressedPlayButton {
                     playButtonPressed()
+                }
+                if node.name == "cardSprite" {
+                    cardSpriteTouched()
                 }
             }
             if node.name == "shareButton" {
@@ -631,6 +635,11 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     func windDownSceneActivity() {
         pauseGameUpdateTimer()
         clearActionPickerView()
+    }
+
+    func cardSpriteTouched() {
+        orderCardsByColour = !orderCardsByColour
+        updateCards()
     }
     
     func moveToStartScene() {
