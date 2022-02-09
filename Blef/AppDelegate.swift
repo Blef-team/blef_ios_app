@@ -100,12 +100,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GameManagerDelegate {
         if savedGames.count < 1 {
             return nil
         }
-        let orderedSavedGames = savedGames.values.sorted(by: orderSavedGames)
-        if orderedSavedGames.count < 1 {
-            return nil
-        }
-        let savedGame = orderedSavedGames[0]
-        if savedGame.gameUuid != gameUuid {
+        guard let savedGame = savedGames[gameUuid.uuidString] else {
             return nil
         }
         return Player(uuid: savedGame.playerUuid, nickname: savedGame.playerNickname)
