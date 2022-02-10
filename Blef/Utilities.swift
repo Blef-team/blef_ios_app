@@ -143,6 +143,17 @@ func orderHand(_ hand: [Card], orderByColour: Bool = false) -> [Card] {
     return hand.sorted { $0.value < $1.value || ($0.value == $1.value && $0.colour < $1.colour) }
 }
 
+func moveNode(_ node: SKNode, to destination: CGPoint) {
+    node.run(SKAction.move(to: destination, duration: TimeInterval(0.5)), withKey: "move")
+}
+
+func nodeIsMoving(_ sprite: SKNode) -> Bool {
+    if let action = sprite.action(forKey: "move") {
+        return true
+    }
+    return false
+}
+
 func canStartGame(_ game: Game, _ player: Player, _ players: [PlayerInfo]?) -> Bool {
     return game.status == .notStarted && game.adminNickname == player.nickname && (players?.count ?? 0) >= 2 
 }
