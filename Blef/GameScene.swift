@@ -35,7 +35,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     private var menuNavigateLabel: SKLabelNode?
     private var startGameLabel: SKLabelNode?
     private var playLabel: SKLabelNode?
-    private var actionPickerView : UIPickerView?
     private var helloLabel : SKLabelNode?
     private var shareLabel : SKLabelNode?
     private var inviteAILabel : SKLabelNode?
@@ -291,13 +290,11 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         let height = UIScreen.main.bounds.height * 0.35 / yScaling
         let xPosition = UIScreen.main.bounds.width * computeRescaledPosition(0.5, xScaling)
         let yPosition = UIScreen.main.bounds.height * computeRescaledPosition(0.5, yScaling)
-        self.actionPickerView = UIPickerView(frame: CGRect(x: xPosition, y: yPosition, width: width, height: height))
-        if let actionPickerView = actionPickerView {
-            actionPickerView.dataSource = self
-            actionPickerView.delegate = self
-            actionPickerView.layer.zPosition = 10
-            self.view?.addSubview(actionPickerView)
-        }
+        let actionPickerView = UIPickerView(frame: CGRect(x: xPosition, y: yPosition, width: width, height: height))
+        actionPickerView.dataSource = self
+        actionPickerView.delegate = self
+        actionPickerView.layer.zPosition = 10
+        self.view?.addSubview(actionPickerView)
     }
     
     func clearActionPickerView() {
