@@ -323,7 +323,11 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func touchUp(atPoint pos : CGPoint) {
-        if self.isDisplayingMessage {
+        if isDisplayingMessage {
+            if checkGameIsFinished() {
+                moveToStartScene()
+                return
+            }
             clearMessage()
             isBetScrolling = false
             return
@@ -1096,9 +1100,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func clearMessage() {
-        if checkGameIsFinished() {
-            return
-        }
         isDisplayingMessage = false
         fadeOutNode(messageLabel)
         clearDisplayedHands()
@@ -1112,7 +1113,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
         }
         if gameFinished {
-            moveToStartScene()
             return true
         }
         return false
