@@ -629,6 +629,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     
     func windDownSceneActivity() {
         pauseGameUpdateTimer()
+        clearActionPickerView()
     }
     
     func moveToStartScene() {
