@@ -129,7 +129,7 @@ struct NamedHand {
     }
 }
 
-struct Card: Comparable {
+struct Card: Equatable {
     enum Value: Int, Comparable {
         case nine, ten, jack, queen, king, ace
         static func < (lhs: Value, rhs: Value) -> Bool {
@@ -154,16 +154,6 @@ struct Card: Comparable {
             return nil
         }
         self.colour = colour
-    }
-    
-    static func <(lhs: Card, rhs: Card) -> Bool {
-        if lhs.value < rhs.value {
-            return true
-        }
-        if lhs.value == rhs.value && lhs.colour < rhs.colour {
-            return true
-        }
-        return false
     }
 }
 
