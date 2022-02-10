@@ -498,13 +498,22 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func canScroll(_ gameOptional: Game?) -> Bool {
+        if isDisplayingMessage {
+            return false
+        }
         guard let game = gameOptional else {
             return false
         }
-        if game.status != .notStarted {
-            return true
+        if game.history?.count == 0 {
+            return false
         }
-        return false
+        if historyBets.count == 0 {
+            return false
+        }
+        if game.status == .notStarted {
+            return false
+        }
+        return true
     }
     
     func startGameButtonPressed() {
