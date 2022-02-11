@@ -31,14 +31,13 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     var isBetScrolling = false
     var viewingBetIndex: Int?
     var adjustSceneAspectDone = false
+    var gameFinished = false
     private var menuNavigateLabel: SKLabelNode?
     private var startGameLabel: SKLabelNode?
     private var playLabel: SKLabelNode?
-    private var actionPickerView : UIPickerView?
     private var helloLabel : SKLabelNode?
     private var shareLabel : SKLabelNode?
     private var inviteAILabel : SKLabelNode?
-    private var exitLabel : SKLabelNode?
     private var playerLabels : [SKLabelNode] = []
     private var playerCardSprites: [SKSpriteNode]?
     private var revealCardSprites: [[SKSpriteNode]]?
@@ -70,9 +69,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         self.inviteAILabel = self.childNode(withName: "//inviteAILabel") as? SKLabelNode
         inviteAILabel?.alpha = 0.0
         inviteAILabel?.text = NSLocalizedString("inviteAI", comment: "Button name to invite an AI")
-        self.exitLabel = self.childNode(withName: "//exitLabel") as? SKLabelNode
-        exitLabel?.alpha = 0.0
-        exitLabel?.text = NSLocalizedString("exit", comment: "Button name to exit the game")
         for i in 1...8 {
             if let label = self.childNode(withName: "//player\(i)Label") as? SKLabelNode {
                 label.text = ""
@@ -294,13 +290,11 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         let height = UIScreen.main.bounds.height * 0.35 / yScaling
         let xPosition = UIScreen.main.bounds.width * computeRescaledPosition(0.5, xScaling)
         let yPosition = UIScreen.main.bounds.height * computeRescaledPosition(0.5, yScaling)
-        self.actionPickerView = UIPickerView(frame: CGRect(x: xPosition, y: yPosition, width: width, height: height))
-        if let actionPickerView = actionPickerView {
-            actionPickerView.dataSource = self
-            actionPickerView.delegate = self
-            actionPickerView.layer.zPosition = 10
-            self.view?.addSubview(actionPickerView)
-        }
+        let actionPickerView = UIPickerView(frame: CGRect(x: xPosition, y: yPosition, width: width, height: height))
+        actionPickerView.dataSource = self
+        actionPickerView.delegate = self
+        actionPickerView.layer.zPosition = 10
+        self.view?.addSubview(actionPickerView)
     }
     
     func clearActionPickerView() {
@@ -326,43 +320,44 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func touchUp(atPoint pos : CGPoint) {
+        if isDisplayingMessage {
+            if checkGameIsFinished() {
+                moveToStartScene()
+                return
+            }
+            clearMessage()
+            isBetScrolling = false
+            return
+        }
         if isBetScrolling {
             isBetScrolling = false
             return
         }
         isBetScrolling = false
-        if self.isDisplayingMessage {
-            clearMessage()
-        }
-        else {
-            let nodesarray = nodes(at: pos)
-            for node in nodesarray {
-                if node.name == "startGameButton" {
-                    startGameButtonPressed()
+        let nodesarray = nodes(at: pos)
+        for node in nodesarray {
+            if node.name == "startGameButton" {
+                startGameButtonPressed()
+            }
+            if node.name == "playButton" {
+                if !pressedPlayButton {
+                    playButtonPressed()
                 }
-                if node.name == "playButton" {
-                    if !pressedPlayButton {
-                        playButtonPressed()
-                    }
-                }
-                if node.name == "shareButton" {
-                    shareButtonPressed()
-                }
-                if node.name == "exitButton" {
-                    exitButtonPressed()
-                }
-                if node.name == "helpLabelSprite" {
-                    helpLabelSpritePressed()
-                }
-                if node.name == "inviteAIButton" {
-                    inviteAIButtonPressed()
-                }
-                if node.name == "manageRoomButton" {
-                    manageRoomButtonPressed()
-                }
-                if node.name == "menuNavigateButton" {
-                    menuNavigateButtonPressed()
-                }
+            }
+            if node.name == "shareButton" {
+                shareButtonPressed()
+            }
+            if node.name == "helpLabelSprite" {
+                helpLabelSpritePressed()
+            }
+            if node.name == "inviteAIButton" {
+                inviteAIButtonPressed()
+            }
+            if node.name == "manageRoomButton" {
+                manageRoomButtonPressed()
+            }
+            if node.name == "menuNavigateButton" {
+                menuNavigateButtonPressed()
             }
         }
     }
@@ -605,20 +600,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
     }
     
-    func exitButtonPressed() {
-        if let game = game {
-            if game.status != .finished {
-                return
-            }
-        }
-        let startScene = StartScene(fileNamed: "StartScene")
-        let transition = SKTransition.fade(withDuration: 1.0)
-        startScene?.scaleMode = .aspectFit
-        pauseGameUpdateTimer()
-        self.removeFromParent()
-        scene?.view?.presentScene(startScene!, transition: transition)
-    }
-    
     func helpLabelSpritePressed() {
         let gameRules = NSLocalizedString("gameRules", comment: "Multi-line description of the game rules")
         displayMessage(gameRules)
@@ -646,8 +627,14 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         moveToStartScene()
     }
     
+    func windDownSceneActivity() {
+        pauseGameUpdateTimer()
+        clearActionPickerView()
+    }
+    
     func moveToStartScene() {
         if let startScene = StartScene(fileNamed: "StartScene") {
+            windDownSceneActivity()
             let transition = SKTransition.fade(withDuration: 1.0)
             startScene.scaleMode = .aspectFit
             clearActionPickerView()
@@ -855,16 +842,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         displayLabels()
     }
     
-    func displayExitLabel() {
-        if let label = self.exitLabel, let game = self.game {
-            if game.status == .finished {
-                if label.alpha < 1 {
-                    fadeInNode(label)
-                }
-            }
-        }
-    }
-    
     func displayHelpLabelSprite() {
         if let label = self.helpLabelSprite {
             if label.alpha < 1 {
@@ -948,6 +925,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             if let playerInfo = game.players?.first(where:{$0.nickname == player.nickname }) {
                 
                 if game.status == .finished {
+                    gameFinished = true
                     if playerInfo.nCards > 0 {
                         let youWonMessage = NSLocalizedString("youWon", comment: "Message to say that you won in the game")
                         displayMessage(youWonMessage)
@@ -1048,7 +1026,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     
     func displayLabels() {
         displayCards()
-        displayExitLabel()
         displayHelpLabelSprite()
         displayShareLabel()
         displayInviteAILabel()
@@ -1100,7 +1077,6 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         inviteAILabel?.removeAllActions()
         fadeOutNode(shareLabel)
         fadeOutNode(inviteAILabel)
-        fadeOutNode(exitLabel)
         fadeOutNode(helpLabelSprite)
         fadeOutNode(playLabel)
         clearActionPickerView()
@@ -1126,6 +1102,18 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         fadeOutNode(messageLabel)
         clearDisplayedHands()
         displayLabels()
+    }
+    
+    func checkGameIsFinished() -> Bool{
+        if let game = game {
+            if game.status != .finished {
+                return false
+            }
+        }
+        if gameFinished {
+            return true
+        }
+        return false
     }
     
 }

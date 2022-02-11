@@ -275,8 +275,13 @@ class JoinScene: SKScene, GameManagerDelegate {
         moveToGameScene(player)
     }
     
+    func windDownSceneActivity() {
+        pauseGameUpdateTimer()
+    }
+    
     func moveToGameScene(_ player: Player) {
         if let gameScene = GameScene(fileNamed: "GameScene") {
+            windDownSceneActivity()
             let transition = SKTransition.fade(withDuration: 1.0)
             gameScene.scaleMode = .aspectFit
             gameScene.player = player
@@ -288,6 +293,7 @@ class JoinScene: SKScene, GameManagerDelegate {
     
     func moveToStartScene() {
         if let startScene = StartScene(fileNamed: "StartScene") {
+            windDownSceneActivity()
             let transition = SKTransition.fade(withDuration: 1.0)
             startScene.scaleMode = .aspectFit
             scene?.view?.presentScene(startScene, transition: transition)
