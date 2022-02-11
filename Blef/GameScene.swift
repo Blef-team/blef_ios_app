@@ -32,6 +32,10 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     var viewingBetIndex: Int?
     var adjustSceneAspectDone = false
     var gameFinished = false
+    var orderCardsByColour = false
+    var currentlyOrderedCardsByColour = false
+    var shufflingCards = false
+    var hand: [Card] = []
     private var menuNavigateLabel: SKLabelNode?
     private var startGameLabel: SKLabelNode?
     private var playLabel: SKLabelNode?
@@ -101,6 +105,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         for cardIndex in 0...10 {
             let sprite = SKSpriteNode(texture: SKTexture(image: #imageLiteral(resourceName: "empty")), size: CGSize(width: 70, height: 70))
             sprite.position = getPlayerCardPosition(cardIndex)
+            sprite.name = "cardSprite"
             addChild(sprite)
             playerCardSprites?.append(sprite)
         }
@@ -329,11 +334,15 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             isBetScrolling = false
             return
         }
+        if shufflingCards && checkCardsMoving() {
+            return
+        }
         if isBetScrolling {
             isBetScrolling = false
             return
         }
         isBetScrolling = false
+        shufflingCards = false
         let nodesarray = nodes(at: pos)
         for node in nodesarray {
             if node.name == "startGameButton" {
@@ -358,6 +367,9 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
             }
             if node.name == "menuNavigateButton" {
                 menuNavigateButtonPressed()
+            }
+            if node.name == "cardSprite" {
+                cardSpriteTouched()
             }
         }
     }
@@ -492,13 +504,22 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     }
     
     func canScroll(_ gameOptional: Game?) -> Bool {
+        if isDisplayingMessage {
+            return false
+        }
         guard let game = gameOptional else {
             return false
         }
-        if game.status != .notStarted {
-            return true
+        if game.history?.count == 0 {
+            return false
         }
-        return false
+        if historyBets.count == 0 {
+            return false
+        }
+        if game.status == .notStarted {
+            return false
+        }
+        return true
     }
     
     func startGameButtonPressed() {
@@ -631,6 +652,25 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         pauseGameUpdateTimer()
         clearActionPickerView()
     }
+
+    func cardSpriteTouched() {
+        orderCardsByColour = !orderCardsByColour
+        if currentlyOrderedCardsByColour != orderCardsByColour {
+            updateCardPositions()
+        }
+    }
+    
+    func checkCardsMoving() -> Bool {
+        guard let sprites = playerCardSprites else {
+            return false
+        }
+        for sprite in sprites {
+            if nodeIsMoving(sprite) {
+                return true
+            }
+        }
+        return false
+    }
     
     func moveToStartScene() {
         if let startScene = StartScene(fileNamed: "StartScene") {
@@ -751,8 +791,7 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
         }
         betScrollNode.position.y -= getCardSize().height
         let newPosition = getBetScrollNodePosition()
-        let scrollAction = SKAction.move(to: newPosition, duration: TimeInterval(0.5))
-        betScrollNode.run(scrollAction)
+        moveNode(betScrollNode, to: newPosition)
         for sprites in historyBets {
             for sprite in sprites {
                 sprite.alpha = 0
@@ -800,30 +839,59 @@ class GameScene: SKScene, GameManagerDelegate, UIPickerViewDelegate, UIPickerVie
     
     func updateCards() {
         // Update playerCardSprites (and in emergency, cardLabels)
-        if let game = self.game, let player = player {
-
-            clearCardAndBetLabelsAtRoundStart()
-
-            if let playerCardSprites = playerCardSprites {
-                resetCardSprites(playerCardSprites)
-            }
-            if game.status != .notStarted {
-                // If game was started
-                if let hand = game.hands?.first(where:{$0.nickname == player.nickname })?.hand, let playerCardSprites = playerCardSprites {
-                    if !playerLost && game.status != .finished {
-                        for (cardIndex, card) in hand.enumerated() {
-                            if let image = getCardImage(card) {
-                                playerCardSprites[cardIndex].texture = image
-                            }
-                            else {
-                                let cardLabel = getCardLabel(card)
-                                cardLabel.position = getPlayerCardPosition(cardIndex)
-                                addChild(cardLabel)
-                                cardLabels?.append(cardLabel)
-                            }
-                        }
-                    }
-                }
+        clearCardAndBetLabelsAtRoundStart()
+        guard let game = self.game else {
+            return
+        }
+        guard let player = player else {
+            return
+        }
+        guard let playerCardSprites = playerCardSprites else {
+            return
+        }
+        guard let hand = game.hands?.first(where:{$0.nickname == player.nickname })?.hand else {
+            resetCardSprites(playerCardSprites)
+            return
+        }
+        if game.status == .notStarted {
+            return
+        }
+        
+        if hand != self.hand {
+            // The cards changed (new round)
+            updateCardImages()
+            currentlyOrderedCardsByColour = false
+            orderCardsByColour = false
+            updateCardPositions()
+        }
+    }
+    
+    func updateCardImages() {
+        guard let game = game, let player = player, let hand = game.hands?.first(where:{$0.nickname == player.nickname })?.hand, let playerCardSprites = playerCardSprites else {
+            return
+        }
+        for (cardIndex, card) in hand.enumerated() {
+            guard let image = getCardImage(card) else { continue }
+            if playerCardSprites.count <= cardIndex { continue }
+            playerCardSprites[cardIndex].texture = image
+        }
+        self.hand = hand
+    }
+    
+    func updateCardPositions() {
+        guard let game = game, let player = player, let hand = game.hands?.first(where:{$0.nickname == player.nickname })?.hand, let playerCardSprites = playerCardSprites else {
+            return
+        }
+        let orderedHand = orderHand(hand, orderByColour: orderCardsByColour)
+        currentlyOrderedCardsByColour = orderCardsByColour
+        for (cardIndex, card) in hand.enumerated() {
+            if playerCardSprites.count <= cardIndex { continue }
+            let cardSprite = playerCardSprites[cardIndex]
+            guard let newCardIndex = orderedHand.firstIndex(of: card) else { continue }
+            let newPosition = getPlayerCardPosition(newCardIndex)
+            if cardSprite.position != newPosition {
+                moveNode(cardSprite, to: newPosition)
+                shufflingCards = true
             }
         }
     }

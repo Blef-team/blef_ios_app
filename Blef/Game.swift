@@ -129,12 +129,18 @@ struct NamedHand {
     }
 }
 
-struct Card {
-    enum Value: Int {
+struct Card: Equatable {
+    enum Value: Int, Comparable {
         case nine, ten, jack, queen, king, ace
+        static func < (lhs: Value, rhs: Value) -> Bool {
+            return lhs.rawValue < rhs.rawValue
+        }
     }
-    enum Colour: Int {
+    enum Colour: Int, Comparable {
         case clubs, diamonds, hearts, spades
+        static func < (lhs: Colour, rhs: Colour) -> Bool {
+            return lhs.rawValue < rhs.rawValue
+        }
     }
     let value: Value
     let colour: Colour
